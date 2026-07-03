@@ -1,0 +1,65 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background-color: #0a0d06;
+  background-image: radial-gradient(900px 520px at 50% -12%, rgba(198, 244, 50, 0.13), transparent 60%),
+    linear-gradient(180deg, #12160b 0%, #0a0d06 100%);
+  background-attachment: fixed;
+  color: #f1f4e8;
+  font-family: "DM Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes popIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+.fu {
+  animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pop {
+  animation: popIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.slideup {
+  animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
