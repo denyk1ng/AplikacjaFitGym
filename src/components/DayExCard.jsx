@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronDown, Timer, Dumbbell, Grip, ArrowUpFromLine, BicepsFlexed, Footprints, Activity, BookOpen, Info, Check, RotateCcw } from "lucide-react";
 import { T } from "../theme.js";
 import { formatRest } from "../lib/utils.js";
-import { EX_IMG } from "../data/exerciseImages.js";
+import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { SetCounter } from "./SetCounter.jsx";
 import { RestDisplay } from "./RestDisplay.jsx";
@@ -59,8 +59,8 @@ export function DayExCard({ ex, idx, onUpdate }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-          {EX_IMG[ex.id] ? (
-            <img src={EX_IMG[ex.id]} alt="" style={{ width: 44, height: 44, borderRadius: 13, objectFit: "cover", objectPosition: "center 30%", flexShrink: 0, marginTop: 1, background: "#fff" }} />
+          {EX_THUMB[ex.id] ? (
+            <img src={EX_THUMB[ex.id]} alt="" style={{ width: 44, height: 44, borderRadius: 13, objectFit: "cover", flexShrink: 0, marginTop: 1 }} />
           ) : (
             <div
               style={{

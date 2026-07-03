@@ -4,7 +4,7 @@ import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
-import { EX_IMG } from "../data/exerciseImages.js";
+import { EX_THUMB } from "../data/exerciseThumbs.js";
 
 const U = "'Urbanist',sans-serif";
 
@@ -133,7 +133,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
               cursor: onExercise ? "pointer" : "default",
             }}
           >
-            <img src={EX_IMG[ex.id] || THUMB[ex.cat] || PHOTOS.hero} alt="" style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", objectPosition: "center 30%", flexShrink: 0, background: "#fff" }} />
+            <img src={EX_THUMB[ex.id] || THUMB[ex.cat] || PHOTOS.hero} alt="" style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", fontFamily: U, lineHeight: 1.25 }}>{ex.name}</div>
               <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".08em", color: T.sub, marginTop: 4, textTransform: "uppercase" }}>
