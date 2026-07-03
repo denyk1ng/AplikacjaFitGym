@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Flame, ChevronRight } from "lucide-react";
 import { T } from "./theme.js";
 import { EXERCISES_DATA } from "./data/plan.js";
 import { PHOTOS } from "./data/photos.js";
 import { storage } from "./lib/storage.js";
+import { isoWeekStart } from "./lib/utils.js";
+import { loadWorkoutLog, saveWorkoutLog } from "./lib/workoutLog.js";
 import { DashboardTab } from "./components/DashboardTab.jsx";
 import { StatsTab } from "./components/StatsTab.jsx";
 import { WarmupTab } from "./components/WarmupTab.jsx";
-import { DayExCard } from "./components/DayExCard.jsx";
 import { BottomNav } from "./components/BottomNav.jsx";
 import { OnboardingFlow } from "./components/OnboardingFlow.jsx";
 import { ProfileTab } from "./components/ProfileTab.jsx";
@@ -16,6 +16,7 @@ import { SplashScreen } from "./components/SplashScreen.jsx";
 import { LogoMark } from "./components/Logo.jsx";
 import { WorkoutDetail } from "./components/WorkoutDetail.jsx";
 import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
+import { LiveSession } from "./components/LiveSession.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -143,6 +144,15 @@ export default function App() {
     setTab("trening");
   };
 
+  // odhacza trening danego typu w bieżącym tygodniu (pn–nd)
+  const markWorkoutDone = async (type) => {
+    const log = await loadWorkoutLog();
+    const start = isoWeekStart(Date.now());
+    const rest = log.filter((e) => !(e.type === type && e.ts >= start));
+    rest.push({ ts: Date.now(), date: new Date().toLocaleDateString("sv-SE"), type });
+    saveWorkoutLog(rest);
+  };
+
   const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
 
   return (
@@ -150,7 +160,7 @@ export default function App() {
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 
-      {tab !== "dom" && tab !== "trening" && tab !== "cwiczenie" && (
+      {tab !== "dom" && tab !== "trening" && tab !== "cwiczenie" && tab !== "sesja" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
             <p style={{ display: "flex", alignItems: "center", gap: 5, color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
@@ -218,29 +228,21 @@ export default function App() {
           )}
 
           {tab === "sesja" && (
-            <>
-              <button
-                onClick={() => setTab("rozgrzewka")}
-                style={{ width: "100%", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "12px 14px", cursor: "pointer", fontFamily: "inherit", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, textAlign: "left" }}
-              >
-                <span style={{ width: 40, height: 40, borderRadius: 13, background: "rgba(255,107,53,0.13)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Flame size={19} color={T.orange} strokeWidth={2.2} />
-                </span>
-                <span style={{ flex: 1 }}>
-                  <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: "#fff" }}>Rozgrzewka</span>
-                  <span style={{ display: "block", fontSize: 11, color: T.sub, marginTop: 1 }}>baza + aktywacja · 8–10 min</span>
-                </span>
-                <ChevronRight size={18} color={T.faint} strokeWidth={2.2} />
-              </button>
-
-              <p style={{ fontSize: 11, color: T.faint, lineHeight: 1.5, margin: "0 2px 12px", textAlign: "center" }}>
-                Kliknij wartość, aby ją zmienić · nazwa ćwiczenia otwiera technikę i serie
-              </p>
-
-              {day.exercises.map((ex, idx) => (
-                <DayExCard key={ex.id} ex={ex} idx={idx} onUpdate={(updated) => updateEx(selectedDay, idx, updated)} />
-              ))}
-            </>
+            <LiveSession
+              dayKey={selectedDay}
+              data={day}
+              snapshots={snapshots}
+              onExit={() => setTab("trening")}
+              updateWeight={(id, v) => {
+                const idx = day.exercises.findIndex((e) => e.id === id);
+                if (idx >= 0) updateEx(selectedDay, idx, { ...day.exercises[idx], weight: v });
+              }}
+              onSaveAll={async () => {
+                await handleSave();
+                await markWorkoutDone(selectedDay);
+                setTab("dom");
+              }}
+            />
           )}
 
           {tab === "stats" && <StatsTab snapshots={snapshots} />}
@@ -250,7 +252,7 @@ export default function App() {
         </div>
       )}
 
-      {storageReady && !showOnboard && <BottomNav tab={tab} setTab={setTab} onSave={handleSave} saveAnim={saveAnim} />}
+      {storageReady && !showOnboard && tab !== "sesja" && <BottomNav tab={tab} setTab={setTab} onSave={handleSave} saveAnim={saveAnim} />}
     </div>
   );
 }
