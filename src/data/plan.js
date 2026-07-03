@@ -1,5 +1,16 @@
 import { T } from "../theme.js";
 
+// Piktogramy partii mięśniowych na kafelkach ćwiczeń
+export const CAT_ICONS = {
+  KLATKA: "🏋️",
+  PLECY: "🚣",
+  BARKI: "🙆",
+  BICEPS: "💪",
+  TRICEPS: "🦾",
+  NOGI: "🦵",
+  BRZUCH: "🔥",
+};
+
 // Prawdziwy plan treningowy — dane użytkownika (ciężary robocze, serie, powtórzenia, przerwy)
 export const EXERCISES_DATA = {
   A: {

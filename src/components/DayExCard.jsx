@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, Timer } from "lucide-react";
 import { T } from "../theme.js";
+import { CAT_ICONS } from "../data/plan.js";
 import { formatRest } from "../lib/utils.js";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { SetCounter } from "./SetCounter.jsx";
@@ -35,6 +36,23 @@ export function DayExCard({ ex, idx, onUpdate }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              flexShrink: 0,
+              background: `${ex.catColor}1c`,
+              border: `1px solid ${ex.catColor}38`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 21,
+              marginTop: 2,
+            }}
+          >
+            {CAT_ICONS[ex.cat] || "🏋️"}
+          </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.faint, marginBottom: 3 }}>
               {idx + 1} · {ex.cat}
