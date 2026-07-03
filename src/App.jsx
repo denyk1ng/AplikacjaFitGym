@@ -16,7 +16,7 @@ import { SplashScreen } from "./components/SplashScreen.jsx";
 import { LogoMark } from "./components/Logo.jsx";
 import { WorkoutDetail } from "./components/WorkoutDetail.jsx";
 import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
-import { LiveSession } from "./components/LiveSession.jsx";
+import { LiveSession, loadLiveState } from "./components/LiveSession.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -79,6 +79,12 @@ export default function App() {
       } catch (e) {}
       const onboarded = await storage.get("forma_onboarded");
       if (!onboarded) setShowOnboard(true);
+      // niedokończona sesja? wróć prosto do niej
+      const live = loadLiveState();
+      if (onboarded && live && live.dayKey && EXERCISES_DATA[live.dayKey]) {
+        setSelectedDay(live.dayKey);
+        setTab("sesja");
+      }
       setStorageReady(true);
     }
     load();
@@ -223,6 +229,15 @@ export default function App() {
                 }
                 return null;
               })()}
+              onChangeWeight={(v) => {
+                for (const [dk, d] of Object.entries(exercises)) {
+                  const i = d.exercises.findIndex((e) => e.id === exerciseId);
+                  if (i >= 0) {
+                    updateEx(dk, i, { ...d.exercises[i], weight: v });
+                    break;
+                  }
+                }
+              }}
               onBack={() => setTab("trening")}
             />
           )}

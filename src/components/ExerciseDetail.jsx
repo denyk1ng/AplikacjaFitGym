@@ -3,6 +3,7 @@ import { ArrowLeft, Play, Pause, Dumbbell, Gauge, Tag, TrendingUp } from "lucide
 import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
+import { EditNum } from "./Editable.jsx";
 
 const U = "'Urbanist',sans-serif";
 
@@ -31,7 +32,7 @@ function equipmentOf(name) {
 
 const CAT_LABEL = { KLATKA: "Klatka", PLECY: "Plecy", BARKI: "Barki", BICEPS: "Biceps", TRICEPS: "Triceps", NOGI: "Nogi", BRZUCH: "Brzuch" };
 
-export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onBack }) {
+export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeWeight, onBack }) {
   const [tab, setTab] = useState("howto");
   const [playing, setPlaying] = useState(true);
 
@@ -115,6 +116,18 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onBack })
               {l}
             </span>
           ))}
+        </div>
+
+        {/* CIĘŻAR ROBOCZY — edycja z auto-zapisem */}
+        <div className="fu" style={{ animationDelay: ".07s", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 16 }}>
+          <span style={{ width: 40, height: 40, borderRadius: 13, background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Dumbbell size={18} color={T.accent} strokeWidth={2.2} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Twój ciężar roboczy</div>
+            <div style={{ fontSize: 10.5, color: T.sub, marginTop: 2 }}>kliknij liczbę, aby zmienić · zapis automatyczny</div>
+          </div>
+          <EditNum value={currentWeight ?? ex.weight} unit={ex.unit || "kg"} onChange={onChangeWeight} />
         </div>
 
         {/* ZAKŁADKI */}

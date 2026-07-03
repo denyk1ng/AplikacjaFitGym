@@ -7,6 +7,30 @@ import { EditNum } from "./Editable.jsx";
 
 const U = "'Urbanist',sans-serif";
 
+// stan trwającej sesji trzymany w localStorage — wyjście z aplikacji
+// (odświeżenie, zamknięcie karty) nie kasuje postępu; wygasa po 6 h
+const LIVE_KEY = "live_session";
+const LIVE_MAX_AGE = 6 * 3600 * 1000;
+
+export function loadLiveState(dayKey) {
+  try {
+    const raw = localStorage.getItem(LIVE_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (dayKey && s.dayKey !== dayKey) return null;
+    if (Date.now() - (s.savedAt || 0) > LIVE_MAX_AGE) return null;
+    return s;
+  } catch (e) {
+    return null;
+  }
+}
+
+export function clearLiveState() {
+  try {
+    localStorage.removeItem(LIVE_KEY);
+  } catch (e) {}
+}
+
 const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const repsInt = (r) => parseInt(r) || 0;
 const fmtKg = (v) => (v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(Math.round(v)));
@@ -42,16 +66,31 @@ function TickGauge({ pct, color }) {
 
 export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, snapshots }) {
   const exs = data.exercises;
-  const [idx, setIdx] = useState(0);
-  const [setsDone, setSetsDone] = useState(() => exs.map(() => 0));
+  const [restored] = useState(() => loadLiveState(dayKey));
+  const [idx, setIdx] = useState(restored && restored.idx < exs.length ? restored.idx : 0);
+  const [setsDone, setSetsDone] = useState(() =>
+    restored && Array.isArray(restored.setsDone) && restored.setsDone.length === exs.length ? restored.setsDone : exs.map(() => 0)
+  );
   const [elapsed, setElapsed] = useState(0);
   const [rest, setRest] = useState(0);
-  const [stage, setStage] = useState("live"); // live | summary
+  const [stage, setStage] = useState(restored && restored.stage === "summary" ? "summary" : "live"); // live | summary
   const [confirmExit, setConfirmExit] = useState(false);
   const restEnd = useRef(null);
-  const startTs = useRef(Date.now());
+  const startTs = useRef(restored && restored.startTs ? restored.startTs : Date.now());
 
   const ex = exs[idx];
+
+  // każda zmiana postępu ląduje od razu w localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(LIVE_KEY, JSON.stringify({ dayKey, idx, setsDone, stage, startTs: startTs.current, savedAt: Date.now() }));
+    } catch (e) {}
+  }, [dayKey, idx, setsDone, stage]);
+
+  const exit = () => {
+    clearLiveState();
+    onExit();
+  };
 
   // zegar sesji
   useEffect(() => {
@@ -107,7 +146,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
     return (
       <div style={{ margin: "-20px -18px -140px", minHeight: "100vh", padding: "22px 18px 40px", display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button onClick={onExit} style={{ background: "transparent", border: "none", color: T.sub, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: U }}>
+          <button onClick={exit} style={{ background: "transparent", border: "none", color: T.sub, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: U }}>
             Pomiń zapis
           </button>
         </div>
@@ -164,7 +203,10 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         </div>
 
         <button
-          onClick={() => onSaveAll({ time: elapsed, sets: totalSetsDone, volume })}
+          onClick={() => {
+            clearLiveState();
+            onSaveAll({ time: elapsed, sets: totalSetsDone, volume });
+          }}
           className="fu"
           style={{ animationDelay: ".45s", marginTop: 22, width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: T.accentGlow }}
         >
@@ -295,7 +337,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
             </div>
             <div style={{ fontFamily: U, fontWeight: 700, fontSize: "1.2rem", color: "#fff", marginTop: 12 }}>Przerwać sesję?</div>
             <div style={{ fontSize: 12, color: T.sub, marginTop: 5 }}>Postęp tej sesji nie zostanie zapisany.</div>
-            <button onClick={onExit} style={{ width: "100%", marginTop: 20, background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "15px 20px", cursor: "pointer" }}>
+            <button onClick={exit} style={{ width: "100%", marginTop: 20, background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "15px 20px", cursor: "pointer" }}>
               Przerwij
             </button>
             <button onClick={() => setConfirmExit(false)} style={{ width: "100%", marginTop: 10, background: T.inset, color: T.light, border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "14px 20px", cursor: "pointer" }}>
