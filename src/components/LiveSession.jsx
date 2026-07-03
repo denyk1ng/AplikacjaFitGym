@@ -123,11 +123,26 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
     }
   };
 
+  // kolejne NIEDOKOŃCZONE ćwiczenie (z zawinięciem) — pominięte przez
+  // zajętą maszynę wracają do kolejki; podsumowanie dopiero gdy komplet
   const nextExercise = () => {
     setRest(0);
-    if (idx < exs.length - 1) setIdx(idx + 1);
-    else setStage("summary");
+    for (let step = 1; step <= exs.length; step++) {
+      const j = (idx + step) % exs.length;
+      if (setsDone[j] < exs[j].sets) {
+        setIdx(j);
+        return;
+      }
+    }
+    setStage("summary");
   };
+
+  const jumpTo = (i) => {
+    setRest(0);
+    setIdx(i);
+  };
+
+  const hasOtherUnfinished = exs.some((e, i) => i !== idx && setsDone[i] < e.sets);
 
   // rekordy: aktualny ciężar > poprzednie maksimum z zapisów
   const records = useMemo(() => {
@@ -276,6 +291,44 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         ))}
       </div>
 
+      {/* przełącznik ćwiczeń — zajęta maszyna? przeskocz i wróć później */}
+      <div className="hscroll" style={{ marginTop: 14, paddingTop: 2, paddingBottom: 2 }}>
+        {exs.map((e, i) => {
+          const done = setsDone[i] >= e.sets;
+          const cur = i === idx;
+          const started = !done && setsDone[i] > 0;
+          return (
+            <button
+              key={e.id}
+              onClick={() => jumpTo(i)}
+              title={e.name.split("—")[0].trim()}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+                flexShrink: 0,
+                border: `1.5px solid ${cur ? T.accent : done ? "rgba(52,211,153,0.4)" : started ? T.accentSoftBorder : T.border}`,
+                background: cur ? T.accent : done ? "rgba(52,211,153,0.12)" : T.card,
+                color: cur ? "#000" : done ? T.ok : started ? T.accent : T.sub,
+                fontFamily: FONT_NUM,
+                fontWeight: 800,
+                fontSize: 14,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                transition: "all .2s",
+              }}
+            >
+              {done ? <Check size={15} strokeWidth={3} /> : i + 1}
+            </button>
+          );
+        })}
+      </div>
+      <p style={{ fontSize: 9.5, color: T.faint, textAlign: "center", margin: "7px 0 0" }}>
+        maszyna zajęta? stuknij numer, aby przeskoczyć — wrócisz później
+      </p>
+
       {/* bieżące ćwiczenie: duża karta ze zdjęciem, serią i ciężarem */}
       <div key={ex.id} className="fu" style={{ position: "relative", flex: 1, minHeight: 210, borderRadius: 24, overflow: "hidden", marginTop: 14, border: `1px solid ${T.borderSoft}` }}>
         <img src={EX_THUMB[ex.id]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
@@ -323,7 +376,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         onClick={nextExercise}
         style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, boxShadow: T.accentGlow }}
       >
-        {idx < exs.length - 1 ? "Następne ćwiczenie" : "Zakończ trening"}
+        {hasOtherUnfinished ? "Następne ćwiczenie" : "Zakończ trening"}
         <ChevronRight size={17} strokeWidth={2.6} />
       </button>
 
