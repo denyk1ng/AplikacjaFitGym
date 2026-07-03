@@ -198,6 +198,54 @@ liczba dni — na razie informacyjnie (nasz plan to 3 dni siłowe + 2 cardio).
   aktualna wyróżniona pomarańczem) — dane z zapisów ciężarów
 - Wejście: tap w wiersz ćwiczenia na ekranie szczegółów treningu
 
+### ⭐ Live Session (aktywna sesja treningowa — tryb "w trakcie ćwiczenia")
+- Nagłówek: X (wyjście) · nazwa ćwiczenia + tagi ("Bench press / Chest Barbell") ·
+  pomarańczowy link "Finish" po prawej
+- **Karta Rest timer**: półkolisty zegar z kresek (jak gauge), odliczanie fontem
+  **Doto** (np. "65"), podpis "Auto between sets", link "Skip" — nasz timer przerwy
+  do przeprojektowania na ten wzorzec
+- Czas sesji na środku ("12.45 / Day 1 Upper body")
+- 3 kafelki statystyk sesji na żywo (Doto): czas / serie / objętość kg (np. 1.2k)
+- Dolne przyciski: ciemny pill "**+ Add set**" + pomarańczowy "**Next exercise**"
+- Mapowanie: nowy pełnoekranowy tryb sesji — prowadzenie przez ćwiczenia po kolei,
+  automatyczna przerwa między seriami, licznik czasu sesji i objętości na żywo
+
+### ⭐ Session Summary (podsumowanie po treningu)
+- Pomarańczowe kółko z trofeum, "Workout complete!", podtytuł
+- 3 kafelki (Doto): czas / serie / kg łącznie
+- **Badge "New record — Bench press"** gdy padł rekord ciężaru
+- Lista EXERCISES: nazwa + "3 sets · 40 kg" per ćwiczenie
+- Toggle udostępnienia (na później — Community), pomarańczowy CTA "Save"
+- Mapowanie: po "Finish" w sesji → podsumowanie → zapis = nasz snapshot ciężarów
+  + oznaczenie treningu w kalendarzu tygodnia (automatyzacja odhaczania!)
+
+### Progress (rozbudowane statystyki)
+- Karta "Your Streak": rząd dni S–N w kółkach (zrobione białe, dziś pomarańczowe),
+  data po prawej, link "View Calendar" → nasz Kalendarz
+- "Current status": duży ring **Volume 54% of goal** (Doto, "802/1546 kcal"),
+  kafelki Sets **802** i Exercises **54 min**
+- "Workout volume" — słupki tygodnia (S–N, kg lifted, dzisiejszy pomarańczowy)
+- Mapowanie: nasza zakładka Statystyki dostaje sekcję "bieżący status" z ringiem
+  celu tygodniowego i wykresem objętości (kg podniesione = suma serie×powt.×ciężar)
+
+### Settings (ustawienia)
+- Grupy: SECURITY (Account, Notifications) / PREFERENCES (Women's mode toggle,
+  Language, Units — kg) / OTHERS (Premium, Help & support)
+- Wiersze: ikona + nazwa + chevron/toggle/wartość po prawej; CTA "Log Out" na dole
+- Mapowanie: sekcja Ustawienia w Profilu — język, jednostki, reset danych,
+  eksport/backup (zamiast konta)
+
+### Notifications (powiadomienia)
+- Grupy toggli: przypomnienia o treningu / alerty o serii (streak) / przypomnienia
+  o dniu wolnym / (community — później) / porady
+- Mapowanie: przełączniki lokalne; realne push-e wymagają PWA + zgody — etap PWA
+
+### Log out / arkusz potwierdzenia (bottom sheet)
+- Wzorzec potwierdzeń akcji: zaokrąglony arkusz od dołu na tle przyciemnionego zdjęcia,
+  okrągła ikona (czerwona przy akcjach destrukcyjnych), pytanie ("Log out?"),
+  szary podtytuł, pomarańczowy CTA + ciemny "Cancel"
+- Mapowanie: użyjemy przy resecie danych, cofaniu treningu, wyjściu z sesji live
+
 ### Create account (logowanie)
 - Telefon + kod SMS, opcje Google/Apple, "Welcome back" na zdjęciu
 - Wymaga backendu — na później; w wersji lokalnej zastępujemy onboardingiem
