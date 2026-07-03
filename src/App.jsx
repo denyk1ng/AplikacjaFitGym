@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Flame } from "lucide-react";
+import { Flame, User } from "lucide-react";
 import { T } from "./theme.js";
 import { EXERCISES_DATA } from "./data/plan.js";
 import { storage } from "./lib/storage.js";
@@ -9,6 +9,7 @@ import { WarmupTab } from "./components/WarmupTab.jsx";
 import { DayExCard } from "./components/DayExCard.jsx";
 import { BottomNav } from "./components/BottomNav.jsx";
 import { Onboarding } from "./components/Onboarding.jsx";
+import { ProfileTab } from "./components/ProfileTab.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -123,7 +124,7 @@ export default function App() {
     setTab("trening");
   };
 
-  const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka" };
+  const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil" };
 
   return (
     <div style={{ color: T.text, minHeight: "100vh", padding: "20px 16px 140px", maxWidth: 680, margin: "0 auto" }}>
@@ -136,10 +137,29 @@ export default function App() {
           </h1>
           <p style={{ color: T.sub, fontSize: 12.5 }}>{titles[tab]}</p>
         </div>
-        <span style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, fontSize: 11, fontWeight: 800, padding: "6px 12px", borderRadius: 99, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <Flame size={13} strokeWidth={2.5} />
-          REKOMP
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <span style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, fontSize: 11, fontWeight: 800, padding: "6px 12px", borderRadius: 99, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <Flame size={13} strokeWidth={2.5} />
+            REKOMP
+          </span>
+          <button
+            onClick={() => setTab("profil")}
+            title="Profil"
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: "50%",
+              background: tab === "profil" ? T.accent : T.accentSoftBg,
+              border: `1px solid ${T.accentSoftBorder}`,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <User size={18} color={tab === "profil" ? "#000" : T.accent} strokeWidth={2.4} />
+          </button>
+        </div>
       </div>
 
       {!storageReady && <div style={{ textAlign: "center", padding: "48px", color: T.faint, fontSize: 13 }}>Ładowanie...</div>}
@@ -196,6 +216,7 @@ export default function App() {
 
           {tab === "stats" && <StatsTab snapshots={snapshots} />}
           {tab === "rozgrzewka" && <WarmupTab />}
+          {tab === "profil" && <ProfileTab />}
         </div>
       )}
 
