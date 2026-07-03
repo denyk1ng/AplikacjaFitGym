@@ -1,11 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Plus, Trash2, User } from "lucide-react";
+import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings } from "lucide-react";
 import { T } from "../theme.js";
 import { storage } from "../lib/storage.js";
+import { loadSettings, saveSettings } from "../lib/settings.js";
 import { EditNum } from "./Editable.jsx";
+import { ConfirmSheet } from "./ConfirmSheet.jsx";
+import { LogoMark } from "./Logo.jsx";
 
 const DEFAULT_PROFILE = { name: "", height: 180, goalWeight: 0 };
+
+// przełącznik w stylu iOS, w kolorach systemu
+function Toggle({ on, onChange }) {
+  return (
+    <button
+      onClick={() => onChange(!on)}
+      role="switch"
+      aria-checked={on}
+      style={{ width: 44, height: 26, borderRadius: 99, background: on ? T.accent : T.track, border: "none", position: "relative", cursor: "pointer", transition: "background .25s", padding: 0, flexShrink: 0 }}
+    >
+      <span style={{ position: "absolute", top: 3, left: on ? 21 : 3, width: 20, height: 20, borderRadius: "50%", background: on ? "#000" : "#8b8b90", transition: "left .25s" }} />
+    </button>
+  );
+}
 
 // Półkolisty, segmentowany wskaźnik (jak "Goal Progress" z referencji)
 function Gauge({ pct, children }) {
@@ -49,7 +66,31 @@ export function ProfileTab() {
   const [log, setLog] = useState([]);
   const [ready, setReady] = useState(false);
   const [input, setInput] = useState("");
+  const [settings, setSettings] = useState(loadSettings);
+  const [confirm, setConfirm] = useState(null); // null | "wipe" | "reset"
   const inputRef = useRef(null);
+
+  const setOpt = (k, v) => {
+    const s = { ...settings, [k]: v };
+    setSettings(s);
+    saveSettings(s);
+  };
+
+  const wipeHistory = () => {
+    try {
+      localStorage.removeItem("workout_log");
+      localStorage.removeItem("progress_snapshots");
+      localStorage.removeItem("live_session");
+    } catch (e) {}
+    location.reload();
+  };
+
+  const resetApp = () => {
+    try {
+      localStorage.clear();
+    } catch (e) {}
+    location.reload();
+  };
 
   useEffect(() => {
     async function load() {
@@ -288,6 +329,89 @@ export function ProfileTab() {
           zobaczysz tu wykres i trend.
         </div>
       )}
+
+      {/* USTAWIENIA */}
+      <div className="fu" style={{ animationDelay: ".28s", display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft, margin: "22px 0 10px" }}>
+        <Settings size={13} color={T.accent} strokeWidth={2.4} />
+        Ustawienia
+      </div>
+
+      <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 12 }}>
+        {[
+          { k: "sound", Icon: Volume2, t: "Dźwięk końca przerwy", d: "sygnał po odliczeniu przerwy w sesji" },
+          { k: "vibrate", Icon: Vibrate, t: "Wibracje", d: "wibracja razem z sygnałem (telefon)" },
+          { k: "remindPlan", Icon: CalendarClock, t: "Plan dnia na głównym", d: "karta „dziś na planie” z podpowiedzią treningu" },
+          { k: "overdueAlert", Icon: BellRing, t: "Alerty zaległych treningów", d: "dzwonek i ostrzeżenia w kalendarzu" },
+        ].map((row, i, arr) => (
+          <div key={row.k} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderBottom: i < arr.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
+            <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <row.Icon size={17} color={settings[row.k] ? T.accent : T.soft} strokeWidth={2.2} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>{row.t}</div>
+              <div style={{ fontSize: 10.5, color: T.sub, marginTop: 2 }}>{row.d}</div>
+            </div>
+            <Toggle on={!!settings[row.k]} onChange={(v) => setOpt(row.k, v)} />
+          </div>
+        ))}
+      </div>
+
+      {/* DANE */}
+      <div className="fu" style={{ animationDelay: ".32s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 14 }}>
+        <button
+          onClick={() => setConfirm("wipe")}
+          style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: "transparent", border: "none", borderBottom: `1px solid ${T.borderSoft}`, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+        >
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Eraser size={17} color={T.orange} strokeWidth={2.2} />
+          </span>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Wyczyść historię treningów</span>
+            <span style={{ display: "block", fontSize: 10.5, color: T.sub, marginTop: 2 }}>kalendarz, zapisy ciężarów i statystyki — plan zostaje</span>
+          </span>
+        </button>
+        <button
+          onClick={() => setConfirm("reset")}
+          style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+        >
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(244,63,94,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <RotateCcw size={17} color={T.danger} strokeWidth={2.2} />
+          </span>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: T.danger, fontFamily: "'Urbanist',sans-serif" }}>Zresetuj aplikację</span>
+            <span style={{ display: "block", fontSize: 10.5, color: T.sub, marginTop: 2 }}>usuwa wszystko i uruchamia konfigurację od nowa</span>
+          </span>
+        </button>
+      </div>
+
+      {/* STOPKA */}
+      <div className="fu" style={{ animationDelay: ".34s", textAlign: "center", padding: "4px 0 8px" }}>
+        <LogoMark size={18} />
+        <div style={{ fontSize: 10, color: T.faint, marginTop: 6, letterSpacing: ".08em" }}>
+          FORMA v1.0 · dane trzymane lokalnie na tym urządzeniu
+        </div>
+      </div>
+
+      <ConfirmSheet
+        open={confirm === "wipe"}
+        onClose={() => setConfirm(null)}
+        icon={Eraser}
+        title="Wyczyścić historię?"
+        desc="Usunie kalendarz treningów, zapisy ciężarów i statystyki. Twój plan i profil zostają. Tej operacji nie można cofnąć."
+        confirmLabel="Wyczyść historię"
+        onConfirm={wipeHistory}
+        cancelLabel="Wróć"
+      />
+      <ConfirmSheet
+        open={confirm === "reset"}
+        onClose={() => setConfirm(null)}
+        icon={RotateCcw}
+        title="Zresetować aplikację?"
+        desc="Usunie wszystkie dane: plan, historię, profil i ustawienia. Aplikacja wystartuje od ekranu powitalnego."
+        confirmLabel="Zresetuj wszystko"
+        onConfirm={resetApp}
+        cancelLabel="Wróć"
+      />
     </div>
   );
 }

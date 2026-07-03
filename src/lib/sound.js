@@ -1,4 +1,6 @@
 // Krótki sygnał dźwiękowy przez Web Audio (bez plików audio).
+import { loadSettings } from "./settings.js";
+
 let ctx = null;
 
 function getCtx() {
@@ -8,7 +10,9 @@ function getCtx() {
 }
 
 export function playBeep(times = 3) {
+  const settings = loadSettings();
   try {
+    if (!settings.sound) throw new Error("sound off");
     const ac = getCtx();
     const now = ac.currentTime;
     for (let i = 0; i < times; i++) {
@@ -24,8 +28,10 @@ export function playBeep(times = 3) {
       osc.start(t);
       osc.stop(t + 0.28);
     }
-    if (navigator.vibrate) navigator.vibrate([180, 90, 180]);
   } catch (e) {
-    // brak wsparcia audio — ignorujemy
+    // dźwięk wyłączony lub brak wsparcia audio — ignorujemy
   }
+  try {
+    if (settings.vibrate && navigator.vibrate) navigator.vibrate([180, 90, 180]);
+  } catch (e) {}
 }

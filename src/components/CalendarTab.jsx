@@ -4,6 +4,7 @@ import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, saveWorkoutLog, weekStatus, weekEntries, weekHistory, PLAN_DOW, DOW_NAMES, dayIndex } from "../lib/workoutLog.js";
+import { loadSettings } from "../lib/settings.js";
 
 const H = "'Urbanist',sans-serif";
 const TYPE_ICON = { A: Dumbbell, B: Footprints, C: BicepsFlexed };
@@ -41,7 +42,7 @@ export function CalendarTab({ goTraining }) {
 
   const st = weekStatus(log);
   const doneCount = ["A", "B", "C"].filter((k) => st[k].done).length;
-  const overdueList = ["A", "B", "C"].filter((k) => st[k].overdue);
+  const overdueList = loadSettings().overdueAlert ? ["A", "B", "C"].filter((k) => st[k].overdue) : [];
   const entries = weekEntries(log);
   const history = weekHistory(log, 4);
 

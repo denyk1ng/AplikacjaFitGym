@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Bell, Footprints, Moon, HeartPulse, Play, Flame, Dumbbell, BicepsFlexed, Check } from "lucide-react";
+import { createPortal } from "react-dom";
+import { Bell, BellRing, Footprints, Moon, HeartPulse, Play, Flame, Dumbbell, BicepsFlexed, Check, Medal, X, ChevronRight } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { computeStreak, computeTotalGain, isoWeekStart } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, suggestToday } from "../lib/workoutLog.js";
+import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES } from "../lib/workoutLog.js";
+import { loadSettings } from "../lib/settings.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
 
@@ -36,12 +38,60 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
   // dziennik treningów — podpowiedź dnia + postęp tygodnia
   const [log, setLog] = useState([]);
+  const [showNotif, setShowNotif] = useState(false);
   useEffect(() => {
     loadWorkoutLog().then(setLog);
   }, []);
+  const settings = loadSettings();
   const st = weekStatus(log);
   const doneCount = ["A", "B", "C"].filter((k) => st[k].done).length;
   const suggestion = suggestToday(log);
+
+  // powiadomienia generowane ze stanu (lokalne, bez backendu)
+  const notifs = [];
+  if (settings.overdueAlert)
+    ["A", "B", "C"].forEach((k) => {
+      if (st[k].overdue)
+        notifs.push({
+          Icon: BellRing,
+          warn: true,
+          t: `Zaległy ${EXERCISES_DATA[k].label}`,
+          d: `planowo ${DOW_NAMES[PLAN_DOW[k]]} — nadrób do niedzieli`,
+          go: () => goTraining(k),
+        });
+    });
+  if (settings.remindPlan && suggestion && !suggestion.overdue)
+    notifs.push({
+      Icon: Dumbbell,
+      t: `Dziś na planie: ${EXERCISES_DATA[suggestion.type].label}`,
+      d: `${exercises[suggestion.type].exercises.length} ćwiczeń · ~60 min`,
+      go: () => goTraining(suggestion.type),
+    });
+  if (snapshots.length >= 2) {
+    const lastS = snapshots[snapshots.length - 1];
+    const prevMax = {};
+    snapshots.slice(0, -1).forEach((s) =>
+      Object.entries(s.weights || {}).forEach(([id, w]) => {
+        prevMax[id] = Math.max(prevMax[id] ?? -Infinity, w);
+      })
+    );
+    const recs = Object.entries(lastS.weights || {}).filter(([id, w]) => prevMax[id] !== undefined && w > prevMax[id]);
+    if (recs.length > 0)
+      notifs.push({
+        Icon: Medal,
+        t: recs.length === 1 ? "Nowy rekord ciężaru" : `Nowe rekordy: ${recs.length}`,
+        d: "ostatni zapis pobił wcześniejsze maksima — zobacz statystyki",
+        go: () => goTo("stats"),
+      });
+  }
+  if (doneCount === 3)
+    notifs.push({
+      Icon: Check,
+      t: "Komplet tygodnia!",
+      d: "A, B i C zaliczone — cardio i regeneracja",
+      go: () => goTo("kalendarz"),
+    });
+  const hasAlert = notifs.some((n) => n.warn);
 
   const WEEK = 7 * 24 * 3600 * 1000;
   const weekBars = [3, 2, 1, 0].map((off) => {
@@ -55,8 +105,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   // karta hero: dzisiejszy plan → zaległości → cardio/regeneracja/komplet
   const hero = suggestion
     ? {
-        chip: suggestion.overdue ? "ZALEGŁY TRENING" : "DZIŚ NA PLANIE",
-        chipStyle: suggestion.overdue ? { background: T.orange, color: "#000" } : { background: "rgba(0,0,0,0.14)", color: "#000" },
+        chip: suggestion.overdue && settings.overdueAlert ? "ZALEGŁY TRENING" : "DZIŚ NA PLANIE",
+        chipStyle: suggestion.overdue && settings.overdueAlert ? { background: T.orange, color: "#000" } : { background: "rgba(0,0,0,0.14)", color: "#000" },
         title: EXERCISES_DATA[suggestion.type].label,
         sub: suggestion.overdue
           ? `Nadrób do niedzieli — ${exercises[suggestion.type].exercises.length} ćwiczeń`
@@ -91,9 +141,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           </div>
           <div style={{ fontSize: 11.5, color: T.sub, marginTop: 2 }}>{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</div>
         </div>
-        <button onClick={() => goTo("kalendarz")} title="Kalendarz" style={{ position: "relative", width: 42, height: 42, borderRadius: "50%", background: T.card, border: `1px solid ${T.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <button onClick={() => setShowNotif(true)} title="Powiadomienia" style={{ position: "relative", width: 42, height: 42, borderRadius: "50%", background: T.card, border: `1px solid ${T.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <Bell size={18} color="#fff" strokeWidth={2} />
-          {suggestion?.overdue && (
+          {hasAlert && (
             <span style={{ position: "absolute", top: 9, right: 10, width: 7, height: 7, borderRadius: "50%", background: T.orange, border: `1.5px solid ${T.card}` }} />
           )}
         </button>
@@ -219,6 +269,56 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           </div>
         ))}
       </div>
+
+      {/* PANEL POWIADOMIEŃ */}
+      {showNotif &&
+        createPortal(
+          <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
+            <div onClick={() => setShowNotif(false)} style={{ position: "absolute", inset: 0, background: "rgba(6,9,16,0.7)", backdropFilter: "blur(3px)" }} />
+            <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxWidth: 680, margin: "0 auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px 30px", maxHeight: "72vh", overflowY: "auto" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <span style={{ fontFamily: H, fontWeight: 700, fontSize: "1.15rem", color: "#fff" }}>Powiadomienia</span>
+                <button onClick={() => setShowNotif(false)} aria-label="Zamknij" style={{ width: 34, height: 34, borderRadius: 11, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <X size={16} strokeWidth={2.4} />
+                </button>
+              </div>
+              {notifs.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "26px 10px 18px" }}>
+                  <span style={{ width: 52, height: 52, borderRadius: "50%", background: T.inset, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                    <Bell size={21} color={T.soft} strokeWidth={2} />
+                  </span>
+                  <div style={{ fontSize: 13, color: T.sub, marginTop: 12, lineHeight: 1.6 }}>
+                    Wszystko ogarnięte — brak powiadomień.
+                  </div>
+                </div>
+              ) : (
+                notifs.map((n, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setShowNotif(false);
+                      n.go && n.go();
+                    }}
+                    style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", background: "transparent", border: "none", borderBottom: i < notifs.length - 1 ? `1px solid ${T.borderSoft}` : "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+                  >
+                    <span style={{ width: 40, height: 40, borderRadius: 13, background: n.warn ? "rgba(255,107,53,0.13)" : T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <n.Icon size={17} color={n.warn ? T.orange : T.accent} strokeWidth={2.2} />
+                    </span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H }}>{n.t}</span>
+                      <span style={{ display: "block", fontSize: 11, color: T.sub, marginTop: 2 }}>{n.d}</span>
+                    </span>
+                    <ChevronRight size={15} color={T.faint} strokeWidth={2.2} />
+                  </button>
+                ))
+              )}
+              <p style={{ fontSize: 10, color: T.faint, textAlign: "center", margin: "14px 0 0" }}>
+                Rodzaje powiadomień włączasz w Profilu → Ustawienia.
+              </p>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
