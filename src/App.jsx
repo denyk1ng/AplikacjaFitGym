@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Flame, User } from "lucide-react";
+import { Flame, ChevronRight } from "lucide-react";
 import { T } from "./theme.js";
 import { EXERCISES_DATA } from "./data/plan.js";
 import { PHOTOS } from "./data/photos.js";
@@ -144,36 +144,32 @@ export default function App() {
       {showOnboard && <Onboarding onDone={dismissOnboard} />}
 
       {tab !== "dom" && (
-        <div style={{ marginBottom: 18, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
-            <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "1.55rem", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 2 }}>
+            <p style={{ color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 4 }}>
               FOR<span style={{ color: T.accent }}>MA</span>
+            </p>
+            <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "1.6rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1, color: "#fff" }}>
+              {titles[tab]}
             </h1>
-            <p style={{ color: T.sub, fontSize: 12.5 }}>{titles[tab]}</p>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            <span style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, fontSize: 11, fontWeight: 800, padding: "6px 12px", borderRadius: 99, display: "inline-flex", alignItems: "center", gap: 5 }}>
-              <Flame size={13} strokeWidth={2.5} />
-              REKOMP
-            </span>
-            <button
-              onClick={() => setTab("profil")}
-              title="Profil"
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: "50%",
-                background: tab === "profil" ? T.accent : T.accentSoftBg,
-                border: `1px solid ${T.accentSoftBorder}`,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <User size={18} color={tab === "profil" ? "#000" : T.accent} strokeWidth={2.4} />
-            </button>
-          </div>
+          <button
+            onClick={() => setTab("profil")}
+            title="Profil"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              padding: 0,
+              overflow: "hidden",
+              background: T.card,
+              border: `1.5px solid ${tab === "profil" ? T.accent : T.border}`,
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+          >
+            <img src={PHOTOS.hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </button>
         </div>
       )}
 
@@ -187,29 +183,37 @@ export default function App() {
             <>
               <button
                 onClick={() => setTab("rozgrzewka")}
-                style={{ width: "100%", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, borderRadius: 99, fontSize: 13, fontWeight: 800, padding: "11px 16px", cursor: "pointer", fontFamily: "inherit", marginBottom: 12 }}
+                style={{ width: "100%", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "12px 14px", cursor: "pointer", fontFamily: "inherit", marginBottom: 12, display: "flex", alignItems: "center", gap: 12, textAlign: "left" }}
               >
-                🔥 Rozgrzewka przed treningiem →
+                <span style={{ width: 40, height: 40, borderRadius: 13, background: "rgba(255,107,53,0.13)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Flame size={19} color={T.orange} strokeWidth={2.2} />
+                </span>
+                <span style={{ flex: 1 }}>
+                  <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: "#fff" }}>Rozgrzewka</span>
+                  <span style={{ display: "block", fontSize: 11, color: T.sub, marginTop: 1 }}>baza + aktywacja · 8–10 min</span>
+                </span>
+                <ChevronRight size={18} color={T.faint} strokeWidth={2.2} />
               </button>
-              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+
+              <div style={{ display: "flex", gap: 4, marginBottom: 14, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 4 }}>
                 {Object.entries(exercises).map(([key, d]) => (
                   <button
                     key={key}
                     onClick={() => setSelectedDay(key)}
                     style={{
                       flex: 1,
-                      background: selectedDay === key ? d.color : T.card,
+                      background: selectedDay === key ? T.accent : "transparent",
                       color: selectedDay === key ? "#000" : T.sub,
-                      border: `1px solid ${selectedDay === key ? d.color : T.border}`,
-                      borderRadius: 16,
-                      padding: "10px 6px",
+                      border: "none",
+                      borderRadius: 14,
+                      padding: "9px 6px",
                       cursor: "pointer",
                       fontFamily: "inherit",
-                      transition: "all 0.25s",
+                      transition: "all 0.2s",
                     }}
                   >
-                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.4rem" }}>{key}</div>
-                    <div style={{ fontSize: 10, marginTop: 2, opacity: 0.8 }}>{d.day}</div>
+                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1 }}>{key}</div>
+                    <div style={{ fontSize: 9.5, marginTop: 3, fontWeight: 600, opacity: selectedDay === key ? 0.65 : 0.9 }}>{d.day}</div>
                   </button>
                 ))}
               </div>
@@ -229,9 +233,9 @@ export default function App() {
                 </div>
               </div>
 
-              <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 14, padding: "8px 14px", marginBottom: 12, fontSize: 12, color: T.sub, lineHeight: 1.6 }}>
-                <span style={{ color: T.accent }}>limonkowa liczba</span> = edytuj · nazwa = szczegóły i technika · 💾 na dole = zapis + punkt progresu
-              </div>
+              <p style={{ fontSize: 11, color: T.faint, lineHeight: 1.5, margin: "0 2px 12px", textAlign: "center" }}>
+                Kliknij wartość, aby ją zmienić · nazwa ćwiczenia otwiera technikę i serie
+              </p>
 
               {day.exercises.map((ex, idx) => (
                 <DayExCard key={ex.id} ex={ex} idx={idx} onUpdate={(updated) => updateEx(selectedDay, idx, updated)} />

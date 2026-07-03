@@ -35,7 +35,7 @@ export function EditNum({ value, unit, onChange }) {
   }, [editing]);
   const commit = () => {
     setEditing(false);
-    const n = parseFloat(val);
+    const n = parseFloat(String(val).replace(",", "."));
     if (!isNaN(n) && n !== value) onChange(n);
     else setVal(String(value));
   };
@@ -58,7 +58,7 @@ export function EditNum({ value, unit, onChange }) {
     );
   return (
     <span onClick={() => setEditing(true)} title="Kliknij aby edytować" style={displayStyle}>
-      {value}
+      {String(value).replace(".", ",")}
       {unit ? ` ${unit}` : ""}
     </span>
   );

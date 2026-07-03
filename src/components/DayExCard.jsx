@@ -1,17 +1,39 @@
 import { useState } from "react";
-import { ChevronDown, Timer } from "lucide-react";
+import { ChevronDown, Timer, Dumbbell, Grip, ArrowUpFromLine, BicepsFlexed, Footprints, Activity, BookOpen, Info, Check, RotateCcw } from "lucide-react";
 import { T } from "../theme.js";
-import { CAT_ICONS } from "../data/plan.js";
 import { formatRest } from "../lib/utils.js";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { SetCounter } from "./SetCounter.jsx";
 import { RestDisplay } from "./RestDisplay.jsx";
+
+// ikona partii mięśniowej (lucide, spójnie z resztą aplikacji)
+const CAT_ICON = {
+  KLATKA: Dumbbell,
+  PLECY: Grip,
+  BARKI: ArrowUpFromLine,
+  BICEPS: BicepsFlexed,
+  TRICEPS: BicepsFlexed,
+  NOGI: Footprints,
+  BRZUCH: Activity,
+};
+
+const chip = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 5,
+  borderRadius: 11,
+  padding: "7px 12px",
+  fontSize: 13.5,
+  fontWeight: 600,
+};
 
 export function DayExCard({ ex, idx, onUpdate }) {
   const [expanded, setExpanded] = useState(false);
   const [doneCount, setDoneCount] = useState(0);
   const [timer, setTimer] = useState(false);
   const allDone = doneCount >= ex.sets;
+  const CatIcon = CAT_ICON[ex.cat] || Dumbbell;
+
   const handleSetDone = (i) => {
     if (i < doneCount) setDoneCount(i);
     else if (i === doneCount) {
@@ -20,110 +42,126 @@ export function DayExCard({ ex, idx, onUpdate }) {
       if (i + 1 < ex.sets) setTimer(true);
     }
   };
+
   return (
     <>
       <div
         className="fu"
         style={{
-          animationDelay: `${idx * 0.05}s`,
-          background: allDone ? "rgba(52,211,153,0.05)" : T.card,
-          border: `1px solid ${T.borderSoft}`,
-          borderLeft: `3px solid ${allDone ? T.ok : ex.catColor}`,
-          borderRadius: 18,
-          padding: "12px 14px",
-          marginBottom: 8,
+          animationDelay: `${idx * 0.04}s`,
+          background: allDone ? "rgba(52,211,153,0.06)" : T.card,
+          border: `1px solid ${allDone ? "rgba(52,211,153,0.25)" : T.borderSoft}`,
+          borderRadius: 20,
+          padding: "14px",
+          marginBottom: 10,
           transition: "all 0.25s",
         }}
       >
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 14,
+              width: 40,
+              height: 40,
+              borderRadius: 13,
               flexShrink: 0,
-              background: `${ex.catColor}1c`,
-              border: `1px solid ${ex.catColor}38`,
+              background: `${ex.catColor}16`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 21,
-              marginTop: 2,
+              marginTop: 1,
             }}
           >
-            {CAT_ICONS[ex.cat] || "🏋️"}
+            <CatIcon size={18} color={ex.catColor} strokeWidth={2.2} />
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.faint, marginBottom: 3 }}>
-              {idx + 1} · {ex.cat}
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.faint, marginBottom: 3 }}>
+              {ex.cat}
             </div>
-            <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8, lineHeight: 1.3, cursor: "pointer" }} onClick={() => setExpanded(!expanded)}>
+            <div
+              style={{ fontWeight: 600, fontSize: 14.5, marginBottom: 10, lineHeight: 1.3, cursor: "pointer", color: "#fff" }}
+              onClick={() => setExpanded(!expanded)}
+            >
               {ex.name}
-              <ChevronDown size={14} color={T.faint} strokeWidth={2.5} style={{ marginLeft: 5, verticalAlign: "-2px", transition: "transform .25s", transform: expanded ? "rotate(180deg)" : "none" }} />
+              <ChevronDown
+                size={14}
+                color={T.faint}
+                strokeWidth={2.5}
+                style={{ marginLeft: 5, verticalAlign: "-2px", transition: "transform .25s", transform: expanded ? "rotate(180deg)" : "none" }}
+              />
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-              <div style={{ background: T.inset, borderRadius: 10, padding: "7px 14px", fontSize: 15, color: T.light, display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center" }}>
+              <div style={{ ...chip, background: T.inset, color: T.light }}>
                 <EditNum value={ex.sets} unit="" onChange={(v) => onUpdate({ ...ex, sets: Math.round(v) })} />
-                <span style={{ color: T.faint }}>×</span>
+                <span style={{ color: T.faint, fontSize: 12 }}>×</span>
                 <EditStr value={ex.reps} onChange={(v) => onUpdate({ ...ex, reps: v })} />
               </div>
               {ex.weight > 0 && (
-                <div style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 10, padding: "7px 14px", display: "flex", alignItems: "center", gap: 6, fontSize: 15, fontWeight: 700 }}>
-                  🏋️ <EditNum value={ex.weight} unit={ex.unit} onChange={(v) => onUpdate({ ...ex, weight: v })} />
+                <div style={{ ...chip, background: T.accentSoftBg, fontWeight: 700 }}>
+                  <EditNum value={ex.weight} unit={ex.unit} onChange={(v) => onUpdate({ ...ex, weight: v })} />
                 </div>
               )}
               <button
                 onClick={() => setTimer(true)}
-                style={{ background: "rgba(74,158,255,0.12)", border: "1px solid rgba(74,158,255,0.3)", borderRadius: 10, padding: "7px 12px", fontSize: 14, color: T.blue, cursor: "pointer", fontFamily: "inherit", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5 }}
+                style={{ ...chip, background: "rgba(74,158,255,0.1)", border: "none", color: T.blue, cursor: "pointer", fontWeight: 700, fontSize: 13 }}
               >
-                <Timer size={15} strokeWidth={2.4} />
+                <Timer size={14} strokeWidth={2.4} />
                 {formatRest(ex.rest)}
               </button>
             </div>
           </div>
+
           <div
             onClick={() => setDoneCount(allDone ? 0 : ex.sets)}
             title="Zaznacz/odznacz całe ćwiczenie"
             style={{
-              width: 44,
-              height: 44,
+              width: 42,
+              height: 42,
               borderRadius: 14,
               flexShrink: 0,
               cursor: "pointer",
-              background: allDone ? T.ok : doneCount > 0 ? `${ex.catColor}30` : T.inset,
-              border: `2px solid ${allDone ? T.ok : doneCount > 0 ? ex.catColor : T.border}`,
+              background: allDone ? T.ok : doneCount > 0 ? `${ex.catColor}22` : T.inset,
+              border: allDone ? "none" : `1.5px solid ${doneCount > 0 ? ex.catColor : T.border}`,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 11,
-              fontWeight: 800,
+              fontWeight: 700,
               color: allDone ? "#000" : doneCount > 0 ? ex.catColor : T.faint,
               transition: "all 0.25s cubic-bezier(.22,1,.36,1)",
-              transform: allDone ? "scale(1.06)" : "scale(1)",
             }}
           >
             {allDone ? (
-              "✓"
+              <Check size={20} strokeWidth={3} />
             ) : doneCount > 0 ? (
               <>
-                <span style={{ fontSize: 15 }}>{doneCount}</span>
-                <span style={{ fontSize: 9, opacity: 0.8 }}>/{ex.sets}</span>
+                <span style={{ fontSize: 14, fontFamily: "'Space Grotesk',sans-serif" }}>{doneCount}</span>
+                <span style={{ fontSize: 8.5, opacity: 0.75 }}>/{ex.sets}</span>
               </>
             ) : (
-              <span style={{ fontSize: 10, opacity: 0.6 }}>0/{ex.sets}</span>
+              <span style={{ fontSize: 10.5, fontFamily: "'Space Grotesk',sans-serif", opacity: 0.7 }}>
+                0/{ex.sets}
+              </span>
             )}
           </div>
         </div>
+
         {expanded && (
-          <div className="fu" style={{ marginTop: 10, borderTop: `1px solid ${T.borderSoft}`, paddingTop: 10 }}>
+          <div className="fu" style={{ marginTop: 12, borderTop: `1px solid ${T.borderSoft}`, paddingTop: 12 }}>
             {ex.note ? (
-              <div style={{ fontSize: 11, color: "#ff9966", marginBottom: 8, padding: "5px 9px", background: "rgba(255,107,53,0.07)", borderRadius: 8 }}>⚠️ {ex.note}</div>
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12, color: "#ffa580", marginBottom: 10, padding: "8px 11px", background: "rgba(255,107,53,0.07)", borderRadius: 12, lineHeight: 1.5 }}>
+                <Info size={14} strokeWidth={2.3} style={{ flexShrink: 0, marginTop: 1.5 }} />
+                {ex.note}
+              </div>
             ) : null}
             {ex.tech ? (
-              <div style={{ marginBottom: 10, padding: "9px 11px", background: "rgba(74,158,255,0.06)", border: "1px solid rgba(74,158,255,0.18)", borderRadius: 10 }}>
-                <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.blue, marginBottom: 4 }}>📖 Technika</div>
-                <div style={{ fontSize: 12, color: "#aab4c8", lineHeight: 1.6 }}>{ex.tech}</div>
+              <div style={{ marginBottom: 12, padding: "10px 12px", background: "rgba(74,158,255,0.06)", borderRadius: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.blue, marginBottom: 5 }}>
+                  <BookOpen size={13} strokeWidth={2.3} />
+                  Technika
+                </div>
+                <div style={{ fontSize: 12.5, color: "#aab4c8", lineHeight: 1.6 }}>{ex.tech}</div>
               </div>
             ) : null}
             <SetCounter total={ex.sets} done={doneCount} onSetDone={handleSetDone} />
@@ -134,7 +172,7 @@ export function DayExCard({ ex, idx, onUpdate }) {
                 width: "100%",
                 background: allDone ? T.inset : T.accent,
                 color: allDone ? T.soft : "#000",
-                border: allDone ? `1px solid ${T.border}` : "none",
+                border: "none",
                 borderRadius: 99,
                 fontFamily: "'Space Grotesk',sans-serif",
                 fontWeight: 700,
@@ -147,7 +185,15 @@ export function DayExCard({ ex, idx, onUpdate }) {
                 gap: 7,
               }}
             >
-              {allDone ? "↺ Wyzeruj ćwiczenie" : "» Zalicz całe ćwiczenie"}
+              {allDone ? (
+                <>
+                  <RotateCcw size={15} strokeWidth={2.4} /> Wyzeruj ćwiczenie
+                </>
+              ) : (
+                <>
+                  <Check size={15} strokeWidth={2.8} /> Zalicz całe ćwiczenie
+                </>
+              )}
             </button>
           </div>
         )}

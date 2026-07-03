@@ -210,7 +210,7 @@ export function ProfileTab() {
 
       {/* DODAJ WPIS */}
       <div className="fu" style={{ animationDelay: ".15s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 16px", marginBottom: 14 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 10 }}>⚖️ Zapisz dzisiejszą wagę</div>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 10 }}>Zapisz dzisiejszą wagę</div>
         <div style={{ display: "flex", gap: 8 }}>
           <input
             ref={inputRef}
@@ -285,7 +285,7 @@ export function ProfileTab() {
       ) : (
         <div className="fu" style={{ animationDelay: ".25s", textAlign: "center", padding: "26px 20px", color: T.sub, fontSize: 13, lineHeight: 1.6 }}>
           Brak wpisów wagi. Dodaj pierwszy powyżej —<br />
-          zobaczysz tu wykres i trend. 📉
+          zobaczysz tu wykres i trend.
         </div>
       )}
     </div>

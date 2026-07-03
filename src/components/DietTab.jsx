@@ -225,7 +225,7 @@ export function DietTab() {
       </div>
 
       <div className="fu" style={{ animationDelay: ".25s", marginTop: 12, background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 16, padding: "12px 14px", fontSize: 12, color: T.soft, lineHeight: 1.6 }}>
-        💡 Przy rekompozycji celuj w <strong style={{ color: T.accent }}>~2 g białka na kg masy ciała</strong> i lekki deficyt kalorii w dni bez treningu.
+        Przy rekompozycji celuj w <strong style={{ color: T.accent }}>~2 g białka na kg masy ciała</strong> i lekki deficyt kalorii w dni bez treningu.
       </div>
     </div>
   );

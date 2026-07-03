@@ -1,16 +1,5 @@
 import { T } from "../theme.js";
 
-// Piktogramy partii mięśniowych na kafelkach ćwiczeń
-export const CAT_ICONS = {
-  KLATKA: "🏋️",
-  PLECY: "🚣",
-  BARKI: "🙆",
-  BICEPS: "💪",
-  TRICEPS: "🦾",
-  NOGI: "🦵",
-  BRZUCH: "🔥",
-};
-
 // Prawdziwy plan treningowy — dane użytkownika (ciężary robocze, serie, powtórzenia, przerwy)
 export const EXERCISES_DATA = {
   A: {
@@ -55,7 +44,7 @@ export const EXERCISES_DATA = {
 
 export const WARMUP_DATA = {
   BASE: {
-    label: "⚡ Zawsze na początku", sublabel: "Baza — każdy trening A, B i C (4–5 min)", color: T.accent,
+    label: "Zawsze na początku", iconKey: "zap", sublabel: "Baza — każdy trening A, B i C (4–5 min)", color: T.accent,
     items: [
       { name: "Jumping jacks / bieg w miejscu", sets: "60 sekund", desc: "Dowolne — chodzi o lekkie przyspieszenie tętna." },
       { name: "Krążenia ramion — do przodu i do tyłu", sets: "10 × każdy kierunek", desc: "Powoli, pełen zakres. Rozgrzewa staw barkowy." },
@@ -64,7 +53,7 @@ export const WARMUP_DATA = {
     ],
   },
   A: {
-    label: "💪 Trening A", sublabel: "Aktywacja — klatka + plecy + ramiona", color: T.blue,
+    label: "Trening A", iconKey: "a", sublabel: "Aktywacja — klatka + plecy + ramiona", color: T.blue,
     items: [
       { name: "Banded No Money", sets: "2 × 15", desc: "Guma między dłońmi, łokcie 90° przy ciele — rotujesz przedramiona na zewnątrz. Aktywuje rotatory barku — kluczowe przed wyciskaniem." },
       { name: "Banded Pull-Apart", sets: "2 × 15", desc: "Trzymasz gumę przed sobą na wyprostowanych rękach, rozciągasz poziomo. Aktywuje tylne barki i ściąga łopatki." },
@@ -73,7 +62,7 @@ export const WARMUP_DATA = {
     ],
   },
   B: {
-    label: "🦵 Trening B", sublabel: "Aktywacja — nogi + biodra + brzuch", color: T.orange,
+    label: "Trening B", iconKey: "b", sublabel: "Aktywacja — nogi + biodra + brzuch", color: T.orange,
     items: [
       { name: "Hip circle z gumą", sets: "2 × 10 w każdą stronę", desc: "Guma powyżej kolan — zakreślasz biodrem duże koła. Aktywuje pośladki i otwiera staw biodrowy. Niezbędne przed przysiadem." },
       { name: "Glute bridge (mostek biodrowy)", sets: "2 × 12", desc: "Leżysz na plecach, kolana ugięte — unosisz biodra i ściskasz pośladki na górze przez 1 sek." },
@@ -83,7 +72,7 @@ export const WARMUP_DATA = {
     ],
   },
   C: {
-    label: "🏋️ Trening C", sublabel: "Aktywacja — barki + plecy góra + lędźwie", color: T.purple,
+    label: "Trening C", iconKey: "c", sublabel: "Aktywacja — barki + plecy góra + lędźwie", color: T.purple,
     items: [
       { name: "YTI Raise leżąc przodem", sets: "1 × 8 każda litera", desc: "Leżysz na brzuchu, unosisz ręce w kształt Y, T, I. Bez obciążenia lub 1–2 kg. Aktywuje czworoboczny — stabilizuje łopatki przed military press." },
       { name: "Banded No Money", sets: "2 × 15", desc: "Rotacja zewnętrzna z gumą, łokcie przy ciele. Ważne przed military press — ochrania bark." },

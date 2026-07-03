@@ -133,10 +133,10 @@ export function RestDisplay({ seconds, onClose, onUpdate }) {
                 setVal(String(target));
                 setEditing(true);
               }}
-              style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "3.6rem", lineHeight: 1, color, cursor: "pointer", transition: "color .3s" }}
+              style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: finished ? "2.2rem" : "3.6rem", lineHeight: 1, color, cursor: "pointer", transition: "color .3s" }}
               title="Kliknij aby ustawić inny czas"
             >
-              {finished ? "💪" : fmt(remaining)}
+              {finished ? "Gotowe" : fmt(remaining)}
             </div>
           )}
 

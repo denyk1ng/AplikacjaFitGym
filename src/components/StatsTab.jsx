@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { TrendingUp, Award } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA, BADGES } from "../data/plan.js";
 import { computeStreak, computeTotalGain, earnedBadges } from "../lib/utils.js";
@@ -110,12 +111,14 @@ export function StatsTab({ snapshots }) {
 
       {snapshots.length === 0 ? (
         <div className="fu" style={{ textAlign: "center", padding: "40px 20px" }}>
-          <div style={{ fontSize: 44, marginBottom: 14 }}>📈</div>
+          <div style={{ width: 68, height: 68, borderRadius: 22, background: T.card, border: `1px solid ${T.borderSoft}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+            <TrendingUp size={30} color={T.accent} strokeWidth={2} />
+          </div>
           <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.05rem", marginBottom: 8 }}>Brak zapisów</div>
           <div style={{ fontSize: 13, color: T.sub, lineHeight: 1.6 }}>
-            Ustaw ciężary w Treningu i kliknij limonkowy
+            Ustaw ciężary w Treningu i zapisz je
             <br />
-            <strong style={{ color: T.accent }}>💾 przycisk na dole</strong> — każdy zapis to punkt tutaj.
+            <strong style={{ color: T.accent }}>przyciskiem na środku dolnego paska</strong> — każdy zapis to punkt tutaj.
           </div>
         </div>
       ) : history.length === 0 ? (
@@ -223,7 +226,10 @@ export function StatsTab({ snapshots }) {
 
       {/* ODZNAKI */}
       <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "14px 16px" }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 12 }}>🏅 Odznaki</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 12 }}>
+          <Award size={13} color={T.accent} strokeWidth={2.3} />
+          Odznaki
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
           {BADGES.map((b) => {
             const on = badgeMap[b.id];
