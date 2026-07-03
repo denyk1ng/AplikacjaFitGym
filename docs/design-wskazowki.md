@@ -162,6 +162,42 @@ Mapowanie na nas: dane trafiają do profilu (wiek/wzrost/waga zasilają BMI i wa
 startową), cel i poziom zapisujemy w profilu (postawa pod przyszłe warianty planu),
 liczba dni — na razie informacyjnie (nasz plan to 3 dni siłowe + 2 cardio).
 
+### Building your plan (ekran przejściowy po kreatorze)
+- Pomarańczowy spinner (łamany ring), tytuł "Budowanie planu…", szary podtytuł
+- **Animowana checklista na żywo**: kolejne pozycje odhaczają się pomarańczowym ✓
+  ("Cel: budowa mięśni" → "3 dni / tydzień" → "Dobieranie ćwiczeń…")
+
+### Plan is ready (podsumowanie planu)
+- Duże pomarańczowe kółko z ✓, "Twój plan jest gotowy!", podtytuł
+- Nazwa planu ("Beginner Build Muscle · Personalized Plan")
+- 3 kafelki statystyk planu (liczby fontem **Doto**): 03 Days / 17 exercises / 45 min avg
+  → u nas: 3 dni / 23 ćwiczenia / ~60 min
+- Zdjęcie na dole + pomarańczowy CTA "Start training"
+
+### Home wg Fuerzy (docelowa iteracja ekranu głównego)
+- Nagłówek: "Welcome Back / Alex Carry" + ikony (szukaj, korona/premium)
+- **Karta Daily Progress**: ikona w kółku + tytuł + pomarańczowe kółko ze strzałką;
+  wielka liczba **84** (Doto) + "+2%"; pasek postępu; stopka "Day 1 · 28 min today ·
+  Exercise 3/6 Completed"
+- "Today's workout": karty ze zdjęciem i przyciskiem "Continue" (pill + strzałka)
+- "Recent workout": wiersz z ringiem "3/5", tekst "2 more to hit your weekly goal",
+  kropki postępu
+
+### ⭐ Ekran szczegółów ĆWICZENIA — POTWIERDZONY DO WDROŻENIA (dla każdego ćwiczenia)
+(właściciel: "możesz dodać jakieś ćwiczenie pokazane, zrób coś podobnego dla każdego")
+- Góra: **wideo z pokazem ćwiczenia** (player: play, pasek postępu, czas, głośność,
+  fullscreen) — u nas: osadzone wideo YouTube per ćwiczenie (kuratorowane linki
+  do dobrych pokazów techniki) lub miniatura → otwarcie wideo
+- Tytuł ćwiczenia + **tagi**: partia mięśniowa / sprzęt / poziom
+  (np. "Klatka · Sztanga · Początkujący")
+- **Zakładki: How To | History | Records**
+  - How To: technika krok po kroku (mamy teksty `tech` — rozpisać na kroki)
+  - History: historia ciężarów tego ćwiczenia (mamy w snapshots)
+  - Records: rekordy (max ciężar, najlepsza seria)
+- **"Your progress · last 7 sessions"**: wykres słupkowy S1–S7 (ostatnie sesje,
+  aktualna wyróżniona pomarańczem) — dane z zapisów ciężarów
+- Wejście: tap w wiersz ćwiczenia na ekranie szczegółów treningu
+
 ### Create account (logowanie)
 - Telefon + kod SMS, opcje Google/Apple, "Welcome back" na zdjęciu
 - Wymaga backendu — na później; w wersji lokalnej zastępujemy onboardingiem
