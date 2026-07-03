@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowLeft } from "lucide-react";
 import { T } from "../theme.js";
 import { WARMUP_DATA } from "../data/plan.js";
 
@@ -34,9 +34,18 @@ function WarmupSection({ data, idx }) {
   );
 }
 
-export function WarmupTab() {
+export function WarmupTab({ onBack }) {
   return (
     <div>
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="fu"
+          style={{ background: T.card, border: `1px solid ${T.border}`, color: T.light, borderRadius: 99, fontSize: 12.5, fontWeight: 700, padding: "9px 16px", cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 14 }}
+        >
+          <ArrowLeft size={15} strokeWidth={2.4} /> Wróć do treningu
+        </button>
+      )}
       <div className="fu" style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 16, padding: "12px 14px", marginBottom: 18, fontSize: 12, color: T.soft, lineHeight: 1.6 }}>
         💡 Zawsze zacznij od <strong style={{ color: T.accent }}>bazy</strong>, potem aktywacja{" "}
         <strong style={{ color: T.accent }}>właściwa dla danego dnia</strong>. Łącznie ok. 8–10 minut.

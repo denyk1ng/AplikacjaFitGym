@@ -1,4 +1,4 @@
-import { Home, Dumbbell, BarChart3, Flame, Save, Check } from "lucide-react";
+import { Home, Dumbbell, BarChart3, Apple, Save, Check } from "lucide-react";
 import { T } from "../theme.js";
 
 export function BottomNav({ tab, setTab, onSave, saveAnim }) {
@@ -6,8 +6,8 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
     { id: "dom", Icon: Home, label: "Dom" },
     { id: "trening", Icon: Dumbbell, label: "Trening" },
     { id: "CENTER" },
+    { id: "dieta", Icon: Apple, label: "Dieta" },
     { id: "stats", Icon: BarChart3, label: "Statystyki" },
-    { id: "rozgrzewka", Icon: Flame, label: "Rozgrzewka" },
   ];
   return (
     <div style={{ position: "fixed", bottom: 16, left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 32px)", maxWidth: 400 }}>

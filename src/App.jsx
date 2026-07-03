@@ -10,6 +10,7 @@ import { DayExCard } from "./components/DayExCard.jsx";
 import { BottomNav } from "./components/BottomNav.jsx";
 import { Onboarding } from "./components/Onboarding.jsx";
 import { ProfileTab } from "./components/ProfileTab.jsx";
+import { DietTab } from "./components/DietTab.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -124,7 +125,7 @@ export default function App() {
     setTab("trening");
   };
 
-  const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil" };
+  const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", dieta: "Dieta" };
 
   return (
     <div style={{ color: T.text, minHeight: "100vh", padding: "20px 16px 140px", maxWidth: 680, margin: "0 auto" }}>
@@ -170,6 +171,12 @@ export default function App() {
 
           {tab === "trening" && (
             <>
+              <button
+                onClick={() => setTab("rozgrzewka")}
+                style={{ width: "100%", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, borderRadius: 99, fontSize: 13, fontWeight: 800, padding: "11px 16px", cursor: "pointer", fontFamily: "inherit", marginBottom: 12 }}
+              >
+                🔥 Rozgrzewka przed treningiem →
+              </button>
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                 {Object.entries(exercises).map(([key, d]) => (
                   <button
@@ -215,8 +222,9 @@ export default function App() {
           )}
 
           {tab === "stats" && <StatsTab snapshots={snapshots} />}
-          {tab === "rozgrzewka" && <WarmupTab />}
+          {tab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
           {tab === "profil" && <ProfileTab />}
+          {tab === "dieta" && <DietTab />}
         </div>
       )}
 
