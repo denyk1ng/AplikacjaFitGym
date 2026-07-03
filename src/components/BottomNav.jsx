@@ -1,16 +1,42 @@
+import { useEffect, useRef, useState } from "react";
 import { Home, Dumbbell, BarChart3, Apple, Plus, Check } from "lucide-react";
 import { T } from "../theme.js";
 
 const BAR_BG = "#1d1e18";
+const H = 62; // wysokość paska
+const RADIUS = H / 2;
 const BTN = 56; // średnica centralnego przycisku
-const NOTCH = 34; // promień wgłębienia (przycisk 28 + 6 px prześwitu)
+const NOTCH_HALF = 55; // połowa szerokości wcięcia
+const NOTCH_DEPTH = 34; // głębokość wcięcia
 
-// Dolny pasek 1:1 wg referencji:
-// - pastylka z półkolistym WGŁĘBIENIEM w górnej krawędzi pod centralnym przyciskiem
-//   (radial-gradient wycina niecke, przez którą prześwituje tło strony)
-// - przycisk z plusem osadzony w niecce, wystaje do połowy ponad pasek
-// - aktywna ikona: czarne kółko + limonkowa ikona; nieaktywne: jaśniejsze szare kółka
+// Kształt paska: pastylka z płynnym wcięciem pod centralny przycisk.
+// Wcięcie rysowane krzywymi Béziera — ramiona niecki są miękko zaokrąglone
+// (bez ostrych kantów w miejscu styku z górną krawędzią).
+function barPath(w) {
+  const cx = w / 2;
+  return [
+    `M ${RADIUS} 0`,
+    `L ${cx - NOTCH_HALF} 0`,
+    `C ${cx - NOTCH_HALF + 20} 0, ${cx - 42} ${NOTCH_DEPTH}, ${cx} ${NOTCH_DEPTH}`,
+    `C ${cx + 42} ${NOTCH_DEPTH}, ${cx + NOTCH_HALF - 20} 0, ${cx + NOTCH_HALF} 0`,
+    `L ${w - RADIUS} 0`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 ${w - RADIUS} ${H}`,
+    `L ${RADIUS} ${H}`,
+    `A ${RADIUS} ${RADIUS} 0 0 1 ${RADIUS} 0`,
+    "Z",
+  ].join(" ");
+}
+
 export function BottomNav({ tab, setTab, onSave, saveAnim }) {
+  const ref = useRef(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const measure = () => ref.current && setW(ref.current.offsetWidth);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   const items = [
     { id: "dom", Icon: Home, label: "Dom" },
     { id: "trening", Icon: Dumbbell, label: "Trening" },
@@ -18,21 +44,22 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
     { id: "dieta", Icon: Apple, label: "Dieta" },
     { id: "stats", Icon: BarChart3, label: "Statystyki" },
   ];
+
   return (
     <div style={{ position: "fixed", bottom: 14, left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 400 }}>
-      <div style={{ position: "relative" }}>
-        {/* pasek z wycięciem */}
-        <div
-          style={{
-            background: `radial-gradient(circle ${NOTCH}px at 50% 0px, transparent ${NOTCH - 1}px, ${BAR_BG} ${NOTCH}px)`,
-            borderRadius: 999,
-            padding: "7px 10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            filter: "drop-shadow(0 16px 30px rgba(0,0,0,0.6))",
-          }}
-        >
+      <div ref={ref} style={{ position: "relative", height: H }}>
+        {w > 0 && (
+          <svg
+            width={w}
+            height={H}
+            viewBox={`0 0 ${w} ${H}`}
+            style={{ position: "absolute", inset: 0, filter: "drop-shadow(0 16px 30px rgba(0,0,0,0.6))" }}
+          >
+            <path d={barPath(w)} fill={BAR_BG} />
+          </svg>
+        )}
+
+        <div style={{ position: "relative", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 10px" }}>
           {items.map((it) => {
             if (it.id === "CENTER") return <div key="spacer" style={{ width: BTN, flexShrink: 0 }} />;
             const on = tab === it.id;
@@ -63,7 +90,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
           })}
         </div>
 
-        {/* centralny przycisk w niecce — środek dokładnie na górnej krawędzi paska */}
+        {/* centralny przycisk w niecce */}
         <button
           onClick={onSave}
           title="Zapisz ciężary + punkt progresu"
