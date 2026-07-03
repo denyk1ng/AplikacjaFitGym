@@ -14,6 +14,7 @@ import { ProfileTab } from "./components/ProfileTab.jsx";
 import { CalendarTab } from "./components/CalendarTab.jsx";
 import { SplashScreen } from "./components/SplashScreen.jsx";
 import { LogoMark } from "./components/Logo.jsx";
+import { WorkoutDetail } from "./components/WorkoutDetail.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -140,14 +141,14 @@ export default function App() {
     setTab("trening");
   };
 
-  const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
+  const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
 
   return (
     <div style={{ color: T.text, minHeight: "100vh", padding: "20px 18px 140px", maxWidth: 680, margin: "0 auto" }}>
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 
-      {tab !== "dom" && (
+      {tab !== "dom" && tab !== "trening" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
             <p style={{ display: "flex", alignItems: "center", gap: 5, color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
@@ -185,6 +186,17 @@ export default function App() {
           {tab === "dom" && <DashboardTab snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} />}
 
           {tab === "trening" && (
+            <WorkoutDetail
+              dayKey={selectedDay}
+              data={day}
+              onBack={() => setTab("dom")}
+              onWarmup={() => setTab("rozgrzewka")}
+              onSelectDay={setSelectedDay}
+              onStart={() => setTab("sesja")}
+            />
+          )}
+
+          {tab === "sesja" && (
             <>
               <button
                 onClick={() => setTab("rozgrzewka")}
@@ -199,44 +211,6 @@ export default function App() {
                 </span>
                 <ChevronRight size={18} color={T.faint} strokeWidth={2.2} />
               </button>
-
-              <div style={{ display: "flex", gap: 4, marginBottom: 14, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 4 }}>
-                {Object.entries(exercises).map(([key, d]) => (
-                  <button
-                    key={key}
-                    onClick={() => setSelectedDay(key)}
-                    style={{
-                      flex: 1,
-                      background: selectedDay === key ? T.accent : "transparent",
-                      color: selectedDay === key ? "#000" : T.sub,
-                      border: "none",
-                      borderRadius: 14,
-                      padding: "9px 6px",
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1 }}>{key}</div>
-                    <div style={{ fontSize: 9.5, marginTop: 3, fontWeight: 600, opacity: selectedDay === key ? 0.65 : 0.9 }}>{d.day}</div>
-                  </button>
-                ))}
-              </div>
-
-              <div style={{ position: "relative", borderRadius: 22, overflow: "hidden", marginBottom: 14, border: `1px solid ${T.border}`, height: 110 }}>
-                <img src={PHOTOS[selectedDay]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,9,16,0.92) 30%, rgba(6,9,16,0.45) 100%)" }} />
-                <div style={{ position: "absolute", inset: 0, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#fff" }}>{day.label}</div>
-                    <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.7)", marginTop: 2, maxWidth: 210 }}>{day.desc}</div>
-                  </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div style={{ color: T.accent, fontWeight: 800, fontSize: 13 }}>{day.exercises.length} ćwiczeń</div>
-                    <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.6)" }}>~60 min</div>
-                  </div>
-                </div>
-              </div>
 
               <p style={{ fontSize: 11, color: T.faint, lineHeight: 1.5, margin: "0 2px 12px", textAlign: "center" }}>
                 Kliknij wartość, aby ją zmienić · nazwa ćwiczenia otwiera technikę i serie
