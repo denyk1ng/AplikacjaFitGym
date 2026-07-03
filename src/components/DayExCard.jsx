@@ -13,7 +13,11 @@ export function DayExCard({ ex, idx, onUpdate }) {
   const allDone = doneCount >= ex.sets;
   const handleSetDone = (i) => {
     if (i < doneCount) setDoneCount(i);
-    else if (i === doneCount) setDoneCount(i + 1);
+    else if (i === doneCount) {
+      setDoneCount(i + 1);
+      // po zaliczonej serii (poza ostatnią) od razu startuje przerwa
+      if (i + 1 < ex.sets) setTimer(true);
+    }
   };
   return (
     <>
@@ -108,7 +112,7 @@ export function DayExCard({ ex, idx, onUpdate }) {
           </div>
         )}
       </div>
-      {timer && <RestDisplay seconds={ex.rest} onClose={() => setTimer(false)} onUpdate={(v) => onUpdate({ ...ex, rest: v })} />}
+      {timer && <RestDisplay key={doneCount} seconds={ex.rest} onClose={() => setTimer(false)} onUpdate={(v) => onUpdate({ ...ex, rest: v })} />}
     </>
   );
 }
