@@ -139,6 +139,29 @@ statystyk w aplikacji.
 - Nasze hasła do slajdów (propozycja): "Wiesz dokładnie, co robić", 
   "Buduj serie, nie wymówki", "Zobacz realny progres"
 
+### Kreator onboardingu — 5 kroków ("We'll build your plan around this")
+Wspólny szkielet każdego kroku: strzałka wstecz + tytuł pytania + szary podtytuł,
+pomarańczowy pasek postępu z licznikiem "x/5", treść, pomarańczowy przycisk "Next"
+przyklejony na dole (ostatni krok: "Build my plan" / "Zbuduj mój plan").
+
+1. **Cel** (1/5, "What's your goal?") — lista opcji-radio: Budowa mięśni / Redukcja /
+   Forma i zdrowie / Siła. Wybrana opcja: przyciemnione pomarańczowe tło, pomarańczowa
+   ramka i znacznik ✓ w kółku po prawej; niewybrane: ciemne karty z pustym kółkiem.
+2. **Poziom zaawansowania** (2/5, "Your fitness level?") — Początkujący ("nowy lub
+   wracający"), Średniozaawansowany ("6+ miesięcy"), Zaawansowany ("2+ lata,
+   systematycznie") — karty z podpisem, ten sam wzorzec zaznaczenia.
+3. **O Tobie** (3/5, "Tell us about yourself") — płeć: dwie duże karty obok siebie
+   (ikona ♀/♂ + podpis), wybrana pomarańczowo tintowana; drobna informacja pod spodem.
+4. **Ile dni w tygodniu** (4/5) — rząd kółek 1–7, wybrane pełne pomarańczowe;
+   pod spodem karta z podpowiedzią np. "3 dni / tydzień — świetne dla początkujących"
+   (u nas: 3 dni = nasz plan A/B/C ✓).
+5. **Szczegóły** (5/5, "A few details") — pola: Wiek, Wzrost (cm), Waga (kg) —
+   ciemne inputy z ikonami; CTA "Zbuduj mój plan" → ekran Building Plan → Plan Ready.
+
+Mapowanie na nas: dane trafiają do profilu (wiek/wzrost/waga zasilają BMI i wagę
+startową), cel i poziom zapisujemy w profilu (postawa pod przyszłe warianty planu),
+liczba dni — na razie informacyjnie (nasz plan to 3 dni siłowe + 2 cardio).
+
 ### Create account (logowanie)
 - Telefon + kod SMS, opcje Google/Apple, "Welcome back" na zdjęciu
 - Wymaga backendu — na później; w wersji lokalnej zastępujemy onboardingiem
