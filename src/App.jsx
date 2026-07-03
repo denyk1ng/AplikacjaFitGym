@@ -220,7 +220,7 @@ export default function App() {
 
               <div style={{ position: "relative", borderRadius: 22, overflow: "hidden", marginBottom: 14, border: `1px solid ${T.border}`, height: 110 }}>
                 <img src={PHOTOS[selectedDay]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(13,17,8,0.92) 30%, rgba(13,17,8,0.45) 100%)" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,9,16,0.92) 30%, rgba(6,9,16,0.45) 100%)" }} />
                 <div style={{ position: "absolute", inset: 0, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#fff" }}>{day.label}</div>

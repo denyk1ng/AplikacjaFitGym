@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Home, Dumbbell, BarChart3, CalendarDays, Plus, Check } from "lucide-react";
 import { T } from "../theme.js";
 
-const BAR_BG = "#1d1e18";
+const BAR_BG = "#16181f";
 const H = 62; // wysokość paska
 const RADIUS = H / 2;
 const BTN = 56; // średnica centralnego przycisku
@@ -73,7 +73,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
                   width: 48,
                   height: 48,
                   borderRadius: "50%",
-                  background: on ? "#0a0b07" : "rgba(255,255,255,0.055)",
+                  background: on ? "#060910" : "rgba(255,255,255,0.055)",
                   border: "none",
                   cursor: "pointer",
                   display: "flex",
@@ -84,7 +84,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
                   transition: "all .2s",
                 }}
               >
-                <Icon size={21} color={on ? T.accent : "#8b8e80"} strokeWidth={on ? 2.2 : 1.9} />
+                <Icon size={21} color={on ? T.accent : "#8b8b90"} strokeWidth={on ? 2.2 : 1.9} />
               </button>
             );
           })}
@@ -110,7 +110,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
             justifyContent: "center",
             boxShadow: saveAnim
               ? "0 6px 24px rgba(52,211,153,0.55)"
-              : "0 6px 24px rgba(198,244,50,0.45), 0 0 48px rgba(198,244,50,0.22)",
+              : "0 6px 24px rgba(255,77,0,0.45), 0 0 48px rgba(255,77,0,0.22)",
             transition: "transform .3s cubic-bezier(.22,1,.36,1), background .3s, box-shadow .3s",
           }}
         >

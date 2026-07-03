@@ -1,36 +1,36 @@
-// Motyw wizualny FORMA — ciemna oliwkowa zieleń + limonkowy akcent (styl "Repsync")
+// Motyw wizualny FORMA — paleta: biel #FFFFFF · czerń #060910 · szarość #A4A4A4 · pomarańcz #FF4D00
 export const T = {
   // tła
-  bg: "#0d1108",
+  bg: "#060910",
   bgGlow:
-    "radial-gradient(1000px 620px at 50% -15%, rgba(198,244,50,0.17), transparent 62%), linear-gradient(180deg, #1d2510 0%, #0d1108 100%)",
-  card: "#1b2311",
-  card2: "#141a0c",
-  inset: "#242e15",
+    "radial-gradient(1100px 680px at 50% -15%, rgba(255,77,0,0.09), transparent 62%), linear-gradient(180deg, #0b0e16 0%, #080b12 48%, #060910 100%)",
+  card: "#12141a",
+  card2: "#0b0d12",
+  inset: "#1b1e26",
 
   // linie / obramowania
-  border: "#313d1b",
-  borderSoft: "#293317",
-  track: "#2a3417",
+  border: "#23262f",
+  borderSoft: "#1d2028",
+  track: "#21242c",
 
-  // akcent limonkowy
-  accent: "#c6f432",
-  accentSoftBg: "rgba(198,244,50,0.08)",
-  accentSoftBorder: "rgba(198,244,50,0.28)",
-  accentGlow: "0 10px 34px rgba(198,244,50,0.30)",
+  // akcent
+  accent: "#ff4d00",
+  accentSoftBg: "rgba(255,77,0,0.09)",
+  accentSoftBorder: "rgba(255,77,0,0.3)",
+  accentGlow: "0 10px 34px rgba(255,77,0,0.32)",
 
   // tekst
-  text: "#f1f4e8",
-  light: "#ccd4bb",
-  soft: "#a8b195",
-  sub: "#7b8468",
-  faint: "#5a6349",
+  text: "#ffffff",
+  light: "#d6d6d8",
+  soft: "#a4a4a4",
+  sub: "#7e7e83",
+  faint: "#55565c",
 
   // kolory funkcyjne
   ok: "#34d399",
   danger: "#f43f5e",
   blue: "#4a9eff",
-  orange: "#ff6b35",
+  orange: "#ff8a4d",
   purple: "#a78bfa",
   yellow: "#fbbf24",
 };

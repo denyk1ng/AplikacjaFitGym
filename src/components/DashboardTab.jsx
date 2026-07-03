@@ -100,7 +100,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       </div>
 
       {/* LIMONKOWA KARTA HERO */}
-      <div className="fu" style={{ animationDelay: ".06s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(198,244,50,0.18)" }}>
+      <div className="fu" style={{ animationDelay: ".06s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(255,77,0,0.18)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", padding: "5px 11px", borderRadius: 99, marginBottom: 12, ...hero.chipStyle }}>
@@ -115,7 +115,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
         <button
           onClick={hero.go}
-          style={{ marginTop: 14, width: "100%", background: "#0d1108", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 700, fontSize: 13.5, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          style={{ marginTop: 14, width: "100%", background: "#060910", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 700, fontSize: 13.5, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
         >
           <Play size={15} color={T.accent} fill={T.accent} strokeWidth={0} />
           {hero.cta}
@@ -132,15 +132,15 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 width: 60,
                 height: 60,
                 borderRadius: 20,
-                background: act ? T.accent : "#1d1e18",
+                background: act ? T.accent : "#16181f",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: act ? "0 6px 22px rgba(198,244,50,0.35)" : "none",
+                boxShadow: act ? "0 6px 22px rgba(255,77,0,0.35)" : "none",
                 transition: "all .2s",
               }}
             >
-              <Icon size={24} color={act ? "#000" : "#e6e8de"} strokeWidth={2} />
+              <Icon size={24} color={act ? "#000" : "#e8e8ea"} strokeWidth={2} />
             </span>
             <span style={{ fontSize: 10.5, fontWeight: 600, color: act ? "#fff" : T.sub, whiteSpace: "nowrap" }}>{l}</span>
           </button>
@@ -203,7 +203,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             style={{ animationDelay: `${0.32 + i * 0.05}s`, position: "relative", width: 150, height: 190, borderRadius: 22, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
           >
             <img src={PHOTOS[k]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(13,17,8,0.05) 30%, rgba(13,17,8,0.92) 100%)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.05) 30%, rgba(6,9,16,0.92) 100%)" }} />
             {st[k].done && (
               <span style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: "50%", background: T.ok, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Check size={14} color="#000" strokeWidth={3} />

@@ -8,7 +8,7 @@ export function Onboarding({ onDone }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 2000, overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 28px", textAlign: "center" }}>
       <img src={PHOTOS.hero} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(13,17,8,0.82) 0%, rgba(13,17,8,0.68) 50%, rgba(13,17,8,0.9) 100%)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.82) 0%, rgba(6,9,16,0.68) 50%, rgba(6,9,16,0.9) 100%)" }} />
 
       <div style={{ position: "relative", width: "100%", maxWidth: 330, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div className="pop" style={{ width: 64, height: 64, borderRadius: 22, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: T.accentGlow, marginBottom: 26 }}>

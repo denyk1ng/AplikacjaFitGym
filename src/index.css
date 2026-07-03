@@ -23,7 +23,7 @@ body {
 }
 
 ::selection {
-  background: rgba(198, 244, 50, 0.28);
+  background: rgba(255, 77, 0, 0.3);
 }
 
 button,
@@ -34,9 +34,9 @@ select {
 
 body {
   font-variant-numeric: tabular-nums;
-  background-color: #0f1409;
-  background-image: radial-gradient(1100px 680px at 50% -15%, rgba(198, 244, 50, 0.2), transparent 62%),
-    linear-gradient(180deg, #273313 0%, #141a0b 48%, #0f1409 100%);
+  background-color: #060910;
+  background-image: radial-gradient(1100px 680px at 50% -15%, rgba(255, 77, 0, 0.09), transparent 62%),
+    linear-gradient(180deg, #0b0e16 0%, #080b12 48%, #060910 100%);
   background-attachment: fixed;
   color: #f1f4e8;
   font-family: "DM Sans", sans-serif;
