@@ -28,10 +28,10 @@ export function LogoMark({ size = 32, top = "#ff4d00", bottom = "#ffffff", style
         <polygon points={P.armTop} />
         <polygon points={P.armMid} />
       </g>
+      {/* pod cięciem renderujemy tylko nogę F — ramiona kończą się nad cięciem
+          (inaczej przy linii cięcia zostawał mikroskopijny biały okruszek) */}
       <g clipPath={`url(#d${id})`} fill={bottom}>
         <polygon points={P.leg} />
-        <polygon points={P.armTop} />
-        <polygon points={P.armMid} />
       </g>
     </svg>
   );
