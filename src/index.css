@@ -9,10 +9,23 @@ body {
   min-height: 100%;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
+.hscroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -16px;
+  padding: 0 16px;
+}
+
 body {
-  background-color: #0a0d06;
-  background-image: radial-gradient(900px 520px at 50% -12%, rgba(198, 244, 50, 0.13), transparent 60%),
-    linear-gradient(180deg, #12160b 0%, #0a0d06 100%);
+  background-color: #0d1108;
+  background-image: radial-gradient(1000px 620px at 50% -15%, rgba(198, 244, 50, 0.17), transparent 62%),
+    linear-gradient(180deg, #1d2510 0%, #0d1108 100%);
   background-attachment: fixed;
   color: #f1f4e8;
   font-family: "DM Sans", sans-serif;

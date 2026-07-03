@@ -9,7 +9,7 @@ function WarmupSection({ data, idx }) {
     <div className="fu" style={{ animationDelay: `${idx * 0.07}s`, background: T.card, border: `1px solid ${data.color}30`, borderRadius: 20, overflow: "hidden", marginBottom: 12 }}>
       <div onClick={() => setOpen(!open)} style={{ padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderBottom: open ? `1px solid ${data.color}20` : "none" }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1rem", color: data.color }}>{data.label}</div>
+          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1rem", color: data.color }}>{data.label}</div>
           <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>{data.sublabel}</div>
         </div>
         <ChevronDown size={18} color={T.faint} strokeWidth={2.4} style={{ transition: "transform .25s", transform: open ? "rotate(180deg)" : "none", flexShrink: 0 }} />

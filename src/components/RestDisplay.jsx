@@ -123,7 +123,7 @@ export function RestDisplay({ seconds, onClose, onUpdate }) {
                     setVal(String(target));
                   }
                 }}
-                style={{ background: T.inset, border: `1px solid ${T.accent}`, borderRadius: 10, color: T.accent, padding: "6px 10px", fontSize: "2rem", fontWeight: 800, width: 110, fontFamily: "'Syne',sans-serif", outline: "none", textAlign: "center" }}
+                style={{ background: T.inset, border: `1px solid ${T.accent}`, borderRadius: 10, color: T.accent, padding: "6px 10px", fontSize: "2rem", fontWeight: 800, width: 110, fontFamily: "'Space Grotesk',sans-serif", outline: "none", textAlign: "center" }}
               />
               <span style={{ fontSize: 13, color: T.sub }}>sekund</span>
             </div>
@@ -133,7 +133,7 @@ export function RestDisplay({ seconds, onClose, onUpdate }) {
                 setVal(String(target));
                 setEditing(true);
               }}
-              style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "3.6rem", lineHeight: 1, color, cursor: "pointer", transition: "color .3s" }}
+              style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "3.6rem", lineHeight: 1, color, cursor: "pointer", transition: "color .3s" }}
               title="Kliknij aby ustawić inny czas"
             >
               {finished ? "💪" : fmt(remaining)}

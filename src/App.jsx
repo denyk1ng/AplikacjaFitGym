@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Flame, User } from "lucide-react";
 import { T } from "./theme.js";
 import { EXERCISES_DATA } from "./data/plan.js";
+import { PHOTOS } from "./data/photos.js";
 import { storage } from "./lib/storage.js";
 import { DashboardTab } from "./components/DashboardTab.jsx";
 import { StatsTab } from "./components/StatsTab.jsx";
@@ -29,6 +30,17 @@ export default function App() {
   const [saveAnim, setSaveAnim] = useState(false);
   const [snapshots, setSnapshots] = useState([]);
   const [showOnboard, setShowOnboard] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  // imię z profilu (odświeżane przy wejściu na ekran główny)
+  useEffect(() => {
+    if (tab !== "dom") return;
+    storage.get("profile").then((p) => {
+      try {
+        if (p && p.value) setUserName(JSON.parse(p.value).name || "");
+      } catch (e) {}
+    });
+  }, [tab]);
 
   useEffect(() => {
     async function load() {
@@ -131,43 +143,45 @@ export default function App() {
     <div style={{ color: T.text, minHeight: "100vh", padding: "20px 16px 140px", maxWidth: 680, margin: "0 auto" }}>
       {showOnboard && <Onboarding onDone={dismissOnboard} />}
 
-      <div style={{ marginBottom: 18, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "1.65rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 2 }}>
-            FOR<span style={{ color: T.accent }}>MA</span>
-          </h1>
-          <p style={{ color: T.sub, fontSize: 12.5 }}>{titles[tab]}</p>
+      {tab !== "dom" && (
+        <div style={{ marginBottom: 18, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "1.55rem", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 2 }}>
+              FOR<span style={{ color: T.accent }}>MA</span>
+            </h1>
+            <p style={{ color: T.sub, fontSize: 12.5 }}>{titles[tab]}</p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <span style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, fontSize: 11, fontWeight: 800, padding: "6px 12px", borderRadius: 99, display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <Flame size={13} strokeWidth={2.5} />
+              REKOMP
+            </span>
+            <button
+              onClick={() => setTab("profil")}
+              title="Profil"
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+                background: tab === "profil" ? T.accent : T.accentSoftBg,
+                border: `1px solid ${T.accentSoftBorder}`,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <User size={18} color={tab === "profil" ? "#000" : T.accent} strokeWidth={2.4} />
+            </button>
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          <span style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, fontSize: 11, fontWeight: 800, padding: "6px 12px", borderRadius: 99, display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <Flame size={13} strokeWidth={2.5} />
-            REKOMP
-          </span>
-          <button
-            onClick={() => setTab("profil")}
-            title="Profil"
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: "50%",
-              background: tab === "profil" ? T.accent : T.accentSoftBg,
-              border: `1px solid ${T.accentSoftBorder}`,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <User size={18} color={tab === "profil" ? "#000" : T.accent} strokeWidth={2.4} />
-          </button>
-        </div>
-      </div>
+      )}
 
       {!storageReady && <div style={{ textAlign: "center", padding: "48px", color: T.faint, fontSize: 13 }}>Ładowanie...</div>}
 
       {storageReady && (
         <div key={tab} className="fu">
-          {tab === "dom" && <DashboardTab snapshots={snapshots} exercises={exercises} goTraining={goTraining} />}
+          {tab === "dom" && <DashboardTab snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} />}
 
           {tab === "trening" && (
             <>
@@ -194,20 +208,24 @@ export default function App() {
                       transition: "all 0.25s",
                     }}
                   >
-                    <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.4rem" }}>{key}</div>
+                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.4rem" }}>{key}</div>
                     <div style={{ fontSize: 10, marginTop: 2, opacity: 0.8 }}>{d.day}</div>
                   </button>
                 ))}
               </div>
 
-              <div style={{ background: `${day.color}12`, border: `1px solid ${day.color}30`, borderRadius: 18, padding: "12px 16px", marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1rem", color: day.color }}>{day.label}</div>
-                  <div style={{ fontSize: 12, color: T.sub, marginTop: 1 }}>{day.desc}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ color: T.accent, fontWeight: 700, fontSize: 13 }}>{day.exercises.length} ćwiczeń</div>
-                  <div style={{ fontSize: 12, color: T.sub }}>~60 min</div>
+              <div style={{ position: "relative", borderRadius: 22, overflow: "hidden", marginBottom: 14, border: `1px solid ${T.border}`, height: 110 }}>
+                <img src={PHOTOS[selectedDay]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(13,17,8,0.92) 30%, rgba(13,17,8,0.45) 100%)" }} />
+                <div style={{ position: "absolute", inset: 0, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#fff" }}>{day.label}</div>
+                    <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.7)", marginTop: 2, maxWidth: 210 }}>{day.desc}</div>
+                  </div>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ color: T.accent, fontWeight: 800, fontSize: 13 }}>{day.exercises.length} ćwiczeń</div>
+                    <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.6)" }}>~60 min</div>
+                  </div>
                 </div>
               </div>
 

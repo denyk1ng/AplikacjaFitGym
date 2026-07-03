@@ -1,17 +1,17 @@
 // Motyw wizualny FORMA — ciemna oliwkowa zieleń + limonkowy akcent (styl "Repsync")
 export const T = {
   // tła
-  bg: "#0a0d06",
+  bg: "#0d1108",
   bgGlow:
-    "radial-gradient(900px 520px at 50% -12%, rgba(198,244,50,0.13), transparent 60%), linear-gradient(180deg, #12160b 0%, #0a0d06 100%)",
-  card: "#161b0e",
-  card2: "#10140a",
-  inset: "#1f2612",
+    "radial-gradient(1000px 620px at 50% -15%, rgba(198,244,50,0.17), transparent 62%), linear-gradient(180deg, #1d2510 0%, #0d1108 100%)",
+  card: "#1b2311",
+  card2: "#141a0c",
+  inset: "#242e15",
 
   // linie / obramowania
-  border: "#2a3218",
-  borderSoft: "#232a14",
-  track: "#242b15",
+  border: "#313d1b",
+  borderSoft: "#293317",
+  track: "#2a3417",
 
   // akcent limonkowy
   accent: "#c6f432",

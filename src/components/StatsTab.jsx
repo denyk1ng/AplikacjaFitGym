@@ -111,7 +111,7 @@ export function StatsTab({ snapshots }) {
       {snapshots.length === 0 ? (
         <div className="fu" style={{ textAlign: "center", padding: "40px 20px" }}>
           <div style={{ fontSize: 44, marginBottom: 14 }}>📈</div>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.05rem", marginBottom: 8 }}>Brak zapisów</div>
+          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.05rem", marginBottom: 8 }}>Brak zapisów</div>
           <div style={{ fontSize: 13, color: T.sub, lineHeight: 1.6 }}>
             Ustaw ciężary w Treningu i kliknij limonkowy
             <br />
@@ -130,17 +130,17 @@ export function StatsTab({ snapshots }) {
           <div className="fu" style={{ animationDelay: ".15s", display: "flex", gap: 8, marginBottom: 12 }}>
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Pierwszy</div>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.sub }}>{first.weight}</div>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.sub }}>{first.weight}</div>
               <div style={{ fontSize: 9, color: T.faint }}>{first.dateShort}</div>
             </div>
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Aktualnie</div>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{last.weight}</div>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{last.weight}</div>
               <div style={{ fontSize: 9, color: T.faint }}>{last.dateShort}</div>
             </div>
             <div style={{ flex: 1, background: "rgba(52,211,153,0.07)", border: "1px solid rgba(52,211,153,0.25)", borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Przyrost</div>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: exGain >= 0 ? T.ok : T.danger }}>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: exGain >= 0 ? T.ok : T.danger }}>
                 {exGain >= 0 ? "+" : ""}
                 {exGain}
               </div>
