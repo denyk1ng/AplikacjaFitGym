@@ -17,6 +17,7 @@ import { LogoMark } from "./components/Logo.jsx";
 import { WorkoutDetail } from "./components/WorkoutDetail.jsx";
 import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
 import { LiveSession, loadLiveState } from "./components/LiveSession.jsx";
+import { QuickAddSheet } from "./components/QuickAddSheet.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -38,6 +39,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [exerciseId, setExerciseId] = useState(null);
   const [userName, setUserName] = useState("");
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [logRefresh, setLogRefresh] = useState(0); // odświeża dom/kalendarz po szybkiej akcji
 
   // imię z profilu (odświeżane przy wejściu na ekran główny)
   useEffect(() => {
@@ -202,7 +205,7 @@ export default function App() {
 
       {storageReady && (
         <div key={tab} className="fu">
-          {tab === "dom" && <DashboardTab snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} />}
+          {tab === "dom" && <DashboardTab key={logRefresh} snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} />}
 
           {tab === "trening" && (
             <WorkoutDetail
@@ -264,11 +267,30 @@ export default function App() {
           {tab === "stats" && <StatsTab snapshots={snapshots} />}
           {tab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
           {tab === "profil" && <ProfileTab />}
-          {tab === "kalendarz" && <CalendarTab goTraining={goTraining} />}
+          {tab === "kalendarz" && <CalendarTab key={logRefresh} goTraining={goTraining} />}
         </div>
       )}
 
-      {storageReady && !showOnboard && tab !== "sesja" && <BottomNav tab={tab} setTab={setTab} onSave={handleSave} saveAnim={saveAnim} />}
+      {storageReady && !showOnboard && tab !== "sesja" && <BottomNav tab={tab} setTab={setTab} onSave={() => setShowQuickAdd(true)} saveAnim={saveAnim} />}
+
+      <QuickAddSheet
+        open={showQuickAdd}
+        onClose={() => setShowQuickAdd(false)}
+        onStartWorkout={(type) => {
+          setShowQuickAdd(false);
+          setSelectedDay(type);
+          setTab("sesja");
+        }}
+        onOpenPlan={() => {
+          setShowQuickAdd(false);
+          setTab("trening");
+        }}
+        onSaveWeights={() => {
+          setShowQuickAdd(false);
+          handleSave();
+        }}
+        onLogChanged={() => setLogRefresh((c) => c + 1)}
+      />
     </div>
   );
 }

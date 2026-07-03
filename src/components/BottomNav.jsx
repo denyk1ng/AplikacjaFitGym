@@ -93,7 +93,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
         {/* centralny przycisk w niecce */}
         <button
           onClick={onSave}
-          title="Zapisz ciężary + punkt progresu"
+          title="Szybkie akcje"
           style={{
             position: "absolute",
             left: "50%",
