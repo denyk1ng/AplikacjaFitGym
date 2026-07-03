@@ -62,7 +62,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
         <div style={{ position: "relative", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 10px" }}>
           {items.map((it) => {
             if (it.id === "CENTER") return <div key="spacer" style={{ width: BTN, flexShrink: 0 }} />;
-            const on = tab === it.id || (it.id === "trening" && tab === "sesja");
+            const on = tab === it.id || (it.id === "trening" && (tab === "sesja" || tab === "cwiczenie"));
             const Icon = it.Icon;
             return (
               <button

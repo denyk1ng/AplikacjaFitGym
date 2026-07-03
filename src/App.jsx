@@ -15,6 +15,7 @@ import { CalendarTab } from "./components/CalendarTab.jsx";
 import { SplashScreen } from "./components/SplashScreen.jsx";
 import { LogoMark } from "./components/Logo.jsx";
 import { WorkoutDetail } from "./components/WorkoutDetail.jsx";
+import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -34,6 +35,7 @@ export default function App() {
   const [snapshots, setSnapshots] = useState([]);
   const [showOnboard, setShowOnboard] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [exerciseId, setExerciseId] = useState(null);
   const [userName, setUserName] = useState("");
 
   // imię z profilu (odświeżane przy wejściu na ekran główny)
@@ -148,7 +150,7 @@ export default function App() {
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 
-      {tab !== "dom" && tab !== "trening" && (
+      {tab !== "dom" && tab !== "trening" && tab !== "cwiczenie" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
             <p style={{ display: "flex", alignItems: "center", gap: 5, color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
@@ -193,6 +195,25 @@ export default function App() {
               onWarmup={() => setTab("rozgrzewka")}
               onSelectDay={setSelectedDay}
               onStart={() => setTab("sesja")}
+              onExercise={(id) => {
+                setExerciseId(id);
+                setTab("cwiczenie");
+              }}
+            />
+          )}
+
+          {tab === "cwiczenie" && exerciseId && (
+            <ExerciseDetail
+              exerciseId={exerciseId}
+              snapshots={snapshots}
+              currentWeight={(() => {
+                for (const d of Object.values(exercises)) {
+                  const e = d.exercises.find((x) => x.id === exerciseId);
+                  if (e) return e.weight;
+                }
+                return null;
+              })()}
+              onBack={() => setTab("trening")}
             />
           )}
 
