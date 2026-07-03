@@ -3,7 +3,7 @@ import { ArrowLeft, Check, Dumbbell, Flame, HeartPulse, Trophy, Play } from "luc
 import { T, FONT_NUM } from "../theme.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
-import { LogoMark } from "./Logo.jsx";
+import { AnimatedLogo } from "./Logo.jsx";
 
 const U = "'Urbanist',sans-serif";
 
@@ -259,7 +259,9 @@ function Building({ data, onDone }) {
   }, [onDone]);
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: T.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32 }}>
-      <div style={{ width: 56, height: 56, borderRadius: "50%", border: "4px solid transparent", borderTopColor: T.accent, borderRightColor: T.accent, animation: "spin 0.9s linear infinite", marginBottom: 22 }} />
+      <div style={{ marginBottom: 24 }}>
+        <AnimatedLogo size={88} />
+      </div>
       <div style={{ fontFamily: U, fontWeight: 700, fontSize: "1.2rem", color: "#fff" }}>Buduję Twój plan…</div>
       <div style={{ fontSize: 12, color: T.sub, marginTop: 5, textAlign: "center" }}>Dopasowuję ćwiczenia do celu, poziomu i grafiku</div>
       <div style={{ marginTop: 30, display: "flex", flexDirection: "column", gap: 14, minWidth: 220 }}>

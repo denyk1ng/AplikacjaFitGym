@@ -99,3 +99,21 @@ button {
     transform: rotate(360deg);
   }
 }
+
+/* logo napełnia się od dołu do góry, chwilę trzyma pełne i zaczyna od nowa */
+@keyframes logofill {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  62% {
+    clip-path: inset(0 0 0 0);
+  }
+  86% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0.25;
+  }
+}

@@ -37,6 +37,19 @@ export function LogoMark({ size = 32, top = "#ff4d00", bottom = "#ffffff", style
   );
 }
 
+// Animowane logo "ładujące się" — wygaszony znak pod spodem,
+// kolorowy napełnia się od dołu do góry w pętli (ekran budowania planu)
+export function AnimatedLogo({ size = 84 }) {
+  return (
+    <div style={{ position: "relative", width: size, height: size }}>
+      <LogoMark size={size} top="#1c2029" bottom="#1c2029" style={{ position: "absolute", inset: 0 }} />
+      <div style={{ position: "absolute", inset: 0, animation: "logofill 1.7s cubic-bezier(.4,0,.2,1) infinite" }}>
+        <LogoMark size={size} />
+      </div>
+    </div>
+  );
+}
+
 // Lockup: znak + napis FORMA
 export function LogoLockup({ markSize = 22, fontSize = 15, gap = 8, style }) {
   return (
