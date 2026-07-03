@@ -56,7 +56,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
   const pad2 = (n) => String(n).padStart(2, "0");
 
   return (
-    <div style={{ margin: "-20px -18px 0", paddingBottom: 96 }}>
+    <div style={{ margin: "-20px -18px 0", paddingBottom: 178 }}>
       {/* HERO */}
       <div style={{ position: "relative", height: 300 }}>
         <img src={PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
@@ -155,7 +155,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
       </div>
 
       {/* PRZYKLEJONY CTA */}
-      <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: 90, zIndex: 800, width: "calc(100% - 36px)", maxWidth: 400 }}>
+      <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: 86, zIndex: 800, width: "calc(100% - 36px)", maxWidth: 400 }}>
         <button
           onClick={onStart}
           style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: "0 10px 34px rgba(255,77,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
