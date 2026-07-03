@@ -99,11 +99,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       : { title: "Regeneracja", sub: "Rozciąganie i pełny odpoczynek", cta: "Zobacz rozgrzewkę", go: () => goTo("rozgrzewka") };
 
   const cats = [
-    { Icon: Flame, c: T.orange, l: "Rozgrzewka", act: false, go: () => goTo("rozgrzewka") },
-    { Icon: Dumbbell, c: T.blue, l: "Trening A", act: todayKey === "A", go: () => goTraining("A") },
-    { Icon: Footprints, c: T.orange, l: "Trening B", act: todayKey === "B", go: () => goTraining("B") },
-    { Icon: BicepsFlexed, c: T.purple, l: "Trening C", act: todayKey === "C", go: () => goTraining("C") },
-    { Icon: HeartPulse, c: T.ok, l: "Cardio", act: isCardio, go: () => goTo("trening") },
+    { Icon: Flame, l: "Rozgrzewka", act: false, go: () => goTo("rozgrzewka") },
+    { Icon: Dumbbell, l: "Trening A", act: todayKey === "A", go: () => goTraining("A") },
+    { Icon: Footprints, l: "Trening B", act: todayKey === "B", go: () => goTraining("B") },
+    { Icon: BicepsFlexed, l: "Trening C", act: todayKey === "C", go: () => goTraining("C") },
+    { Icon: HeartPulse, l: "Cardio", act: isCardio, go: () => goTo("trening") },
   ];
 
   return (
@@ -154,12 +154,24 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       {/* KATEGORIE — kwadratowe kafelki z podpisem */}
       <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".12s" />
       <div className="fu hscroll" style={{ animationDelay: ".14s", marginBottom: 22 }}>
-        {cats.map(({ Icon, c, l, act, go }) => (
-          <button key={l} onClick={go} style={{ background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: 7, flexShrink: 0, padding: 0 }}>
-            <span style={{ width: 60, height: 60, borderRadius: 20, background: act ? T.accent : T.card, border: `1px solid ${act ? T.accent : T.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Icon size={24} color={act ? "#000" : c} strokeWidth={2.2} />
+        {cats.map(({ Icon, l, act, go }) => (
+          <button key={l} onClick={go} style={{ background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flexShrink: 0, padding: 0 }}>
+            <span
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: 20,
+                background: act ? T.accent : "#1d1e18",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: act ? "0 6px 22px rgba(198,244,50,0.35)" : "none",
+                transition: "all .2s",
+              }}
+            >
+              <Icon size={24} color={act ? "#000" : "#e6e8de"} strokeWidth={2} />
             </span>
-            <span style={{ fontSize: 10.5, fontWeight: 600, color: act ? T.accent : T.soft, whiteSpace: "nowrap" }}>{l}</span>
+            <span style={{ fontSize: 10.5, fontWeight: 600, color: act ? "#fff" : T.sub, whiteSpace: "nowrap" }}>{l}</span>
           </button>
         ))}
       </div>
