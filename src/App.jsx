@@ -9,7 +9,7 @@ import { StatsTab } from "./components/StatsTab.jsx";
 import { WarmupTab } from "./components/WarmupTab.jsx";
 import { DayExCard } from "./components/DayExCard.jsx";
 import { BottomNav } from "./components/BottomNav.jsx";
-import { Onboarding } from "./components/Onboarding.jsx";
+import { OnboardingFlow } from "./components/OnboardingFlow.jsx";
 import { ProfileTab } from "./components/ProfileTab.jsx";
 import { CalendarTab } from "./components/CalendarTab.jsx";
 import { SplashScreen } from "./components/SplashScreen.jsx";
@@ -145,7 +145,7 @@ export default function App() {
   return (
     <div style={{ color: T.text, minHeight: "100vh", padding: "20px 18px 140px", maxWidth: 680, margin: "0 auto" }}>
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
-      {showOnboard && <Onboarding onDone={dismissOnboard} />}
+      {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 
       {tab !== "dom" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
