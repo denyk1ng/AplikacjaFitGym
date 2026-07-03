@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Pause, Play, RotateCcw, Plus, Minus } from "lucide-react";
 import { T } from "../theme.js";
 import { playBeep } from "../lib/sound.js";
@@ -91,10 +92,11 @@ export function RestDisplay({ seconds, onClose, onUpdate }) {
     gap: 5,
   };
 
-  return (
+  // portal do <body> — inaczej fixed panel wpada w stacking context animowanych kart
+  return createPortal(
     <div
       className="slideup"
-      style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 999, background: T.card2, borderTop: `2px solid ${finished ? T.ok : T.border}`, padding: "16px 20px 30px", boxShadow: "0 -8px 40px rgba(0,0,0,0.95)", transition: "border-color .3s" }}
+      style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1500, background: T.card2, borderTop: `2px solid ${finished ? T.ok : T.border}`, padding: "16px 20px 30px", boxShadow: "0 -8px 40px rgba(0,0,0,0.95)", transition: "border-color .3s" }}
     >
       {/* pasek postępu */}
       <div style={{ position: "absolute", top: -2, left: 0, right: 0, height: 3, background: "transparent" }}>
@@ -177,6 +179,7 @@ export function RestDisplay({ seconds, onClose, onUpdate }) {
           Zamknij
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
