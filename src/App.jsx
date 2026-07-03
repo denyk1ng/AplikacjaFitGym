@@ -11,7 +11,7 @@ import { DayExCard } from "./components/DayExCard.jsx";
 import { BottomNav } from "./components/BottomNav.jsx";
 import { Onboarding } from "./components/Onboarding.jsx";
 import { ProfileTab } from "./components/ProfileTab.jsx";
-import { DietTab } from "./components/DietTab.jsx";
+import { CalendarTab } from "./components/CalendarTab.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -137,7 +137,7 @@ export default function App() {
     setTab("trening");
   };
 
-  const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", dieta: "Dieta" };
+  const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
 
   return (
     <div style={{ color: T.text, minHeight: "100vh", padding: "20px 16px 140px", maxWidth: 680, margin: "0 auto" }}>
@@ -246,7 +246,7 @@ export default function App() {
           {tab === "stats" && <StatsTab snapshots={snapshots} />}
           {tab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
           {tab === "profil" && <ProfileTab />}
-          {tab === "dieta" && <DietTab />}
+          {tab === "kalendarz" && <CalendarTab goTraining={goTraining} />}
         </div>
       )}
 

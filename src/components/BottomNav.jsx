@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Home, Dumbbell, BarChart3, Apple, Plus, Check } from "lucide-react";
+import { Home, Dumbbell, BarChart3, CalendarDays, Plus, Check } from "lucide-react";
 import { T } from "../theme.js";
 
 const BAR_BG = "#1d1e18";
@@ -41,7 +41,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
     { id: "dom", Icon: Home, label: "Dom" },
     { id: "trening", Icon: Dumbbell, label: "Trening" },
     { id: "CENTER" },
-    { id: "dieta", Icon: Apple, label: "Dieta" },
+    { id: "kalendarz", Icon: CalendarDays, label: "Kalendarz" },
     { id: "stats", Icon: BarChart3, label: "Statystyki" },
   ];
 
