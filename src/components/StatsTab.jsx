@@ -1,21 +1,70 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Award } from "lucide-react";
-import { T } from "../theme.js";
+import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3 } from "lucide-react";
+import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA, BADGES } from "../data/plan.js";
 import { computeStreak, computeTotalGain, earnedBadges } from "../lib/utils.js";
+import { loadWorkoutLog, weekStatus, logStreak, weekVolumes } from "../lib/workoutLog.js";
+
+const U = "'Urbanist',sans-serif";
+const fmtVol = (v) => (v >= 10000 ? `${Math.round(v / 1000)}k` : v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(v));
+const pl = (n) => String(n).replace(".", ",");
+
+// ikony odznak (bez emoji — spójnie z resztą designu)
+const BADGE_ICON = { first: Target, s3: Flame, g5: Dumbbell, n10: Medal, g15: TrendingUp, s6: Crown };
+
+// pierścień celu tygodnia
+function GoalRing({ pct }) {
+  const R = 33;
+  const C = 2 * Math.PI * R;
+  const p = Math.min(Math.max(pct, 0), 100);
+  return (
+    <div style={{ position: "relative", width: 86, height: 86 }}>
+      <svg width="86" height="86" viewBox="0 0 86 86">
+        <circle cx="43" cy="43" r={R} fill="none" stroke={T.track} strokeWidth="8" />
+        <circle
+          cx="43"
+          cy="43"
+          r={R}
+          fill="none"
+          stroke={T.accent}
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={`${(p / 100) * C} ${C}`}
+          transform="rotate(-90 43 43)"
+          style={{ transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1)" }}
+        />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT_NUM, fontWeight: 800, fontSize: 19, color: "#fff" }}>
+        {p}%
+      </div>
+    </div>
+  );
+}
 
 export function StatsTab({ snapshots }) {
   const [range, setRange] = useState(0);
   const [filterDay, setFilterDay] = useState("ALL");
   const [selectedId, setSelectedId] = useState("");
+  const [log, setLog] = useState([]);
+
+  useEffect(() => {
+    loadWorkoutLog().then(setLog);
+  }, []);
 
   const now = Date.now();
   const filtered = range === 0 ? snapshots : snapshots.filter((s) => s.ts >= now - range * 24 * 3600 * 1000);
 
-  const streak = computeStreak(snapshots);
+  const streakSnap = computeStreak(snapshots);
+  const streak = Math.max(streakSnap, logStreak(log));
   const gain = computeTotalGain(snapshots);
   const badgeMap = earnedBadges(snapshots.length, streak, gain);
+
+  const st = weekStatus(log);
+  const doneCount = ["A", "B", "C"].filter((k) => st[k].done).length;
+  const goalPct = Math.round((doneCount / 3) * 100);
+  const vols = weekVolumes(log, EXERCISES_DATA, 6);
+  const maxVol = Math.max(...vols.map((v) => v.vol), 1);
 
   const getList = () => {
     const days = filterDay === "ALL" ? ["A", "B", "C"] : [filterDay];
@@ -56,6 +105,53 @@ export function StatsTab({ snapshots }) {
 
   return (
     <div>
+      {/* HERO: SERIA TYGODNI + CEL TYGODNIA */}
+      <div className="fu" style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+        <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "16px 16px 14px" }}>
+          <span style={{ width: 36, height: 36, borderRadius: 12, background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <Flame size={17} color={T.accent} strokeWidth={2.2} />
+          </span>
+          <div style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: "2rem", color: "#fff", lineHeight: 1, marginTop: 12 }}>{streak}</div>
+          <div style={{ fontSize: 11, color: T.sub, fontWeight: 600, marginTop: 5 }}>{streak === 1 ? "tydzień z rzędu" : "tygodni z rzędu"}</div>
+          <div style={{ fontSize: 9.5, color: T.faint, marginTop: 2 }}>min. 1 trening / tydzień</div>
+        </div>
+        <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <GoalRing pct={goalPct} />
+          <div style={{ fontSize: 11, color: T.sub, fontWeight: 600, marginTop: 6 }}>cel tygodnia</div>
+          <div style={{ fontSize: 9.5, color: T.faint, marginTop: 2 }}>{doneCount}/3 treningi A·B·C</div>
+        </div>
+      </div>
+
+      {/* OBJĘTOŚĆ TYGODNIOWA */}
+      <div className="fu" style={{ animationDelay: ".04s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 16px 12px", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 14 }}>
+          <BarChart3 size={13} color={T.accent} strokeWidth={2.4} />
+          Objętość tygodniowa · kg
+        </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-end", height: 118 }}>
+          {vols.map((v) => (
+            <div key={v.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%" }}>
+              <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 10, color: v.isCurrent ? T.accent : v.vol > 0 ? T.sub : "transparent", lineHeight: 1 }}>
+                {v.vol > 0 ? fmtVol(v.vol) : "0"}
+              </span>
+              <div style={{ flex: 1, width: "100%", maxWidth: 26, display: "flex", alignItems: "flex-end" }}>
+                <div style={{ width: "100%", height: `${Math.max((v.vol / maxVol) * 100, 4)}%`, borderRadius: 7, background: v.isCurrent ? T.accent : v.vol > 0 ? T.track : T.card2, border: v.vol === 0 ? `1px dashed ${T.borderSoft}` : "none", transition: "height .5s cubic-bezier(.22,1,.36,1)" }} />
+              </div>
+              <span style={{ fontSize: 8.5, fontWeight: 700, fontFamily: FONT_NUM, color: v.isCurrent ? T.accent : T.faint }}>{v.isCurrent ? "TERAZ" : v.label}</span>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 9.5, color: T.faint, margin: "10px 0 0", textAlign: "center" }}>
+          suma serie × powtórzenia × ciężar z zapisanych sesji
+        </p>
+      </div>
+
+      {/* PROGRES CIĘŻARÓW */}
+      <div className="fu" style={{ animationDelay: ".07s", display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft, margin: "18px 0 10px" }}>
+        <TrendingUp size={13} color={T.accent} strokeWidth={2.4} />
+        Progres ciężarów
+      </div>
+
       {/* FILTRY CZASU */}
       <div className="fu" style={{ display: "flex", gap: 6, marginBottom: 12 }}>
         {[
@@ -133,19 +229,19 @@ export function StatsTab({ snapshots }) {
           <div className="fu" style={{ animationDelay: ".15s", display: "flex", gap: 8, marginBottom: 12 }}>
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Pierwszy</div>
-              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.sub }}>{first.weight}</div>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.sub }}>{pl(first.weight)}</div>
               <div style={{ fontSize: 9, color: T.faint }}>{first.dateShort}</div>
             </div>
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Aktualnie</div>
-              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{last.weight}</div>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{pl(last.weight)}</div>
               <div style={{ fontSize: 9, color: T.faint }}>{last.dateShort}</div>
             </div>
             <div style={{ flex: 1, background: "rgba(52,211,153,0.07)", border: "1px solid rgba(52,211,153,0.25)", borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Przyrost</div>
               <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: exGain >= 0 ? T.ok : T.danger }}>
                 {exGain >= 0 ? "+" : ""}
-                {exGain}
+                {pl(exGain)}
               </div>
               <div style={{ fontSize: 9, color: T.faint }}>{history.length} zapisów</div>
             </div>
@@ -181,12 +277,12 @@ export function StatsTab({ snapshots }) {
                 <div key={i} style={{ padding: "10px 14px", display: "flex", alignItems: "center", gap: 10, borderBottom: i < history.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
                   <div style={{ flex: 1, fontSize: 12.5, color: T.light }}>{h.date}</div>
                   <div style={{ fontSize: 13.5, fontWeight: 700, color: T.accent }}>
-                    {h.weight} {ex.unit}
+                    {pl(h.weight)} {ex.unit}
                   </div>
                   {diff !== null && diff !== 0 ? (
                     <div style={{ fontSize: 11, fontWeight: 800, color: diff > 0 ? T.ok : T.danger, minWidth: 38, textAlign: "right" }}>
                       {diff > 0 ? "+" : ""}
-                      {diff}
+                      {pl(diff)}
                     </div>
                   ) : (
                     <div style={{ minWidth: 38, textAlign: "right", fontSize: 10, color: T.faint }}>{diff === 0 ? "=" : "start"}</div>
@@ -205,13 +301,15 @@ export function StatsTab({ snapshots }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {[
-            { v: snapshots.length, l: "zapisów łącznie", c: T.accent },
-            { v: `${gain >= 0 ? "+" : ""}${gain} kg`, l: "łączny przyrost", c: T.ok },
-            { v: streak, l: "tygodni z rzędu", c: T.orange },
+            { v: log.length, l: "treningów zaliczonych", c: T.accent },
+            { v: `${gain >= 0 ? "+" : ""}${pl(gain)} kg`, l: "łączny przyrost", c: T.ok },
+            { v: snapshots.length, l: "zapisów ciężarów", c: T.orange },
             {
-              v: snapshots.length
-                ? Math.round((snapshots.length / Math.max(1, (Date.now() - Math.min(...snapshots.map((s) => s.ts))) / (7 * 24 * 3600 * 1000))) * 10) / 10
-                : 0,
+              v: pl(
+                snapshots.length
+                  ? Math.round((snapshots.length / Math.max(1, (Date.now() - Math.min(...snapshots.map((s) => s.ts))) / (7 * 24 * 3600 * 1000))) * 10) / 10
+                  : 0
+              ),
               l: "średnio / tydzień",
               c: T.purple,
             },
@@ -233,14 +331,15 @@ export function StatsTab({ snapshots }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
           {BADGES.map((b) => {
             const on = badgeMap[b.id];
+            const Icon = BADGE_ICON[b.id] || Award;
             return (
               <div
                 key={b.id}
                 title={b.need}
-                style={{ background: on ? T.accentSoftBg : T.card2, border: `1.5px solid ${on ? T.accentSoftBorder : T.borderSoft}`, borderRadius: 16, padding: "12px 6px", textAlign: "center", opacity: on ? 1 : 0.45, transition: "all .3s" }}
+                style={{ background: on ? T.accentSoftBg : T.card2, border: `1.5px solid ${on ? T.accentSoftBorder : T.borderSoft}`, borderRadius: 16, padding: "13px 6px 11px", textAlign: "center", opacity: on ? 1 : 0.45, transition: "all .3s" }}
               >
-                <div style={{ fontSize: 22, filter: on ? "none" : "grayscale(1)" }}>{b.icon}</div>
-                <div style={{ fontSize: 9.5, fontWeight: 700, marginTop: 5, color: on ? T.accent : T.sub, lineHeight: 1.3 }}>{b.label}</div>
+                <Icon size={20} color={on ? T.accent : T.soft} strokeWidth={2.1} style={{ display: "block", margin: "0 auto" }} />
+                <div style={{ fontSize: 9.5, fontWeight: 700, marginTop: 7, color: on ? T.accent : T.sub, lineHeight: 1.3 }}>{b.label}</div>
               </div>
             );
           })}

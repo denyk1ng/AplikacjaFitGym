@@ -150,12 +150,13 @@ export default function App() {
     setTab("trening");
   };
 
-  // odhacza trening danego typu w bieżącym tygodniu (pn–nd)
-  const markWorkoutDone = async (type) => {
+  // odhacza trening danego typu w bieżącym tygodniu (pn–nd);
+  // stats z sesji na żywo (czas, serie, objętość) trafiają do wpisu
+  const markWorkoutDone = async (type, stats = {}) => {
     const log = await loadWorkoutLog();
     const start = isoWeekStart(Date.now());
     const rest = log.filter((e) => !(e.type === type && e.ts >= start));
-    rest.push({ ts: Date.now(), date: new Date().toLocaleDateString("sv-SE"), type });
+    rest.push({ ts: Date.now(), date: new Date().toLocaleDateString("sv-SE"), type, ...stats });
     saveWorkoutLog(rest);
   };
 
@@ -252,9 +253,9 @@ export default function App() {
                 const idx = day.exercises.findIndex((e) => e.id === id);
                 if (idx >= 0) updateEx(selectedDay, idx, { ...day.exercises[idx], weight: v });
               }}
-              onSaveAll={async () => {
+              onSaveAll={async (stats) => {
                 await handleSave();
-                await markWorkoutDone(selectedDay);
+                await markWorkoutDone(selectedDay, stats);
                 setTab("dom");
               }}
             />

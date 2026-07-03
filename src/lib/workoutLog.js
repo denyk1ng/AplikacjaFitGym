@@ -59,6 +59,38 @@ export function suggestToday(log, ref = Date.now()) {
   return null; // wszystko na dziś zrobione — cardio / regeneracja wg planu
 }
 
+// seria tygodni z min. 1 treningiem (bieżący tydzień w toku nie przerywa serii)
+export function logStreak(log, ref = Date.now()) {
+  const WEEK = 7 * DAY;
+  const has = (ws) => log.some((e) => e.ts >= ws && e.ts < ws + WEEK);
+  let w = isoWeekStart(ref);
+  let streak = 0;
+  if (!has(w)) w -= WEEK;
+  while (has(w)) {
+    streak++;
+    w -= WEEK;
+  }
+  return streak;
+}
+
+// objętość (kg) per tydzień: z zapisanych sesji, a dla wpisów odhaczonych
+// ręcznie w kalendarzu — szacunkowo z planu (serie × powtórzenia × ciężar)
+export function weekVolumes(log, exercisesData, weeks = 6, ref = Date.now()) {
+  const start = isoWeekStart(ref);
+  const planVol = (type) => {
+    const day = exercisesData[type];
+    if (!day) return 0;
+    return day.exercises.reduce((s, e) => s + (e.sets || 0) * (parseInt(e.reps) || 0) * (e.weight || 0), 0);
+  };
+  return Array.from({ length: weeks }, (_, i) => {
+    const wStart = start - (weeks - 1 - i) * 7 * DAY;
+    const entries = log.filter((e) => e.ts >= wStart && e.ts < wStart + 7 * DAY);
+    const vol = entries.reduce((s, e) => s + (typeof e.volume === "number" ? e.volume : planVol(e.type)), 0);
+    const d = new Date(wStart);
+    return { label: `${d.getDate()}.${String(d.getMonth() + 1).padStart(2, "0")}`, vol: Math.round(vol), count: entries.length, isCurrent: wStart === start };
+  });
+}
+
 // podsumowanie ostatnich tygodni: ile z 3 treningów zrobiono
 export function weekHistory(log, weeks = 4, ref = Date.now()) {
   const start = isoWeekStart(ref);

@@ -84,10 +84,10 @@ export const WARMUP_DATA = {
 };
 
 export const BADGES = [
-  { id: "first", icon: "🎯", label: "Pierwszy zapis", need: "Zapisz ciężary 1 raz" },
-  { id: "s3", icon: "🔥", label: "Seria 3 tyg.", need: "3 tygodnie z rzędu z zapisem" },
-  { id: "g5", icon: "💪", label: "+5 kg łącznie", need: "Łączny przyrost 5 kg" },
-  { id: "n10", icon: "🏋️", label: "10 zapisów", need: "Zapisz ciężary 10 razy" },
-  { id: "g15", icon: "📈", label: "+15 kg łącznie", need: "Łączny przyrost 15 kg" },
-  { id: "s6", icon: "👑", label: "Seria 6 tyg.", need: "6 tygodni z rzędu z zapisem" },
+  { id: "first", label: "Pierwszy zapis", need: "Zapisz ciężary 1 raz" },
+  { id: "s3", label: "Seria 3 tyg.", need: "3 tygodnie z rzędu z treningiem" },
+  { id: "g5", label: "+5 kg łącznie", need: "Łączny przyrost 5 kg" },
+  { id: "n10", label: "10 zapisów", need: "Zapisz ciężary 10 razy" },
+  { id: "g15", label: "+15 kg łącznie", need: "Łączny przyrost 15 kg" },
+  { id: "s6", label: "Seria 6 tyg.", need: "6 tygodni z rzędu z treningiem" },
 ];
