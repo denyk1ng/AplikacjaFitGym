@@ -29,7 +29,7 @@ function Tracker({ icon, label, unit, value, target, color, quickAdds, minusStep
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.3rem", color: done ? T.ok : color }}>
+          <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.3rem", color: done ? T.ok : color }}>
             {fmt(value)}
             <span style={{ fontSize: 11, color: T.sub, fontWeight: 700 }}> / {fmt(target)} {unit}</span>
           </div>
@@ -144,7 +144,7 @@ export function DietTab() {
           { l: "woda", v: today.water, t: targets.water, c: T.blue },
         ].map((g) => (
           <div key={g.l} style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: g.v >= g.t && g.t > 0 ? T.ok : "#fff", fontFamily: "'Space Grotesk',sans-serif" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: g.v >= g.t && g.t > 0 ? T.ok : "#fff", fontFamily: "'Urbanist',sans-serif" }}>
               {g.v}
               <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}> /{g.t}</span>
             </div>
@@ -218,7 +218,7 @@ export function DietTab() {
                   }}
                 />
               </div>
-              <span style={{ fontSize: 9, fontWeight: 800, color: d.isToday ? T.accent : T.faint, fontFamily: "'Space Grotesk',sans-serif" }}>{d.label}</span>
+              <span style={{ fontSize: 9, fontWeight: 800, color: d.isToday ? T.accent : T.faint, fontFamily: "'Urbanist',sans-serif" }}>{d.label}</span>
             </div>
           ))}
         </div>

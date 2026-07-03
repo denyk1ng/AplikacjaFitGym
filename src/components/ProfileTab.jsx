@@ -111,7 +111,7 @@ export function ProfileTab() {
             value={profile.name}
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
             placeholder="Twoje imię…"
-            style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.25rem", background: "transparent", border: "none", borderBottom: `1px dashed ${T.faint}`, color: T.text, outline: "none", width: "100%", padding: "0 0 2px" }}
+            style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.25rem", background: "transparent", border: "none", borderBottom: `1px dashed ${T.faint}`, color: T.text, outline: "none", width: "100%", padding: "0 0 2px" }}
           />
           <div style={{ fontSize: 12, color: T.sub, marginTop: 4 }}>Cel: rekompozycja — siła w górę, tłuszcz w dół</div>
         </div>
@@ -125,7 +125,7 @@ export function ProfileTab() {
         </div>
         <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
           <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700, marginBottom: 6 }}>Waga teraz</div>
-          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{last ? `${last.kg} kg` : "—"}</div>
+          <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{last ? `${last.kg} kg` : "—"}</div>
         </div>
         <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
           <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700, marginBottom: 6 }}>Cel wagi</div>
@@ -146,7 +146,7 @@ export function ProfileTab() {
                 : 0
             }
           >
-            <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.9rem", color: "#fff", lineHeight: 1 }}>
+            <div style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: "1.9rem", color: "#fff", lineHeight: 1 }}>
               {last.kg}
               <span style={{ fontSize: 14, color: T.sub }}> kg</span>
             </div>
@@ -154,7 +154,7 @@ export function ProfileTab() {
           </Gauge>
           <div style={{ display: "flex", marginTop: 14, borderTop: `1px solid ${T.borderSoft}`, paddingTop: 12 }}>
             <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: diff <= 0 ? T.ok : T.orange }}>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: diff <= 0 ? T.ok : T.orange }}>
                 {diff > 0 ? "+" : ""}
                 {diff} kg
               </div>
@@ -162,14 +162,14 @@ export function ProfileTab() {
             </div>
             <div style={{ width: 1, background: T.borderSoft }} />
             <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: T.accent }}>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: T.accent }}>
                 {profile.goalWeight > 0 ? `${profile.goalWeight} kg` : "—"}
               </div>
               <div style={{ fontSize: 9.5, color: T.sub, fontWeight: 600, marginTop: 2 }}>cel</div>
             </div>
             <div style={{ width: 1, background: T.borderSoft }} />
             <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>{sorted.length}</div>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>{sorted.length}</div>
               <div style={{ fontSize: 9.5, color: T.sub, fontWeight: 600, marginTop: 2 }}>pomiary</div>
             </div>
           </div>
@@ -182,14 +182,14 @@ export function ProfileTab() {
           {bmi && (
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
               <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700 }}>BMI</div>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: bmiLabel(bmi).c }}>{bmi}</div>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: bmiLabel(bmi).c }}>{bmi}</div>
               <div style={{ fontSize: 10.5, color: bmiLabel(bmi).c, fontWeight: 700 }}>{bmiLabel(bmi).txt}</div>
             </div>
           )}
           {toGoal !== null && (
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
               <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700 }}>Do celu</div>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: Math.abs(toGoal) <= 0.5 ? T.ok : T.accent }}>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: Math.abs(toGoal) <= 0.5 ? T.ok : T.accent }}>
                 {toGoal > 0 ? `−${toGoal}` : toGoal < 0 ? `+${Math.abs(toGoal)}` : "✓"}
               </div>
               <div style={{ fontSize: 10.5, color: T.sub, fontWeight: 700 }}>{Math.abs(toGoal) <= 0.5 ? "cel osiągnięty!" : "kg"}</div>
@@ -198,7 +198,7 @@ export function ProfileTab() {
           {sorted.length >= 2 && (
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
               <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700 }}>Zmiana</div>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: diff <= 0 ? T.ok : T.orange }}>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: diff <= 0 ? T.ok : T.orange }}>
                 {diff > 0 ? "+" : ""}
                 {diff}
               </div>

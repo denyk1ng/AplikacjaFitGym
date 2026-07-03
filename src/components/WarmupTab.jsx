@@ -15,7 +15,7 @@ function WarmupSection({ data, idx }) {
           <Icon size={17} color={data.color} strokeWidth={2.3} />
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>{data.label}</div>
+          <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "0.95rem", color: "#fff" }}>{data.label}</div>
           <div style={{ fontSize: 11.5, color: T.sub, marginTop: 1 }}>{data.sublabel}</div>
         </div>
         <ChevronDown size={18} color={T.faint} strokeWidth={2.4} style={{ transition: "transform .25s", transform: open ? "rotate(180deg)" : "none", flexShrink: 0 }} />

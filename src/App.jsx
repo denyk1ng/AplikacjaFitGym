@@ -12,6 +12,8 @@ import { BottomNav } from "./components/BottomNav.jsx";
 import { Onboarding } from "./components/Onboarding.jsx";
 import { ProfileTab } from "./components/ProfileTab.jsx";
 import { CalendarTab } from "./components/CalendarTab.jsx";
+import { SplashScreen } from "./components/SplashScreen.jsx";
+import { LogoMark } from "./components/Logo.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -30,6 +32,7 @@ export default function App() {
   const [saveAnim, setSaveAnim] = useState(false);
   const [snapshots, setSnapshots] = useState([]);
   const [showOnboard, setShowOnboard] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const [userName, setUserName] = useState("");
 
   // imię z profilu (odświeżane przy wejściu na ekran główny)
@@ -140,16 +143,18 @@ export default function App() {
   const titles = { dom: "Dom", trening: "Trening", stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
 
   return (
-    <div style={{ color: T.text, minHeight: "100vh", padding: "20px 16px 140px", maxWidth: 680, margin: "0 auto" }}>
+    <div style={{ color: T.text, minHeight: "100vh", padding: "20px 18px 140px", maxWidth: 680, margin: "0 auto" }}>
+      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       {showOnboard && <Onboarding onDone={dismissOnboard} />}
 
       {tab !== "dom" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
-            <p style={{ color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 4 }}>
-              FOR<span style={{ color: T.accent }}>MA</span>
+            <p style={{ display: "flex", alignItems: "center", gap: 5, color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
+              <LogoMark size={13} />
+              FOR<span style={{ color: T.accent, marginLeft: -5 }}>MA</span>
             </p>
-            <h1 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: "1.6rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1, color: "#fff" }}>
+            <h1 style={{ fontFamily: "'Urbanist',sans-serif", fontSize: "1.6rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1, color: "#fff" }}>
               {titles[tab]}
             </h1>
           </div>
@@ -212,7 +217,7 @@ export default function App() {
                       transition: "all 0.2s",
                     }}
                   >
-                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1 }}>{key}</div>
+                    <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1 }}>{key}</div>
                     <div style={{ fontSize: 9.5, marginTop: 3, fontWeight: 600, opacity: selectedDay === key ? 0.65 : 0.9 }}>{d.day}</div>
                   </button>
                 ))}
@@ -223,7 +228,7 @@ export default function App() {
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(6,9,16,0.92) 30%, rgba(6,9,16,0.45) 100%)" }} />
                 <div style={{ position: "absolute", inset: 0, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#fff" }}>{day.label}</div>
+                    <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.2rem", color: "#fff" }}>{day.label}</div>
                     <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.7)", marginTop: 2, maxWidth: 210 }}>{day.desc}</div>
                   </div>
                   <div style={{ textAlign: "right", flexShrink: 0 }}>

@@ -5,7 +5,7 @@ import { EXERCISES_DATA } from "../data/plan.js";
 import { isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, saveWorkoutLog, weekStatus, weekEntries, weekHistory, PLAN_DOW, DOW_NAMES, dayIndex } from "../lib/workoutLog.js";
 
-const H = "'Space Grotesk',sans-serif";
+const H = "'Urbanist',sans-serif";
 const TYPE_ICON = { A: Dumbbell, B: Footprints, C: BicepsFlexed };
 
 export function CalendarTab({ goTraining }) {
@@ -85,7 +85,7 @@ export function CalendarTab({ goTraining }) {
             }}
           >
             <span style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: ".04em", color: d.today ? "rgba(0,0,0,0.6)" : T.sub }}>{d.label}</span>
-            <span style={{ fontFamily: H, fontWeight: 700, fontSize: 14.5, color: d.today ? "#000" : "#fff" }}>{d.num}</span>
+            <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 14.5, color: d.today ? "#000" : "#fff" }}>{d.num}</span>
             {/* status dnia */}
             {d.doneHere.length > 0 ? (
               <span style={{ width: 15, height: 15, borderRadius: "50%", background: d.today ? "#000" : T.ok, display: "flex", alignItems: "center", justifyContent: "center" }}>

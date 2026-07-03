@@ -1,4 +1,7 @@
 // Motyw wizualny FORMA — paleta: biel #FFFFFF · czerń #060910 · szarość #A4A4A4 · pomarańcz #FF4D00
+// Typografia (design system): Urbanist (UI) + Doto (liczby ekspozycyjne)
+export const FONT_NUM = "'Doto',sans-serif";
+
 export const T = {
   // tła
   bg: "#060910",

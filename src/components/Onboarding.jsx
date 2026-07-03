@@ -1,4 +1,4 @@
-import { Dumbbell } from "lucide-react";
+import { LogoMark } from "./Logo.jsx";
 import { T } from "../theme.js";
 import { PHOTOS } from "../data/photos.js";
 
@@ -12,10 +12,10 @@ export function Onboarding({ onDone }) {
 
       <div style={{ position: "relative", width: "100%", maxWidth: 330, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div className="pop" style={{ width: 64, height: 64, borderRadius: 22, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: T.accentGlow, marginBottom: 26 }}>
-          <Dumbbell size={30} color="#000" strokeWidth={2.4} />
+          <LogoMark size={38} top="#060910" bottom="#ffffff" />
         </div>
 
-        <div className="fu" style={{ animationDelay: ".2s", fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "2.1rem", lineHeight: 1.15, color: "#fff" }}>
+        <div className="fu" style={{ animationDelay: ".2s", fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "2.1rem", lineHeight: 1.15, color: "#fff" }}>
           Witaj w<br />
           FOR<span style={{ color: T.accent }}>MA</span>!
         </div>
@@ -27,7 +27,7 @@ export function Onboarding({ onDone }) {
         <button
           onClick={onDone}
           className="fu"
-          style={{ animationDelay: ".55s", marginTop: 34, width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: 15.5, padding: "17px 24px", cursor: "pointer", boxShadow: T.accentGlow }}
+          style={{ animationDelay: ".55s", marginTop: 34, width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: 15.5, padding: "17px 24px", cursor: "pointer", boxShadow: T.accentGlow }}
         >
           Zaczynamy
         </button>

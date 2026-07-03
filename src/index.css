@@ -18,8 +18,14 @@ body {
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
-  margin: 0 -16px;
-  padding: 0 16px;
+  margin: 0 -18px;
+  padding: 0 18px;
+}
+
+/* liczby ekspozycyjne — font Doto (design system) */
+.doto {
+  font-family: "Doto", sans-serif;
+  font-weight: 700;
 }
 
 ::selection {
@@ -39,7 +45,7 @@ body {
     linear-gradient(180deg, #0b0e16 0%, #080b12 48%, #060910 100%);
   background-attachment: fixed;
   color: #f1f4e8;
-  font-family: "DM Sans", sans-serif;
+  font-family: "Urbanist", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

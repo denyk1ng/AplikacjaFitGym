@@ -8,7 +8,7 @@ import { loadWorkoutLog, weekStatus, suggestToday } from "../lib/workoutLog.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
 
-const H = "'Space Grotesk',sans-serif";
+const H = "'Urbanist',sans-serif";
 
 function SectionHead({ title, onSee, delay }) {
   return (
@@ -110,7 +110,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <div style={{ fontSize: 12, color: "rgba(0,0,0,0.62)", marginTop: 4, fontWeight: 600 }}>{hero.sub}</div>
           </div>
           <Ring pct={doneCount / 3} size={64} stroke={7} color="#000" track="rgba(0,0,0,0.14)">
-            <span style={{ fontFamily: H, fontWeight: 700, fontSize: 13, color: "#000" }}>{doneCount}/3</span>
+            <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 13, color: "#000" }}>{doneCount}/3</span>
           </Ring>
         </div>
         <button
@@ -156,7 +156,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Treningi</span>
           </div>
           <Ring pct={doneCount / 3} size={58} stroke={6} color={T.accent}>
-            <span style={{ fontFamily: H, fontWeight: 700, fontSize: 13, color: "#fff" }}>{doneCount}/3</span>
+            <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 13, color: "#fff" }}>{doneCount}/3</span>
           </Ring>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>w tym tygodniu</span>
         </div>
@@ -171,7 +171,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             ))}
           </div>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
-            <strong style={{ color: "#fff", fontFamily: H, fontSize: 13 }}>{Math.round(cStreak)}</strong> tyg. z rzędu
+            <strong style={{ color: "#fff", fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 14 }}>{Math.round(cStreak)}</strong> tyg. z rzędu
           </span>
         </div>
         <div className="fu" style={{ animationDelay: ".26s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>

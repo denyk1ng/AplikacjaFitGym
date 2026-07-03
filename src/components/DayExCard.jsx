@@ -136,11 +136,11 @@ export function DayExCard({ ex, idx, onUpdate }) {
               <Check size={20} strokeWidth={3} />
             ) : doneCount > 0 ? (
               <>
-                <span style={{ fontSize: 14, fontFamily: "'Space Grotesk',sans-serif" }}>{doneCount}</span>
+                <span style={{ fontSize: 14, fontFamily: "'Urbanist',sans-serif" }}>{doneCount}</span>
                 <span style={{ fontSize: 8.5, opacity: 0.75 }}>/{ex.sets}</span>
               </>
             ) : (
-              <span style={{ fontSize: 10.5, fontFamily: "'Space Grotesk',sans-serif", opacity: 0.7 }}>
+              <span style={{ fontSize: 10.5, fontFamily: "'Urbanist',sans-serif", opacity: 0.7 }}>
                 0/{ex.sets}
               </span>
             )}
@@ -174,7 +174,7 @@ export function DayExCard({ ex, idx, onUpdate }) {
                 color: allDone ? T.soft : "#000",
                 border: "none",
                 borderRadius: 99,
-                fontFamily: "'Space Grotesk',sans-serif",
+                fontFamily: "'Urbanist',sans-serif",
                 fontWeight: 700,
                 fontSize: 13,
                 padding: "13px 20px",

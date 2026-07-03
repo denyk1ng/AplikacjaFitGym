@@ -114,7 +114,7 @@ export function StatsTab({ snapshots }) {
           <div style={{ width: 68, height: 68, borderRadius: 22, background: T.card, border: `1px solid ${T.borderSoft}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
             <TrendingUp size={30} color={T.accent} strokeWidth={2} />
           </div>
-          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.05rem", marginBottom: 8 }}>Brak zapisów</div>
+          <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.05rem", marginBottom: 8 }}>Brak zapisów</div>
           <div style={{ fontSize: 13, color: T.sub, lineHeight: 1.6 }}>
             Ustaw ciężary w Treningu i zapisz je
             <br />
@@ -133,17 +133,17 @@ export function StatsTab({ snapshots }) {
           <div className="fu" style={{ animationDelay: ".15s", display: "flex", gap: 8, marginBottom: 12 }}>
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Pierwszy</div>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.sub }}>{first.weight}</div>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.sub }}>{first.weight}</div>
               <div style={{ fontSize: 9, color: T.faint }}>{first.dateShort}</div>
             </div>
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Aktualnie</div>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{last.weight}</div>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{last.weight}</div>
               <div style={{ fontSize: 9, color: T.faint }}>{last.dateShort}</div>
             </div>
             <div style={{ flex: 1, background: "rgba(52,211,153,0.07)", border: "1px solid rgba(52,211,153,0.25)", borderRadius: 16, padding: "11px", textAlign: "center" }}>
               <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Przyrost</div>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: exGain >= 0 ? T.ok : T.danger }}>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: exGain >= 0 ? T.ok : T.danger }}>
                 {exGain >= 0 ? "+" : ""}
                 {exGain}
               </div>
@@ -217,7 +217,7 @@ export function StatsTab({ snapshots }) {
             },
           ].map((s, i) => (
             <div key={i} style={{ background: T.card2, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "13px 12px" }}>
-              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.35rem", color: s.c, lineHeight: 1 }}>{s.v}</div>
+              <div style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: "1.35rem", color: s.c, lineHeight: 1 }}>{s.v}</div>
               <div style={{ fontSize: 10, color: T.sub, fontWeight: 600, marginTop: 5 }}>{s.l}</div>
             </div>
           ))}
