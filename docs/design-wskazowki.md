@@ -64,7 +64,43 @@ Profile → Edit Profile | Progress | Settings | My Post
 | Settings          | brak                                     | do zrobienia (reset danych itd.) |
 | My Post           | brak                                     | później — razem z Community |
 
-## 4. Proponowana kolejność wdrożenia
+## 4. System projektowy (design system)
+
+### Siatka (grid)
+- Ekran referencyjny: **430 px** szerokości (duże telefony)
+- **4 kolumny**, marginesy boczne **18 px**, odstęp między kolumnami (gutter) **16 px**
+- Karty, przyciski i listy dopinają się do tej samej siatki — spójne odstępy na każdym ekranie
+
+### Typografia
+- **Urbanist** — font główny (UI, nagłówki, teksty)
+  - H1: Semi Bold, 24 px, line-height 150%, letter-spacing +2%
+- **Doto** — font ekspozycyjny (cyfrowo-kropkowany, "matrycowy") do LICZB
+  - H1: Bold, 32 px, line-height 150%, letter-spacing −1%
+  - zastosowanie: duże wartości liczbowe w statystykach (serie, objętość, czas — np. "06", "18", "45 min")
+- Oba fonty dostępne na Google Fonts → do podmiany: Urbanist zamiast DM Sans/Space Grotesk,
+  Doto dla liczb w kafelkach statystyk i timerze
+
+### Komponenty (wzorce z planszy COMPONENT)
+- **Dolny pasek nawigacji**: ciemna pastylka, ikony w kółkach, pomarańczowy okrągły FAB "+"
+  z wgłębieniem — ✅ już wdrożony u nas 1:1
+- **Przyciski strzałek**: kwadratowe, zaokrąglone, ciemne tło / kontur
+- **Wiersz ćwiczenia (lista)**: miniatura zdjęcia po lewej, nazwa, metadane
+  "3 SETS · 10 REPS · 40 KG" drobnym drukiem, po prawej okrągły przycisk serca (ulubione)
+- **Pasek statystyk treningu**: 3 segmenty w jednej karcie — Sets / Volume / Time,
+  pomarańczowe mini-ikony, liczby fontem **Doto**, podpisy szare pod spodem
+- **Przyciski CTA "Continue"**: pomarańczowa pełna pastylka (biały/czarny tekst) +
+  wariant ciemny z konturem; ikonki po bokach
+- **Toggle/przełącznik**: pastylka, aktywny pomarańczowy z białą kropką
+- **Karta posta Community**: avatar + nazwa + "Completed Lower body · 2h", zdjęcie,
+  pasek reakcji (serce/komentarz/udostępnij/zakładka), licznik polubień — *na później (backend)*
+
+### Panel analityczny (desktop)
+Plansza dashboardu (Active users, Workout completion %, Engagement radar, Workouts logged,
+Subscription plans) to inspiracja pod **wersję webową/admin** — poza zakresem aplikacji
+mobilnej na teraz; wykres "Workout completion" z procentem w ringu można przenieść do
+statystyk w aplikacji.
+
+## 5. Proponowana kolejność wdrożenia
 
 1. **Splash + pełny flow powitalny**: Splash → Welcome → Onboarding z danymi
    (imię, wzrost, waga, cel) → „Building Plan" (animacja) → „Plan Ready" → Home.
