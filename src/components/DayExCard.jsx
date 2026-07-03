@@ -127,6 +127,28 @@ export function DayExCard({ ex, idx, onUpdate }) {
               </div>
             ) : null}
             <SetCounter total={ex.sets} done={doneCount} onSetDone={handleSetDone} />
+            <button
+              onClick={() => setDoneCount(allDone ? 0 : ex.sets)}
+              style={{
+                marginTop: 12,
+                width: "100%",
+                background: allDone ? T.inset : T.accent,
+                color: allDone ? T.soft : "#000",
+                border: allDone ? `1px solid ${T.border}` : "none",
+                borderRadius: 99,
+                fontFamily: "'Space Grotesk',sans-serif",
+                fontWeight: 700,
+                fontSize: 13,
+                padding: "13px 20px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
+              }}
+            >
+              {allDone ? "↺ Wyzeruj ćwiczenie" : "» Zalicz całe ćwiczenie"}
+            </button>
           </div>
         )}
       </div>

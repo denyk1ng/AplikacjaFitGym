@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { T } from "../theme.js";
 
-export function Ring({ pct, size, stroke, color, children }) {
+export function Ring({ pct, size, stroke, color, track, children }) {
   const S = size || 86;
   const W = stroke || 8;
   const r = (S - W) / 2;
@@ -14,7 +14,7 @@ export function Ring({ pct, size, stroke, color, children }) {
   return (
     <div style={{ position: "relative", width: S, height: S, flexShrink: 0 }}>
       <svg width={S} height={S} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={S / 2} cy={S / 2} r={r} stroke={T.track} strokeWidth={W} fill="none" />
+        <circle cx={S / 2} cy={S / 2} r={r} stroke={track || T.track} strokeWidth={W} fill="none" />
         <circle
           cx={S / 2}
           cy={S / 2}

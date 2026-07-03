@@ -195,6 +195,32 @@ export function StatsTab({ snapshots }) {
         </>
       )}
 
+      {/* SZCZEGÓŁOWE STATYSTYKI — siatka 2x2 */}
+      <div className="fu" style={{ animationDelay: ".28s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "14px 16px", marginBottom: 12 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 12 }}>
+          Szczegółowe statystyki
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { v: snapshots.length, l: "zapisów łącznie", c: T.accent },
+            { v: `${gain >= 0 ? "+" : ""}${gain} kg`, l: "łączny przyrost", c: T.ok },
+            { v: streak, l: "tygodni z rzędu", c: T.orange },
+            {
+              v: snapshots.length
+                ? Math.round((snapshots.length / Math.max(1, (Date.now() - Math.min(...snapshots.map((s) => s.ts))) / (7 * 24 * 3600 * 1000))) * 10) / 10
+                : 0,
+              l: "średnio / tydzień",
+              c: T.purple,
+            },
+          ].map((s, i) => (
+            <div key={i} style={{ background: T.card2, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "13px 12px" }}>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.35rem", color: s.c, lineHeight: 1 }}>{s.v}</div>
+              <div style={{ fontSize: 10, color: T.sub, fontWeight: 600, marginTop: 5 }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ODZNAKI */}
       <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "14px 16px" }}>
         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 12 }}>🏅 Odznaki</div>

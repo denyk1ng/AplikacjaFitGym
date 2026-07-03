@@ -136,6 +136,26 @@ export function DietTab() {
         Dzisiejsze cele · {dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}
       </div>
 
+      {/* KOMPAKTOWY PASEK CELÓW (jak "Today's target" z referencji) */}
+      <div className="fu" style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "13px 16px", marginBottom: 14, display: "flex", gap: 14 }}>
+        {[
+          { l: "kalorie", v: today.kcal, t: targets.kcal, c: T.orange },
+          { l: "białko", v: today.protein, t: targets.protein, c: T.danger },
+          { l: "woda", v: today.water, t: targets.water, c: T.blue },
+        ].map((g) => (
+          <div key={g.l} style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: g.v >= g.t && g.t > 0 ? T.ok : "#fff", fontFamily: "'Space Grotesk',sans-serif" }}>
+              {g.v}
+              <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}> /{g.t}</span>
+            </div>
+            <div style={{ height: 5, borderRadius: 99, background: T.track, overflow: "hidden", margin: "6px 0 4px" }}>
+              <div style={{ height: "100%", width: `${g.t > 0 ? Math.min(g.v / g.t, 1) * 100 : 0}%`, borderRadius: 99, background: g.v >= g.t && g.t > 0 ? T.ok : g.c, transition: "width .5s" }} />
+            </div>
+            <div style={{ fontSize: 9, color: T.sub, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em" }}>{g.l}</div>
+          </div>
+        ))}
+      </div>
+
       <Tracker
         icon={<Flame size={20} color={T.orange} strokeWidth={2.2} />}
         label="Kalorie"

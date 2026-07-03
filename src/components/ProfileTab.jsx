@@ -7,6 +7,36 @@ import { EditNum } from "./Editable.jsx";
 
 const DEFAULT_PROFILE = { name: "", height: 180, goalWeight: 0 };
 
+// Półkolisty, segmentowany wskaźnik (jak "Goal Progress" z referencji)
+function Gauge({ pct, children }) {
+  const N = 30;
+  const R1 = 78;
+  const R2 = 96;
+  const cx = 110;
+  const cy = 104;
+  const filled = Math.round(Math.min(Math.max(pct, 0), 1) * N);
+  const ticks = Array.from({ length: N }, (_, i) => {
+    const a = Math.PI + (i / (N - 1)) * Math.PI;
+    return {
+      x1: cx + R1 * Math.cos(a),
+      y1: cy + R1 * Math.sin(a),
+      x2: cx + R2 * Math.cos(a),
+      y2: cy + R2 * Math.sin(a),
+      on: i < filled,
+    };
+  });
+  return (
+    <div style={{ position: "relative", width: 220, height: 118, margin: "0 auto" }}>
+      <svg width="220" height="118" viewBox="0 0 220 118">
+        {ticks.map((t, i) => (
+          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.on ? T.accent : T.track} strokeWidth="6" strokeLinecap="round" />
+        ))}
+      </svg>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, textAlign: "center" }}>{children}</div>
+    </div>
+  );
+}
+
 function bmiLabel(bmi) {
   if (bmi < 18.5) return { txt: "niedowaga", c: T.blue };
   if (bmi < 25) return { txt: "w normie", c: T.ok };
@@ -102,6 +132,49 @@ export function ProfileTab() {
           <EditNum value={profile.goalWeight} unit="kg" onChange={(v) => setProfile({ ...profile, goalWeight: v })} />
         </div>
       </div>
+
+      {/* GAUGE — postęp do celu wagi (jak Goal Progress z referencji) */}
+      {last && (
+        <div className="fu" style={{ animationDelay: ".08s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 24, padding: "18px 16px 16px", marginBottom: 14 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 8, textAlign: "center" }}>
+            Postęp do celu
+          </div>
+          <Gauge
+            pct={
+              profile.goalWeight > 0 && first && first.kg !== profile.goalWeight
+                ? (first.kg - last.kg) / (first.kg - profile.goalWeight)
+                : 0
+            }
+          >
+            <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.9rem", color: "#fff", lineHeight: 1 }}>
+              {last.kg}
+              <span style={{ fontSize: 14, color: T.sub }}> kg</span>
+            </div>
+            <div style={{ fontSize: 10.5, color: T.sub, marginTop: 3, fontWeight: 600 }}>aktualna waga</div>
+          </Gauge>
+          <div style={{ display: "flex", marginTop: 14, borderTop: `1px solid ${T.borderSoft}`, paddingTop: 12 }}>
+            <div style={{ flex: 1, textAlign: "center" }}>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: diff <= 0 ? T.ok : T.orange }}>
+                {diff > 0 ? "+" : ""}
+                {diff} kg
+              </div>
+              <div style={{ fontSize: 9.5, color: T.sub, fontWeight: 600, marginTop: 2 }}>zmiana</div>
+            </div>
+            <div style={{ width: 1, background: T.borderSoft }} />
+            <div style={{ flex: 1, textAlign: "center" }}>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: T.accent }}>
+                {profile.goalWeight > 0 ? `${profile.goalWeight} kg` : "—"}
+              </div>
+              <div style={{ fontSize: 9.5, color: T.sub, fontWeight: 600, marginTop: 2 }}>cel</div>
+            </div>
+            <div style={{ width: 1, background: T.borderSoft }} />
+            <div style={{ flex: 1, textAlign: "center" }}>
+              <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>{sorted.length}</div>
+              <div style={{ fontSize: 9.5, color: T.sub, fontWeight: 600, marginTop: 2 }}>pomiary</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BMI + DO CELU */}
       {(bmi || toGoal !== null) && (

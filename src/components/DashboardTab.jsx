@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bell, Footprints, Moon, HeartPulse, Plus, ArrowUpRight, Droplets } from "lucide-react";
+import { Bell, Footprints, Moon, HeartPulse, Plus, Play, Droplets, Flame, Dumbbell, BicepsFlexed } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -9,7 +9,6 @@ import { Ring } from "./Ring.jsx";
 
 const H = "'Space Grotesk',sans-serif";
 
-// Nagłówek sekcji: pogrubiony tytuł + limonkowe "Zobacz wszystkie" (jak w referencji)
 function SectionHead({ title, onSee, delay }) {
   return (
     <div className="fu" style={{ animationDelay: delay || "0s", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
@@ -23,29 +22,39 @@ function SectionHead({ title, onSee, delay }) {
   );
 }
 
-// mini wykres słupkowy (kafelek "sen"/seria)
-function MiniBars({ values, color }) {
+// Pasek kalendarza tygodnia (jak "Weekly Summary" z referencji)
+function WeekStrip({ dow }) {
+  const monday = new Date(isoWeekStart(Date.now()));
+  const days = ["PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"].map((label, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const jsDow = (i + 1) % 7; // PN=1 ... ND=0
+    const plan = jsDow === 1 ? T.blue : jsDow === 3 ? T.orange : jsDow === 5 ? T.purple : jsDow === 2 || jsDow === 4 ? T.ok : T.faint;
+    return { label, num: d.getDate(), today: jsDow === dow, dot: plan };
+  });
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 34 }}>
-      {values.map((v, i) => (
-        <div key={i} style={{ width: 7, height: `${Math.max(v * 100, 12)}%`, borderRadius: 4, background: i === values.length - 1 ? color : `${color}55` }} />
+    <div className="fu" style={{ animationDelay: ".04s", display: "flex", gap: 6, marginBottom: 20 }}>
+      {days.map((d) => (
+        <div
+          key={d.label}
+          style={{
+            flex: 1,
+            background: d.today ? T.accent : T.card,
+            border: `1px solid ${d.today ? T.accent : T.borderSoft}`,
+            borderRadius: 14,
+            padding: "9px 2px 8px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          <span style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: ".04em", color: d.today ? "rgba(0,0,0,0.6)" : T.sub }}>{d.label}</span>
+          <span style={{ fontFamily: H, fontWeight: 700, fontSize: 14.5, color: d.today ? "#000" : "#fff" }}>{d.num}</span>
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: d.today ? "#000" : d.dot }} />
+        </div>
       ))}
     </div>
-  );
-}
-
-// mini "EKG" (kafelek tętna → trend progresu)
-function Waveform({ color }) {
-  return (
-    <svg width="72" height="34" viewBox="0 0 72 34" fill="none">
-      <polyline
-        points="0,20 10,20 15,10 21,28 27,6 33,24 38,17 48,17 53,11 60,22 66,17 72,17"
-        stroke={color}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 
@@ -58,7 +67,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   const weekStart = isoWeekStart(Date.now());
   const thisWeek = snapshots.filter((s) => s.ts >= weekStart).length;
 
-  // aktywność ostatnich 4 tygodni (słupki)
   const WEEK = 7 * 24 * 3600 * 1000;
   const weekBars = [3, 2, 1, 0].map((off) => {
     const start = weekStart - off * WEEK;
@@ -66,7 +74,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
     return Math.min(n / 3, 1);
   });
 
-  // podgląd diety (kcal dziś)
   const [diet, setDiet] = useState({ kcal: 0, target: 2500, water: 0, waterTarget: 3000 });
   useEffect(() => {
     async function load() {
@@ -86,23 +93,23 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
 
   const hero = todayKey
-    ? { chip: "DZIŚ NA PLANIE", title: EXERCISES_DATA[todayKey].label, sub: `${exercises[todayKey].exercises.length} ćwiczeń · ~60 min · + cardio`, photo: PHOTOS[todayKey], go: () => goTraining(todayKey) }
+    ? { title: EXERCISES_DATA[todayKey].label, sub: `${exercises[todayKey].exercises.length} ćwiczeń do zrobienia`, cta: "Zacznij trening", go: () => goTraining(todayKey) }
     : isCardio
-      ? { chip: "DZIŚ NA PLANIE", title: "Cardio + sauna", sub: "Bieżnia 12% · 3,5 km/h · 50 min", photo: PHOTOS.cardio, go: () => goTo("trening") }
-      : { chip: "DZIŚ NA PLANIE", title: "Regeneracja", sub: "Spacer, rozciąganie, odpoczynek", photo: PHOTOS.stretch, go: () => goTo("rozgrzewka") };
+      ? { title: "Cardio + sauna", sub: "Bieżnia 12% · 3,5 km/h · 50 min", cta: "Szczegóły planu", go: () => goTo("trening") }
+      : { title: "Regeneracja", sub: "Rozciąganie i pełny odpoczynek", cta: "Zobacz rozgrzewkę", go: () => goTo("rozgrzewka") };
 
   const cats = [
-    { icon: "🔥", c: T.orange, l: "Rozgrzewka", go: () => goTo("rozgrzewka") },
-    { icon: "🏋️", c: T.blue, l: "Trening A", go: () => goTraining("A") },
-    { icon: "🦵", c: T.orange, l: "Trening B", go: () => goTraining("B") },
-    { icon: "💪", c: T.purple, l: "Trening C", go: () => goTraining("C") },
-    { icon: "🏃", c: T.ok, l: "Cardio", go: () => goTo("trening") },
+    { Icon: Flame, c: T.orange, l: "Rozgrzewka", act: false, go: () => goTo("rozgrzewka") },
+    { Icon: Dumbbell, c: T.blue, l: "Trening A", act: todayKey === "A", go: () => goTraining("A") },
+    { Icon: Footprints, c: T.orange, l: "Trening B", act: todayKey === "B", go: () => goTraining("B") },
+    { Icon: BicepsFlexed, c: T.purple, l: "Trening C", act: todayKey === "C", go: () => goTraining("C") },
+    { Icon: HeartPulse, c: T.ok, l: "Cardio", act: isCardio, go: () => goTo("trening") },
   ];
 
   return (
     <div>
-      {/* HEADER: avatar + Cześć + dzwonek */}
-      <div className="fu" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+      {/* HEADER */}
+      <div className="fu" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
         <button onClick={() => goTo("profil")} style={{ width: 46, height: 46, borderRadius: "50%", padding: 0, border: `1.5px solid ${T.accentSoftBorder}`, overflow: "hidden", cursor: "pointer", flexShrink: 0, background: T.card }}>
           <img src={PHOTOS.hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </button>
@@ -118,45 +125,47 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </button>
       </div>
 
-      {/* KATEGORIE */}
-      <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".05s" />
-      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 20 }}>
-        {cats.map((c) => (
-          <button
-            key={c.l}
-            onClick={c.go}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: T.card, border: `1px solid ${T.border}`, borderRadius: 99, padding: "8px 14px 8px 8px", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap", flexShrink: 0 }}
-          >
-            <span style={{ width: 28, height: 28, borderRadius: "50%", background: `${c.c}22`, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{c.icon}</span>
-            <span style={{ color: "#fff", fontSize: 12.5, fontWeight: 600 }}>{c.l}</span>
+      {/* KALENDARZ TYGODNIA */}
+      <WeekStrip dow={dow} />
+
+      {/* LIMONKOWA KARTA HERO (jak "Weight lose" z referencji) */}
+      <div className="fu" style={{ animationDelay: ".08s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(198,244,50,0.18)" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(0,0,0,0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+              <Dumbbell size={21} color="#000" strokeWidth={2.3} />
+            </div>
+            <div style={{ fontFamily: H, fontWeight: 700, fontSize: "1.45rem", color: "#000", lineHeight: 1.05 }}>{hero.title}</div>
+            <div style={{ fontSize: 12, color: "rgba(0,0,0,0.62)", marginTop: 4, fontWeight: 600 }}>{hero.sub}</div>
+          </div>
+          <Ring pct={Math.min(thisWeek / 3, 1)} size={64} stroke={7} color="#000" track="rgba(0,0,0,0.14)">
+            <span style={{ fontFamily: H, fontWeight: 700, fontSize: 13, color: "#000" }}>{Math.round(Math.min(thisWeek / 3, 1) * 100)}%</span>
+          </Ring>
+        </div>
+        <button
+          onClick={hero.go}
+          style={{ marginTop: 14, width: "100%", background: "#0d1108", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 700, fontSize: 13.5, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+        >
+          <Play size={15} color={T.accent} fill={T.accent} strokeWidth={0} />
+          {hero.cta}
+        </button>
+      </div>
+
+      {/* KATEGORIE — kwadratowe kafelki z podpisem */}
+      <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".12s" />
+      <div className="fu hscroll" style={{ animationDelay: ".14s", marginBottom: 22 }}>
+        {cats.map(({ Icon, c, l, act, go }) => (
+          <button key={l} onClick={go} style={{ background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: 7, flexShrink: 0, padding: 0 }}>
+            <span style={{ width: 60, height: 60, borderRadius: 20, background: act ? T.accent : T.card, border: `1px solid ${act ? T.accent : T.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon size={24} color={act ? "#000" : c} strokeWidth={2.2} />
+            </span>
+            <span style={{ fontSize: 10.5, fontWeight: 600, color: act ? T.accent : T.soft, whiteSpace: "nowrap" }}>{l}</span>
           </button>
         ))}
       </div>
 
-      {/* DUŻA KARTA — dziś na planie (zdjęcie po prawej jak w referencji) */}
-      <div
-        className="fu"
-        onClick={hero.go}
-        style={{ animationDelay: ".12s", position: "relative", borderRadius: 26, overflow: "hidden", background: `linear-gradient(105deg, ${T.card2} 42%, transparent 100%)`, border: `1px solid ${T.border}`, height: 168, marginBottom: 22, cursor: "pointer" }}
-      >
-        <img src={hero.photo} alt="" style={{ position: "absolute", right: 0, top: 0, width: "62%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${T.card2} 34%, rgba(20,26,12,0.72) 58%, rgba(20,26,12,0.15) 100%)` }} />
-        <div style={{ position: "relative", height: "100%", padding: "16px 18px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-          <span style={{ alignSelf: "flex-start", background: T.accent, color: "#000", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", padding: "5px 11px", borderRadius: 99 }}>
-            {hero.chip}
-          </span>
-          <div>
-            <div style={{ fontFamily: H, fontWeight: 700, fontSize: "1.65rem", color: "#fff", lineHeight: 1.02 }}>{hero.title}</div>
-            <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.65)", marginTop: 5 }}>{hero.sub}</div>
-          </div>
-          <div style={{ position: "absolute", right: 14, bottom: 14, width: 40, height: 40, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: T.accentGlow }}>
-            <ArrowUpRight size={20} color="#000" strokeWidth={2.6} />
-          </div>
-        </div>
-      </div>
-
-      {/* AKTYWNOŚĆ — 3 kafelki jak Steps / Sleep / Heart */}
-      <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".16s" />
+      {/* AKTYWNOŚĆ */}
+      <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".18s" />
       <div style={{ display: "flex", gap: 10, marginBottom: 22 }}>
         <div className="fu" style={{ animationDelay: ".2s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
@@ -168,24 +177,28 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           </Ring>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>w tym tygodniu</span>
         </div>
-
         <div className="fu" style={{ animationDelay: ".24s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
             <Moon size={13} color={T.purple} strokeWidth={2.4} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Seria</span>
           </div>
-          <MiniBars values={weekBars} color={T.purple} />
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 34 }}>
+            {weekBars.map((v, i) => (
+              <div key={i} style={{ width: 7, height: `${Math.max(v * 100, 12)}%`, borderRadius: 4, background: i === weekBars.length - 1 ? T.purple : `${T.purple}55` }} />
+            ))}
+          </div>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
             <strong style={{ color: "#fff", fontFamily: H, fontSize: 13 }}>{streak}</strong> tyg. z rzędu
           </span>
         </div>
-
         <div className="fu" style={{ animationDelay: ".28s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
             <HeartPulse size={13} color={T.danger} strokeWidth={2.4} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Progres</span>
           </div>
-          <Waveform color={T.danger} />
+          <svg width="72" height="34" viewBox="0 0 72 34" fill="none">
+            <polyline points="0,20 10,20 15,10 21,28 27,6 33,24 38,17 48,17 53,11 60,22 66,17 72,17" stroke={T.danger} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
             <strong style={{ color: "#fff", fontFamily: H, fontSize: 13 }}>
               {gain >= 0 ? "+" : ""}
@@ -196,9 +209,32 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
       </div>
 
+      {/* TWOJE TRENINGI — karty ze zdjęciami */}
+      <SectionHead title="Twoje treningi" onSee={() => goTo("trening")} delay=".32s" />
+      <div className="hscroll" style={{ marginBottom: 22 }}>
+        {["A", "B", "C"].map((k, i) => (
+          <div
+            key={k}
+            className="fu"
+            onClick={() => goTraining(k)}
+            style={{ animationDelay: `${0.34 + i * 0.05}s`, position: "relative", width: 150, height: 190, borderRadius: 22, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
+          >
+            <img src={PHOTOS[k]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(13,17,8,0.05) 30%, rgba(13,17,8,0.92) 100%)" }} />
+            <div style={{ position: "absolute", inset: 0, padding: 12, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+              <span style={{ alignSelf: "flex-start", background: EXERCISES_DATA[k].color, color: "#000", fontSize: 9.5, fontWeight: 800, padding: "3px 9px", borderRadius: 99, marginBottom: 6 }}>
+                {EXERCISES_DATA[k].day}
+              </span>
+              <div style={{ fontFamily: H, fontWeight: 700, fontSize: "1.02rem", color: "#fff", lineHeight: 1.1 }}>{EXERCISES_DATA[k].label}</div>
+              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>{EXERCISES_DATA[k].exercises.length} ćwiczeń · ~60 min</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* DIETA I ODŻYWIANIE */}
-      <SectionHead title="Dieta i odżywianie" onSee={() => goTo("dieta")} delay=".32s" />
-      <div className="fu" style={{ animationDelay: ".36s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: 10, display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+      <SectionHead title="Dieta i odżywianie" onSee={() => goTo("dieta")} delay=".4s" />
+      <div className="fu" style={{ animationDelay: ".42s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: 10, display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
         <img src={PHOTOS.food} alt="" style={{ width: 58, height: 58, borderRadius: 16, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Dzisiejsze kalorie</div>
@@ -213,7 +249,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           <Plus size={18} color="#000" strokeWidth={2.8} />
         </button>
       </div>
-      <div className="fu" style={{ animationDelay: ".4s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: 10, display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+      <div className="fu" style={{ animationDelay: ".46s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: 10, display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 58, height: 58, borderRadius: 16, background: "rgba(74,158,255,0.14)", border: "1px solid rgba(74,158,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <Droplets size={24} color={T.blue} strokeWidth={2.2} />
         </div>
@@ -229,29 +265,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         <button onClick={() => goTo("dieta")} style={{ width: 38, height: 38, borderRadius: "50%", background: T.accent, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginRight: 4 }}>
           <Plus size={18} color="#000" strokeWidth={2.8} />
         </button>
-      </div>
-
-      {/* TWÓJ TYDZIEŃ */}
-      <SectionHead title="Twój tydzień" delay=".44s" />
-      <div className="fu" style={{ animationDelay: ".48s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "6px 16px" }}>
-        {[
-          { d: "PN", t: "Trening A", c: T.blue, dw: 1 },
-          { d: "WT", t: "Cardio + sauna", c: T.ok, dw: 2 },
-          { d: "ŚR", t: "Trening B", c: T.orange, dw: 3 },
-          { d: "CZ", t: "Cardio + sauna", c: T.ok, dw: 4 },
-          { d: "PT", t: "Trening C", c: T.purple, dw: 5 },
-          { d: "SB", t: "Regeneracja", c: T.faint, dw: 6 },
-          { d: "ND", t: "Regeneracja", c: T.faint, dw: 0 },
-        ].map((r, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 6 ? `1px solid ${T.borderSoft}` : "none", opacity: r.dw === dow ? 1 : 0.55 }}>
-            <span style={{ fontFamily: H, fontWeight: 700, fontSize: 11, width: 24, color: r.dw === dow ? T.accent : T.faint }}>{r.d}</span>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: r.c, flexShrink: 0 }}></span>
-            <span style={{ fontSize: 12.5, fontWeight: r.dw === dow ? 700 : 500, flex: 1, color: "#fff" }}>{r.t}</span>
-            {r.dw === dow && (
-              <span style={{ fontSize: 9, fontWeight: 800, color: T.accent, background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, padding: "2px 8px", borderRadius: 99 }}>DZIŚ</span>
-            )}
-          </div>
-        ))}
       </div>
     </div>
   );
