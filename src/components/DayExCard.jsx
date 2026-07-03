@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, Timer, Dumbbell, Grip, ArrowUpFromLine, BicepsFlexed, Footprints, Activity, BookOpen, Info, Check, RotateCcw } from "lucide-react";
 import { T } from "../theme.js";
 import { formatRest } from "../lib/utils.js";
+import { EX_IMG } from "../data/exerciseImages.js";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { SetCounter } from "./SetCounter.jsx";
 import { RestDisplay } from "./RestDisplay.jsx";
@@ -58,21 +59,25 @@ export function DayExCard({ ex, idx, onUpdate }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 13,
-              flexShrink: 0,
-              background: `${ex.catColor}16`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: 1,
-            }}
-          >
-            <CatIcon size={18} color={ex.catColor} strokeWidth={2.2} />
-          </div>
+          {EX_IMG[ex.id] ? (
+            <img src={EX_IMG[ex.id]} alt="" style={{ width: 44, height: 44, borderRadius: 13, objectFit: "cover", objectPosition: "center 30%", flexShrink: 0, marginTop: 1, background: "#fff" }} />
+          ) : (
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 13,
+                flexShrink: 0,
+                background: `${ex.catColor}16`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 1,
+              }}
+            >
+              <CatIcon size={18} color={ex.catColor} strokeWidth={2.2} />
+            </div>
+          )}
 
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.faint, marginBottom: 3 }}>
