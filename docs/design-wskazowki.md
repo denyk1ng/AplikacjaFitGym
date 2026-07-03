@@ -100,7 +100,51 @@ Subscription plans) to inspiracja pod **wersję webową/admin** — poza zakrese
 mobilnej na teraz; wykres "Workout completion" z procentem w ringu można przenieść do
 statystyk w aplikacji.
 
-## 5. Proponowana kolejność wdrożenia
+## 5. Ekrany wzorcowe (screeny aplikacji Fuerza)
+
+### Progress tracking (statystyki)
+- Duży ring z procentem (np. "Volume 54%" — liczba fontem Doto w środku ringu)
+- Kafelki metryk: Sets (802), Exercises (54) — wartości Doto, podpisy szare
+- Wykres słupkowy "Workout volume" (pionowe słupki, aktywny pomarańczowy)
+
+### Daily Progress (ekran główny)
+- Karta "Daily Progress": wielka liczba **84** (Doto) + "+2%" + pasek postępu pomarańczowy
+- Sekcja "Today's workout": karty ze zdjęciami obok siebie
+- Lista "Recent workout" pod spodem
+
+### ⭐ Ekran szczegółów treningu — POTWIERDZONY DO WDROŻENIA
+(właściciel: "super opcja, wygląda fenomenalnie")
+- Hero: zdjęcie na górze (ok. 40% wysokości), strzałka wstecz i zakładka w rogach
+- Tytuł: "Upper body – Day 1" (część po myślniku pomarańczowa) + podtytuł
+  "Push & pull focus · Chest, shoulders, back"
+- **Pasek statystyk**: 3 segmenty — Sets 06 / Volume 18 / Time 45min — ikony
+  pomarańczowe, liczby fontem **Doto**, podpisy Exercises / Total sets / Duration
+- Sekcja "EXERCISES" (+ licznik "6 total"): wiersze ćwiczeń — miniatura zdjęcia,
+  nazwa, metadane "3 SETS · 10 REPS · 40 KG", serce (ulubione) po prawej
+- Przyklejony na dole pomarańczowy przycisk **Continue** (pełna pastylka)
+- Mapowanie na nas: nowy widok dnia treningowego (A/B/C) — hero zdjęcie,
+  pasek Serie/Objętość/Czas liczony z planu, lista ćwiczeń w tym wzorcu
+
+### ⭐ Splash screen + NOWE LOGO — POTWIERDZONE DO ZROBIENIA
+- Splash: czysta czerń, wyśrodkowany pomarańczowy znak logo, nic więcej
+- Logo wzorcowe (Fuerza): abstrakcyjny, geometryczny znak z ostrych trójkątów,
+  dynamiczny (sugeruje ruch/sylwetkę sprintera), jednokolorowy pomarańcz #FF4D00
+- Zadanie: zaprojektować WŁASNY znak FORMA w tym stylu (SVG) — ostre kąty,
+  geometria, ruch; do użycia w splash, headerze i jako ikona aplikacji
+
+### Intro carousel (po splashu)
+- 3 slajdy sprzedające obietnicę aplikacji: zdjęcie na pełen ekran, ciemny gradient,
+  duży tytuł (np. "Build streaks, not excuses"), drobny opis, kropki postępu,
+  pomarańczowy przycisk "Next"
+- Nasze hasła do slajdów (propozycja): "Wiesz dokładnie, co robić", 
+  "Buduj serie, nie wymówki", "Zobacz realny progres"
+
+### Create account (logowanie)
+- Telefon + kod SMS, opcje Google/Apple, "Welcome back" na zdjęciu
+- Wymaga backendu — na później; w wersji lokalnej zastępujemy onboardingiem
+  z danymi użytkownika (bez konta)
+
+## 6. Proponowana kolejność wdrożenia
 
 1. **Splash + pełny flow powitalny**: Splash → Welcome → Onboarding z danymi
    (imię, wzrost, waga, cel) → „Building Plan" (animacja) → „Plan Ready" → Home.
