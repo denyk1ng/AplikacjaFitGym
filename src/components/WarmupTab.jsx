@@ -8,6 +8,31 @@ const U = "'Urbanist',sans-serif";
 const SECTION_ICON = { zap: Zap, a: Dumbbell, b: Footprints, c: ArrowUpFromLine };
 const DAY_KEYS = ["A", "B", "C"];
 
+// zdjęcia A/C są portretowe (postać stojąca) — w szerokim, niskim kadrze
+// domyślne centrowanie ucina głowę, więc kadr trzymamy wyżej; B jest już
+// poziome i dobrze wypada wyśrodkowane
+const WARMUP_PHOTO_POS = { A: "center 20%", B: "center 42%", C: "center 15%" };
+
+// hero jest dużo szerszy/niższy niż kafelek dnia, więc dla tego samego zdjęcia
+// widoczny jest inny, węższy wycinek wysokości — C potrzebuje niżej niż w kafelku,
+// żeby złapać twarz/bark zamiast samej ściany za postacią
+const HERO_PHOTO_POS = { A: "center 20%", B: "center 42%", C: "center 40%" };
+
+// ciepła poświata za sylwetką — tam gdzie zwykle stoi postać na zdjęciu
+function GlowOverlay() {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "radial-gradient(55% 65% at 50% 48%, rgba(255,109,40,0.4), rgba(255,77,0,0) 72%)",
+        mixBlendMode: "screen",
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
 
 function StatCell({ Icon, label, value, unit, sub, divider }) {
   return (
@@ -53,7 +78,8 @@ function DayCard({ dayKey, onClick, delay }) {
       }}
     >
       <div style={{ position: "relative", height: 128 }}>
-        <img src={WARMUP_PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <img src={WARMUP_PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: WARMUP_PHOTO_POS[dayKey] }} />
+        <GlowOverlay />
         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(6,9,16,0) 35%, ${T.card} 100%)` }} />
         <div style={{ position: "absolute", left: 8, right: 8, bottom: 6 }}>
           <span
@@ -159,10 +185,11 @@ function WarmupSection({ data, idx, done, toggle }) {
 
 // wspólny hero ze zdjęciem — dzielony przez ekran wyboru dnia i przebieg rozgrzewki;
 // na ekranie wyboru pokazuje ogólne zdjęcie, w przebiegu — zdjęcie wybranego dnia
-function Hero({ onBack, photo = PHOTOS.stretch, height = 220 }) {
+function Hero({ onBack, photo = PHOTOS.stretch, height = 220, objectPosition = "center", glow = false }) {
   return (
     <div style={{ position: "relative", height }}>
-      <img key={photo} src={photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <img key={photo} src={photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition }} />
+      {glow && <GlowOverlay />}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.45) 0%, rgba(6,9,16,0.1) 35%, rgba(6,9,16,0.6) 100%)" }} />
       {onBack && (
         <button
@@ -235,7 +262,7 @@ function WarmupFlow({ day, onBack }) {
 
   return (
     <div key={day} style={{ margin: "-20px -18px 0", paddingBottom: 100 }}>
-      <Hero onBack={onBack} photo={WARMUP_PHOTOS[day]} height={165} />
+      <Hero onBack={onBack} photo={WARMUP_PHOTOS[day]} height={165} objectPosition={HERO_PHOTO_POS[day]} glow />
 
       {/* karta tytułowa "wypływa" i nachodzi na dół zdjęcia */}
       <div
