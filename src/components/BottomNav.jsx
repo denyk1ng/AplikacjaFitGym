@@ -46,7 +46,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
   ];
 
   return (
-    <div style={{ position: "fixed", bottom: 14, left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 400 }}>
+    <div style={{ position: "fixed", bottom: "calc(14px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 400 }}>
       <div ref={ref} style={{ position: "relative", height: H }}>
         {w > 0 && (
           <svg

@@ -166,7 +166,18 @@ export default function App() {
   const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
 
   return (
-    <div style={{ color: T.text, minHeight: "100vh", padding: "20px 18px 140px", maxWidth: 680, margin: "0 auto" }}>
+    <div
+      style={{
+        color: T.text,
+        minHeight: "100vh",
+        paddingTop: "calc(20px + env(safe-area-inset-top))",
+        paddingLeft: "calc(18px + env(safe-area-inset-left))",
+        paddingRight: "calc(18px + env(safe-area-inset-right))",
+        paddingBottom: "calc(140px + env(safe-area-inset-bottom))",
+        maxWidth: 680,
+        margin: "0 auto",
+      }}
+    >
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 

@@ -384,7 +384,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
       {confirmExit && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
           <div onClick={() => setConfirmExit(false)} style={{ position: "absolute", inset: 0, background: "rgba(6,9,16,0.7)", backdropFilter: "blur(3px)" }} />
-          <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: T.card2, borderRadius: "26px 26px 0 0", padding: "26px 22px 34px", textAlign: "center" }}>
+          <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: T.card2, borderRadius: "26px 26px 0 0", padding: "26px 22px calc(34px + env(safe-area-inset-bottom))", textAlign: "center" }}>
             <div style={{ width: 54, height: 54, borderRadius: "50%", background: "rgba(244,63,94,0.15)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
               <LogOut size={22} color={T.danger} strokeWidth={2.2} />
             </div>

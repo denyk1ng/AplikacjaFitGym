@@ -64,10 +64,13 @@ function Intro({ onDone }) {
     <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: T.bg, overflow: "hidden" }}>
       <img key={i} src={s.photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.5) 0%, rgba(6,9,16,0.25) 40%, rgba(6,9,16,0.96) 82%)" }} />
-      <button onClick={onDone} style={{ position: "absolute", top: 22, right: 20, background: "rgba(6,9,16,0.5)", border: `1px solid ${T.border}`, color: T.soft, borderRadius: 99, fontSize: 12, fontWeight: 600, padding: "8px 14px", cursor: "pointer", fontFamily: U }}>
+      <button
+        onClick={onDone}
+        style={{ position: "absolute", top: "calc(22px + env(safe-area-inset-top))", right: 20, background: "rgba(6,9,16,0.5)", border: `1px solid ${T.border}`, color: T.soft, borderRadius: 99, fontSize: 12, fontWeight: 600, padding: "8px 14px", cursor: "pointer", fontFamily: U }}
+      >
         Pomiń
       </button>
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "0 24px 42px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "0 24px calc(42px + env(safe-area-inset-bottom))", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
         <div key={`t${i}`} className="fu" style={{ fontFamily: U, fontWeight: 700, fontSize: "1.9rem", lineHeight: 1.2, color: "#fff", whiteSpace: "pre-line" }}>
           {s.title}
         </div>
@@ -136,7 +139,7 @@ function Wizard({ onDone }) {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: T.bg, display: "flex", flexDirection: "column", padding: "22px 18px 30px", overflowY: "auto" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: T.bg, display: "flex", flexDirection: "column", padding: "calc(22px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom))", overflowY: "auto" }}>
       {/* nagłówek */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 14 }}>
         <button
@@ -258,7 +261,22 @@ function Building({ data, onDone }) {
     return () => t.forEach(clearTimeout);
   }, [onDone]);
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: T.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32 }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 2000,
+        background: T.bg,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: "calc(32px + env(safe-area-inset-top))",
+        paddingBottom: "calc(32px + env(safe-area-inset-bottom))",
+        paddingLeft: 32,
+        paddingRight: 32,
+      }}
+    >
       <div style={{ marginBottom: 24 }}>
         <AnimatedLogo size={88} />
       </div>
@@ -293,7 +311,7 @@ function Ready({ data, onDone }) {
   ];
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: T.bg, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "54px 24px 0", textAlign: "center", position: "relative", zIndex: 1 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "calc(54px + env(safe-area-inset-top)) 24px 0", textAlign: "center", position: "relative", zIndex: 1 }}>
         <div className="pop" style={{ width: 68, height: 68, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: T.accentGlow }}>
           <Check size={32} color="#000" strokeWidth={3} />
         </div>
@@ -321,7 +339,7 @@ function Ready({ data, onDone }) {
       <div style={{ position: "relative", height: "38%" }}>
         <img src={PHOTOS.B} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, ${T.bg} 0%, rgba(6,9,16,0.35) 45%, rgba(6,9,16,0.85) 100%)` }} />
-        <div style={{ position: "absolute", left: 24, right: 24, bottom: 34 }}>
+        <div style={{ position: "absolute", left: 24, right: 24, bottom: "calc(34px + env(safe-area-inset-bottom))" }}>
           <PrimaryBtn onClick={onDone}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <Play size={15} color="#000" fill="#000" strokeWidth={0} />

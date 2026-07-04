@@ -80,7 +80,7 @@ export function QuickAddSheet({ open, onClose, onStartWorkout, onOpenPlan, onSav
   return createPortal(
     <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
       <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(6,9,16,0.7)", backdropFilter: "blur(3px)" }} />
-      <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxWidth: 680, margin: "0 auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px 30px" }}>
+      <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxWidth: 680, margin: "0 auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
           <span style={{ fontFamily: U, fontWeight: 700, fontSize: "1.15rem", color: "#fff" }}>Szybkie akcje</span>
           <button onClick={onClose} aria-label="Zamknij" style={{ width: 34, height: 34, borderRadius: 11, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
