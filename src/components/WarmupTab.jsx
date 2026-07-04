@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { ChevronDown, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
+import { ChevronDown, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check, PersonStanding } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { WARMUP_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 
 const U = "'Urbanist',sans-serif";
 const SECTION_ICON = { zap: Zap, a: Dumbbell, b: Footprints, c: ArrowUpFromLine };
+const DAY_KEYS = ["A", "B", "C"];
 
 function StatCell({ Icon, label, value, unit, sub, divider }) {
   return (
@@ -23,13 +24,38 @@ function StatCell({ Icon, label, value, unit, sub, divider }) {
   );
 }
 
+// postać z pomarańczową poświatą — grafika kafelka dnia rozgrzewki
+function DayGlyph({ size = 60 }) {
+  return (
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      <div style={{ position: "absolute", inset: -10, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,77,0,0.4) 0%, rgba(255,77,0,0) 72%)" }} />
+      <div
+        style={{
+          position: "relative",
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          background: "linear-gradient(160deg, rgba(255,77,0,0.22), rgba(255,77,0,0.05))",
+          border: `1.5px solid ${T.accentSoftBorder}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: T.accentGlow,
+        }}
+      >
+        <PersonStanding size={size * 0.56} color={T.accent} strokeWidth={2} />
+      </div>
+    </div>
+  );
+}
+
 function WarmupSection({ data, idx, done, toggle }) {
   const [open, setOpen] = useState(true);
   const Icon = SECTION_ICON[data.iconKey] || Zap;
   const doneCount = data.items.filter((_, i) => done[`${idx}-${i}`]).length;
   const allDone = doneCount === data.items.length;
   return (
-    <div className="fu" style={{ animationDelay: `${idx * 0.06}s`, background: T.card, border: `1px solid ${allDone ? "rgba(52,211,153,0.3)" : T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 10, transition: "border-color .3s" }}>
+    <div className="fu" style={{ animationDelay: `${idx * 0.08}s`, background: T.card, border: `1px solid ${allDone ? "rgba(52,211,153,0.3)" : T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 10, transition: "border-color .3s" }}>
       <div onClick={() => setOpen(!open)} style={{ padding: "13px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderBottom: open ? `1px solid ${T.borderSoft}` : "none" }}>
         <span
           style={{
@@ -64,8 +90,9 @@ function WarmupSection({ data, idx, done, toggle }) {
             return (
               <div
                 key={i}
+                className="fu"
                 onClick={() => toggle(key)}
-                style={{ display: "flex", gap: 12, padding: "12px 0", borderBottom: i < data.items.length - 1 ? `1px solid ${T.borderSoft}` : "none", cursor: "pointer" }}
+                style={{ animationDelay: `${i * 0.07}s`, display: "flex", gap: 12, padding: "12px 0", borderBottom: i < data.items.length - 1 ? `1px solid ${T.borderSoft}` : "none", cursor: "pointer" }}
               >
                 <span
                   style={{
@@ -100,69 +127,125 @@ function WarmupSection({ data, idx, done, toggle }) {
   );
 }
 
-export function WarmupTab({ onBack }) {
-  const [done, setDone] = useState({});
-  const toggle = (key) => setDone((d) => ({ ...d, [key]: !d[key] }));
+// wspólny hero ze zdjęciem — dzielony przez ekran wyboru dnia i przebieg rozgrzewki
+function Hero({ onBack }) {
+  return (
+    <div style={{ position: "relative", height: 220 }}>
+      <img src={PHOTOS.stretch} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.45) 0%, rgba(6,9,16,0.1) 35%, rgba(6,9,16,0.6) 100%)" }} />
+      {onBack && (
+        <button
+          onClick={onBack}
+          style={{
+            position: "absolute",
+            top: "calc(18px + env(safe-area-inset-top))",
+            left: 18,
+            width: 40,
+            height: 40,
+            borderRadius: 13,
+            background: "rgba(6,9,16,0.65)",
+            backdropFilter: "blur(8px)",
+            border: "none",
+            color: "#fff",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ArrowLeft size={18} strokeWidth={2.2} />
+        </button>
+      )}
+    </div>
+  );
+}
 
-  const sections = Object.values(WARMUP_DATA);
-  const totalItems = sections.reduce((s, d) => s + d.items.length, 0);
-  const doneTotal = Object.values(done).filter(Boolean).length;
-
+// ── EKRAN WYBORU DNIA — trzy kafelki A/B/C ─────────────────────────────────
+function DayPicker({ onBack, onPick }) {
   return (
     <div style={{ margin: "-20px -18px 0", paddingBottom: 100 }}>
-      {/* HERO */}
-      <div style={{ position: "relative", height: 220 }}>
-        <img src={PHOTOS.stretch} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.45) 0%, rgba(6,9,16,0.1) 35%, rgba(6,9,16,0.6) 100%)" }} />
-        {onBack && (
-          <button
-            onClick={onBack}
-            style={{
-              position: "absolute",
-              top: "calc(18px + env(safe-area-inset-top))",
-              left: 18,
-              width: 40,
-              height: 40,
-              borderRadius: 13,
-              background: "rgba(6,9,16,0.65)",
-              backdropFilter: "blur(8px)",
-              border: "none",
-              color: "#fff",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ArrowLeft size={18} strokeWidth={2.2} />
-          </button>
-        )}
-      </div>
-
-      {/* KARTA TREŚCI */}
+      <Hero onBack={onBack} />
       <div style={{ position: "relative", marginTop: -26, background: T.bg, borderRadius: "26px 26px 0 0", padding: "10px 18px 0" }}>
         <div style={{ width: 44, height: 4, borderRadius: 99, background: T.border, margin: "0 auto 14px" }} />
 
         <div className="fu" style={{ fontFamily: U, fontWeight: 700, fontSize: "1.5rem", color: "#fff", lineHeight: 1.15 }}>
           Rozgrzewka
         </div>
-        <div className="fu" style={{ animationDelay: ".05s", fontSize: 12.5, color: T.soft, marginTop: 4, marginBottom: 16 }}>
-          Baza + aktywacja dopasowana do treningu dnia — rób w tej kolejności
+        <div className="fu" style={{ animationDelay: ".05s", fontSize: 12.5, color: T.soft, marginTop: 4, marginBottom: 18 }}>
+          Wybierz dzień treningowy — pokażemy bazę i aktywację dopasowaną do niego
         </div>
 
-        {/* PASEK STATYSTYK */}
-        <div className="fu" style={{ animationDelay: ".1s", display: "flex", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, marginBottom: 16 }}>
-          <StatCell Icon={Layers} label="Sekcje" value={sections.length} sub="baza + 3 dni" />
-          <StatCell Icon={Dumbbell} label="Ćwiczenia" value={totalItems} sub={`${doneTotal} zaliczone`} divider />
-          <StatCell Icon={Clock} label="Czas" value="8–10" unit=" min" sub="łącznie" divider />
+        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+          {DAY_KEYS.map((k, i) => {
+            const d = WARMUP_DATA[k];
+            const count = WARMUP_DATA.BASE.items.length + d.items.length;
+            return (
+              <button
+                key={k}
+                onClick={() => onPick(k)}
+                className="fu"
+                style={{
+                  animationDelay: `${0.1 + i * 0.08}s`,
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 10,
+                  background: T.card,
+                  border: `1px solid ${T.borderSoft}`,
+                  borderRadius: 20,
+                  padding: "20px 8px 16px",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                <DayGlyph />
+                <span style={{ fontFamily: U, fontWeight: 700, fontSize: 13.5, color: "#fff", textAlign: "center" }}>Rozgrzewka {k}</span>
+                <span style={{ fontSize: 9.5, color: T.sub, textAlign: "center", lineHeight: 1.4 }}>{d.sublabel.replace("Aktywacja — ", "")}</span>
+                <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 11, color: T.accent, marginTop: 2 }}>{count} ćwiczeń</span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="fu" style={{ animationDelay: ".13s", display: "flex", gap: 10, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "12px 14px", marginBottom: 16, fontSize: 12, color: T.soft, lineHeight: 1.6 }}>
+        <div className="fu" style={{ animationDelay: ".34s", display: "flex", gap: 10, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "12px 14px", fontSize: 12, color: T.soft, lineHeight: 1.6 }}>
           <Lightbulb size={15} color={T.accent} strokeWidth={2.2} style={{ flexShrink: 0, marginTop: 2 }} />
           <span>
-            Zawsze zacznij od <strong style={{ color: T.accent }}>bazy</strong>, potem aktywacja{" "}
-            <strong style={{ color: T.accent }}>właściwa dla danego dnia</strong>. Odhaczaj ćwiczenia w trakcie.
+            Każda rozgrzewka łączy <strong style={{ color: T.accent }}>bazę</strong> (rozruch ogólny) z{" "}
+            <strong style={{ color: T.accent }}>aktywacją pod partie dnia</strong>. Łącznie ok. 8–10 minut.
           </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PRZEBIEG ROZGRZEWKI DLA WYBRANEGO DNIA ─────────────────────────────────
+function WarmupFlow({ day, onBack }) {
+  const [done, setDone] = useState({});
+  const toggle = (key) => setDone((d) => ({ ...d, [key]: !d[key] }));
+
+  const sections = [WARMUP_DATA.BASE, WARMUP_DATA[day]];
+  const totalItems = sections.reduce((s, d) => s + d.items.length, 0);
+  const doneTotal = Object.values(done).filter(Boolean).length;
+
+  return (
+    <div key={day} style={{ margin: "-20px -18px 0", paddingBottom: 100 }}>
+      <Hero onBack={onBack} />
+      <div style={{ position: "relative", marginTop: -26, background: T.bg, borderRadius: "26px 26px 0 0", padding: "10px 18px 0" }}>
+        <div style={{ width: 44, height: 4, borderRadius: 99, background: T.border, margin: "0 auto 14px" }} />
+
+        <div className="fu" style={{ fontFamily: U, fontWeight: 700, fontSize: "1.5rem", color: "#fff", lineHeight: 1.15 }}>
+          Rozgrzewka <span style={{ color: T.accent }}>{day}</span>
+        </div>
+        <div className="fu" style={{ animationDelay: ".05s", fontSize: 12.5, color: T.soft, marginTop: 4, marginBottom: 16 }}>
+          Baza, potem aktywacja pod trening {day} — rób w tej kolejności
+        </div>
+
+        <div className="fu" style={{ animationDelay: ".1s", display: "flex", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, marginBottom: 16 }}>
+          <StatCell Icon={Layers} label="Sekcje" value={sections.length} sub="baza + dzień" />
+          <StatCell Icon={Dumbbell} label="Ćwiczenia" value={totalItems} sub={`${doneTotal} zaliczone`} divider />
+          <StatCell Icon={Clock} label="Czas" value="8–10" unit=" min" sub="łącznie" divider />
         </div>
 
         {sections.map((d, i) => (
@@ -171,4 +254,10 @@ export function WarmupTab({ onBack }) {
       </div>
     </div>
   );
+}
+
+export function WarmupTab({ onBack }) {
+  const [day, setDay] = useState(null);
+  if (day) return <WarmupFlow day={day} onBack={() => setDay(null)} />;
+  return <DayPicker onBack={onBack} onPick={setDay} />;
 }
