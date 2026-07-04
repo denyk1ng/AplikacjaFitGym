@@ -84,11 +84,15 @@ a thumbnail/image is a separate step from adding the plan entry.
 **Theming is a single flat token object**, not Tailwind/CSS-in-JS: `src/theme.js` exports `T`
 (colors) and `FONT_NUM` (the `Doto` display-number font, used for anything numeric/statistical —
 reps, weights, timers, streaks — via `fontFamily: FONT_NUM`; body/UI text uses `Urbanist`, loaded
-in `index.html`). Locked brand colors are exactly four: white `#FFFFFF`, black/bg `#060910`, gray
-`#A4A4A4`, orange `#FF4D00` (`T.accent`). `T.blue`/`T.purple`/`T.danger`/`T.ok`/`T.yellow` are
-supporting functional colors already in use (day-color-coding, success/error states) but are
-*not* part of the locked brand palette — when asked to stay "on-brand," the four above are what
-that means; treat introducing a new hue as a deliberate, called-out decision, not a default.
+in `index.html`). Locked brand colors are exactly four: white `#FFFFFF`, black/bg `#171717`, gray
+`#94978F`, lime `#BCFF31` (`T.accent`). This replaced an earlier orange (`#FF4D00`) accent on a
+bluer black (`#060910`) — if you find hardcoded hex values from that older palette outside
+`theme.js` (components sometimes bypass `T` with literal hex/rgba, e.g. for box-shadows), that's
+drift from the rebrand, not an intentional second palette; bring them in line with `T`.
+`T.blue`/`T.purple`/`T.danger`/`T.ok`/`T.yellow` are supporting functional colors already in use
+(day-color-coding, success/error states) but are *not* part of the locked brand palette — when
+asked to stay "on-brand," the four above are what that means; treat introducing a new hue as a
+deliberate, called-out decision, not a default.
 
 **PWA/installability.** `public/manifest.webmanifest` + `public/sw.js` (network-first for
 navigations, cache-first for static assets) + icons in `public/icons/` (generated from the logo
