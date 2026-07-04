@@ -93,7 +93,7 @@ export function CalendarTab({ goTraining }) {
                 <Check size={10} color={d.today ? T.accent : "#000"} strokeWidth={3.4} />
               </span>
             ) : d.missed ? (
-              <span style={{ width: 15, height: 15, borderRadius: "50%", background: "rgba(255,107,53,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, color: T.orange }}>
+              <span style={{ width: 15, height: 15, borderRadius: "50%", background: "rgba(251,191,36,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, color: T.yellow }}>
                 !
               </span>
             ) : d.planType ? (
@@ -109,10 +109,10 @@ export function CalendarTab({ goTraining }) {
 
       {/* ALERT O ZALEGŁOŚCIACH / KOMPLET */}
       {overdueList.length > 0 ? (
-        <div className="fu" style={{ animationDelay: ".08s", display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(255,107,53,0.09)", border: "1px solid rgba(255,107,53,0.3)", borderRadius: 18, padding: "12px 14px", marginBottom: 16 }}>
-          <Info size={17} color={T.orange} strokeWidth={2.3} style={{ flexShrink: 0, marginTop: 1 }} />
-          <div style={{ fontSize: 12.5, color: "#ffb391", lineHeight: 1.55 }}>
-            <strong style={{ color: T.orange }}>
+        <div className="fu" style={{ animationDelay: ".08s", display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(251,191,36,0.09)", border: "1px solid rgba(251,191,36,0.3)", borderRadius: 18, padding: "12px 14px", marginBottom: 16 }}>
+          <Info size={17} color={T.yellow} strokeWidth={2.3} style={{ flexShrink: 0, marginTop: 1 }} />
+          <div style={{ fontSize: 12.5, color: "#fde68a", lineHeight: 1.55 }}>
+            <strong style={{ color: T.yellow }}>
               Nie {overdueList.length > 1 ? "zrobiłeś treningów" : "zrobiłeś treningu"} {overdueList.join(" i ")}
             </strong>{" "}
             w {overdueList.length > 1 ? "planowane dni" : "planowany dzień"}. Tydzień kończy się w niedzielę — wskocz na siłownię w wolny dzień, żeby nadrobić.
@@ -153,7 +153,7 @@ export function CalendarTab({ goTraining }) {
             style={{
               animationDelay: `${0.14 + i * 0.05}s`,
               background: s.done ? "rgba(52,211,153,0.06)" : T.card,
-              border: `1px solid ${s.done ? "rgba(52,211,153,0.25)" : s.overdue ? "rgba(255,107,53,0.35)" : T.borderSoft}`,
+              border: `1px solid ${s.done ? "rgba(52,211,153,0.25)" : s.overdue ? "rgba(251,191,36,0.35)" : T.borderSoft}`,
               borderRadius: 20,
               padding: "13px 14px",
               marginBottom: 10,
@@ -174,11 +174,11 @@ export function CalendarTab({ goTraining }) {
                 flexShrink: 0,
               }}
             >
-              {s.done ? <Check size={19} color="#000" strokeWidth={2.8} /> : <Icon size={18} color={s.overdue ? T.orange : "#e8e8ea"} strokeWidth={2} />}
+              {s.done ? <Check size={19} color="#000" strokeWidth={2.8} /> : <Icon size={18} color={s.overdue ? T.yellow : "#e8e8ea"} strokeWidth={2} />}
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: "#fff" }}>{EXERCISES_DATA[k].label}</div>
-              <div style={{ fontSize: 11, color: s.overdue ? T.orange : T.sub, marginTop: 2, fontWeight: s.overdue ? 700 : 500 }}>{statusTxt}</div>
+              <div style={{ fontSize: 11, color: s.overdue ? T.yellow : T.sub, marginTop: 2, fontWeight: s.overdue ? 700 : 500 }}>{statusTxt}</div>
             </div>
             {s.done ? (
               <button

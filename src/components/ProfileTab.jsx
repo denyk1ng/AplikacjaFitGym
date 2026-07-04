@@ -208,7 +208,7 @@ export function ProfileTab() {
           </Gauge>
           <div style={{ display: "flex", marginTop: 14, borderTop: `1px solid ${T.borderSoft}`, paddingTop: 12 }}>
             <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: diff <= 0 ? T.ok : T.orange }}>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.05rem", color: diff <= 0 ? T.ok : T.yellow }}>
                 {diff > 0 ? "+" : ""}
                 {diff} kg
               </div>
@@ -252,7 +252,7 @@ export function ProfileTab() {
           {sorted.length >= 2 && (
             <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
               <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700 }}>Zmiana</div>
-              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: diff <= 0 ? T.ok : T.orange }}>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: diff <= 0 ? T.ok : T.yellow }}>
                 {diff > 0 ? "+" : ""}
                 {diff}
               </div>
@@ -322,7 +322,7 @@ export function ProfileTab() {
                 <div style={{ flex: 1, fontSize: 12.5, color: T.light }}>{e.dateShort}</div>
                 <div style={{ fontSize: 13.5, fontWeight: 700, color: T.accent }}>{e.kg} kg</div>
                 {d !== null && d !== 0 ? (
-                  <div style={{ fontSize: 11, fontWeight: 800, color: d < 0 ? T.ok : T.orange, minWidth: 38, textAlign: "right" }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: d < 0 ? T.ok : T.yellow, minWidth: 38, textAlign: "right" }}>
                     {d > 0 ? "+" : ""}
                     {d}
                   </div>
@@ -405,7 +405,7 @@ export function ProfileTab() {
           style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: "transparent", border: "none", borderBottom: `1px solid ${T.borderSoft}`, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
         >
           <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Eraser size={17} color={T.orange} strokeWidth={2.2} />
+            <Eraser size={17} color={T.yellow} strokeWidth={2.2} />
           </span>
           <span style={{ flex: 1 }}>
             <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Wyczyść historię treningów</span>

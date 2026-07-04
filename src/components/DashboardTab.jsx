@@ -106,7 +106,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   const hero = suggestion
     ? {
         chip: suggestion.overdue && settings.overdueAlert ? "ZALEGŁY TRENING" : "DZIŚ NA PLANIE",
-        chipStyle: suggestion.overdue && settings.overdueAlert ? { background: T.orange, color: "#000" } : { background: "rgba(0,0,0,0.14)", color: "#000" },
+        chipStyle: suggestion.overdue && settings.overdueAlert ? { background: T.yellow, color: "#000" } : { background: "rgba(0,0,0,0.14)", color: "#000" },
         title: EXERCISES_DATA[suggestion.type].label,
         sub: suggestion.overdue
           ? `Nadrób do niedzieli — ${exercises[suggestion.type].exercises.length} ćwiczeń`
@@ -144,7 +144,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         <button onClick={() => setShowNotif(true)} title="Powiadomienia" style={{ position: "relative", width: 42, height: 42, borderRadius: "50%", background: T.card, border: `1px solid ${T.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <Bell size={18} color="#fff" strokeWidth={2} />
           {hasAlert && (
-            <span style={{ position: "absolute", top: 9, right: 10, width: 7, height: 7, borderRadius: "50%", background: T.orange, border: `1.5px solid ${T.card}` }} />
+            <span style={{ position: "absolute", top: 9, right: 10, width: 7, height: 7, borderRadius: "50%", background: T.yellow, border: `1.5px solid ${T.card}` }} />
           )}
         </button>
       </div>
@@ -301,8 +301,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                     }}
                     style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", background: "transparent", border: "none", borderBottom: i < notifs.length - 1 ? `1px solid ${T.borderSoft}` : "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
                   >
-                    <span style={{ width: 40, height: 40, borderRadius: 13, background: n.warn ? "rgba(255,107,53,0.13)" : T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <n.Icon size={17} color={n.warn ? T.orange : T.accent} strokeWidth={2.2} />
+                    <span style={{ width: 40, height: 40, borderRadius: 13, background: n.warn ? "rgba(251,191,36,0.13)" : T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <n.Icon size={17} color={n.warn ? T.yellow : T.accent} strokeWidth={2.2} />
                     </span>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H }}>{n.t}</span>
