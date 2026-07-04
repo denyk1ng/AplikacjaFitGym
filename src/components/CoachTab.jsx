@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Send, Bot, KeyRound, Sparkles, Loader2 } from "lucide-react";
+import { Send, Bot, KeyRound, Sparkles, Loader2, ChevronDown, ChevronUp, TrendingUp, AlertTriangle } from "lucide-react";
 import { T } from "../theme.js";
 import { loadSettings, saveSettings } from "../lib/settings.js";
 import { loadWorkoutLog } from "../lib/workoutLog.js";
@@ -46,6 +46,7 @@ function greeting(insights) {
 export function CoachTab({ exercises }) {
   const [settings, setSettings] = useState(loadSettings);
   const [keyInput, setKeyInput] = useState("");
+  const [showKeySetup, setShowKeySetup] = useState(false);
   const [log, setLog] = useState([]);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -109,31 +110,74 @@ export function CoachTab({ exercises }) {
 
   if (!hasKey) {
     return (
-      <div className="fu" style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: 20 }}>
-        <div style={{ width: 46, height: 46, borderRadius: 14, background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-          <KeyRound size={21} color={T.accent} strokeWidth={2.2} />
+      <div>
+        <div className="fu" style={{ marginBottom: 16 }}>
+          <div style={{ fontFamily: U, fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>Darmowe podpowiedzi</div>
+          <p style={{ fontSize: 12, color: T.sub, marginTop: 4, lineHeight: 1.5 }}>
+            Wyliczone automatycznie z Twojej historii treningów — bez API, bez konta, bez żadnych kosztów.
+          </p>
         </div>
-        <div style={{ fontFamily: U, fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>Podłącz trenera AI</div>
-        <p style={{ fontSize: 12.5, color: T.sub, marginTop: 6, lineHeight: 1.55 }}>
-          Ta appka nie ma własnego serwera, więc czat działa na Twoim własnym kluczu API Anthropic. Klucz zostaje wyłącznie
-          w pamięci tego urządzenia (localStorage) i jest wysyłany bezpośrednio z przeglądarki do Anthropic — nigdy nie trafia
-          nigdzie indziej.
-        </p>
-        <input
-          type="password"
-          value={keyInput}
-          onChange={(e) => setKeyInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && saveKey()}
-          placeholder="sk-ant-..."
-          style={{ width: "100%", marginTop: 14, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: "#fff", padding: "12px 14px", fontSize: 13.5, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
-        />
-        <button
-          onClick={saveKey}
-          disabled={!keyInput.trim()}
-          style={{ width: "100%", marginTop: 10, background: keyInput.trim() ? T.accent : T.inset, color: keyInput.trim() ? "#000" : T.faint, border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "13px 20px", cursor: keyInput.trim() ? "pointer" : "default" }}
-        >
-          Zapisz klucz
-        </button>
+
+        {insights.length === 0 ? (
+          <div className="fu" style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 20, textAlign: "center" }}>
+            <Sparkles size={22} color={T.sub} strokeWidth={2} />
+            <p style={{ fontSize: 12.5, color: T.sub, marginTop: 10, lineHeight: 1.5 }}>
+              Zrób kilka treningów z zapisanymi ciężarami, a zaczną się tu pojawiać podpowiedzi kiedy dodać obciążenie.
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {insights.map((i) => (
+              <div
+                key={i.exerciseId}
+                className="fu"
+                style={{ display: "flex", alignItems: "flex-start", gap: 12, background: T.card, border: `1px solid ${i.kind === "increase" ? T.accentSoftBorder : T.borderSoft}`, borderRadius: 18, padding: "14px 16px" }}
+              >
+                <span style={{ width: 34, height: 34, borderRadius: "50%", background: i.kind === "increase" ? T.accentSoftBg : "rgba(251,191,36,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {i.kind === "increase" ? <TrendingUp size={16} color={T.accent} strokeWidth={2.2} /> : <AlertTriangle size={16} color={T.yellow} strokeWidth={2.2} />}
+                </span>
+                <div style={{ fontSize: 12.5, color: "#fff", lineHeight: 1.5 }}>{insightText(i)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* opcjonalny, schowany czat — wymaga własnego płatnego klucza, więc nienachalnie */}
+        <div className="fu" style={{ marginTop: 22 }}>
+          <button
+            onClick={() => setShowKeySetup((v) => !v)}
+            style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, background: "transparent", border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "12px 14px", cursor: "pointer", fontFamily: "inherit" }}
+          >
+            <KeyRound size={15} color={T.sub} strokeWidth={2.2} />
+            <span style={{ flex: 1, textAlign: "left", fontSize: 12, color: T.sub, fontWeight: 600 }}>Chcesz też prawdziwy czat z AI? (opcjonalnie, własny płatny klucz)</span>
+            {showKeySetup ? <ChevronUp size={15} color={T.sub} /> : <ChevronDown size={15} color={T.sub} />}
+          </button>
+
+          {showKeySetup && (
+            <div className="fu" style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 16, marginTop: 10 }}>
+              <p style={{ fontSize: 11.5, color: T.sub, lineHeight: 1.55 }}>
+                Appka nie ma własnego serwera, więc czat działa wyłącznie na Twoim własnym kluczu API Anthropic (płatne,
+                osobno od claude.ai). Klucz zostaje tylko w tym urządzeniu i jest wysyłany bezpośrednio z przeglądarki do
+                Anthropic. Jeśli nie chcesz nic dopłacać — po prostu zostań przy darmowych podpowiedziach powyżej.
+              </p>
+              <input
+                type="password"
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && saveKey()}
+                placeholder="sk-ant-..."
+                style={{ width: "100%", marginTop: 12, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: "#fff", padding: "12px 14px", fontSize: 13.5, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+              />
+              <button
+                onClick={saveKey}
+                disabled={!keyInput.trim()}
+                style={{ width: "100%", marginTop: 10, background: keyInput.trim() ? T.accent : T.inset, color: keyInput.trim() ? "#000" : T.faint, border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "13px 20px", cursor: keyInput.trim() ? "pointer" : "default" }}
+              >
+                Zapisz klucz
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
