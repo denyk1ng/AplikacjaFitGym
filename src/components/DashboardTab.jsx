@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, Bot } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { computeStreak, computeTotalGain, isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
+import { computeInsights, cardText } from "../lib/coach.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
 
@@ -101,6 +102,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   });
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
+  const coachText = cardText(computeInsights(log, exercises));
 
   // karta hero: dzisiejszy plan → zaległości → cardio/regeneracja/komplet
   const hero = suggestion
@@ -211,6 +213,22 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           <Play size={15} color={T.accent} fill={T.accent} strokeWidth={0} />
           {hero.cta}
         </button>
+      </div>
+
+      {/* TRENER AI — heurystyka na bazie workout_log, czat po podłączeniu klucza */}
+      <div
+        className="fu"
+        onClick={() => goTo("coach")}
+        style={{ animationDelay: ".13s", marginBottom: 22, background: T.card, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 22, padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}
+      >
+        <span style={{ width: 44, height: 44, borderRadius: "50%", background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Bot size={20} color={T.accent} strokeWidth={2.2} />
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: T.accent, marginBottom: 3 }}>Trener AI</div>
+          <div style={{ fontSize: 12, color: T.light, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{coachText}</div>
+        </div>
+        <ChevronRight size={16} color={T.faint} strokeWidth={2.2} />
       </div>
 
       {/* AKTYWNOŚĆ */}

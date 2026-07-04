@@ -18,6 +18,7 @@ import { WorkoutDetail } from "./components/WorkoutDetail.jsx";
 import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
 import { LiveSession, loadLiveState } from "./components/LiveSession.jsx";
 import { QuickAddSheet } from "./components/QuickAddSheet.jsx";
+import { CoachTab } from "./components/CoachTab.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -163,7 +164,7 @@ export default function App() {
     saveWorkoutLog(rest);
   };
 
-  const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
+  const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz", coach: "Trener AI" };
 
   return (
     <div
@@ -279,6 +280,7 @@ export default function App() {
           {tab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
           {tab === "profil" && <ProfileTab />}
           {tab === "kalendarz" && <CalendarTab key={logRefresh} goTraining={goTraining} />}
+          {tab === "coach" && <CoachTab exercises={exercises} />}
         </div>
       )}
 

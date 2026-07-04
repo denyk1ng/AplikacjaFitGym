@@ -112,6 +112,9 @@ button {
     transform: rotate(360deg);
   }
 }
+.spin {
+  animation: spin 0.9s linear infinite;
+}
 
 /* logo napełnia się od dołu do góry, chwilę trzyma pełne i zaczyna od nowa */
 @keyframes logofill {

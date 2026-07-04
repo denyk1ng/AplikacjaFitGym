@@ -220,7 +220,10 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         <button
           onClick={() => {
             clearLiveState();
-            onSaveAll({ time: elapsed, sets: totalSetsDone, volume });
+            const perExercise = exs
+              .map((e, i) => ({ id: e.id, weight: e.weight || 0, unit: e.unit, setsDone: setsDone[i], sets: e.sets }))
+              .filter((e) => e.setsDone > 0);
+            onSaveAll({ time: elapsed, sets: totalSetsDone, volume, perExercise });
           }}
           className="fu"
           style={{ animationDelay: ".45s", marginTop: 22, width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: T.accentGlow }}
