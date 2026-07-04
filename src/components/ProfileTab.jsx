@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings } from "lucide-react";
+import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight } from "lucide-react";
 import { T } from "../theme.js";
 import { storage } from "../lib/storage.js";
 import { loadSettings, saveSettings } from "../lib/settings.js";
+import { canInstall, onInstallable, promptInstall, isStandalone, isIOS } from "../lib/install.js";
 import { EditNum } from "./Editable.jsx";
 import { ConfirmSheet } from "./ConfirmSheet.jsx";
 import { LogoMark } from "./Logo.jsx";
@@ -67,8 +68,20 @@ export function ProfileTab() {
   const [ready, setReady] = useState(false);
   const [input, setInput] = useState("");
   const [settings, setSettings] = useState(loadSettings);
-  const [confirm, setConfirm] = useState(null); // null | "wipe" | "reset"
+  const [confirm, setConfirm] = useState(null); // null | "wipe" | "reset" | "install"
+  const [installable, setInstallable] = useState(canInstall());
   const inputRef = useRef(null);
+
+  useEffect(() => onInstallable(setInstallable), []);
+
+  const handleInstall = async () => {
+    if (installable) {
+      const done = await promptInstall();
+      if (!done) setConfirm("install"); // odrzucone/niedostępne — pokaż instrukcję
+    } else {
+      setConfirm("install");
+    }
+  };
 
   const setOpt = (k, v) => {
     const s = { ...settings, [k]: v };
@@ -336,6 +349,35 @@ export function ProfileTab() {
         Ustawienia
       </div>
 
+      {/* instalacja na telefonie */}
+      {!isStandalone() && (
+        <button
+          onClick={handleInstall}
+          className="fu"
+          style={{ animationDelay: ".29s", width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 20, cursor: "pointer", textAlign: "left", fontFamily: "inherit", marginBottom: 12 }}
+        >
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Smartphone size={17} color="#000" strokeWidth={2.2} />
+          </span>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Zainstaluj na telefonie</span>
+            <span style={{ display: "block", fontSize: 10.5, color: T.sub, marginTop: 2 }}>ikonka na pulpicie · pełny ekran · działa offline</span>
+          </span>
+          <ChevronRight size={15} color={T.accent} strokeWidth={2.2} />
+        </button>
+      )}
+      {isStandalone() && (
+        <div className="fu" style={{ animationDelay: ".29s", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, marginBottom: 12 }}>
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(52,211,153,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Check size={17} color={T.ok} strokeWidth={2.4} />
+          </span>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Aplikacja zainstalowana</span>
+            <span style={{ display: "block", fontSize: 10.5, color: T.sub, marginTop: 2 }}>działasz z ikonki na pulpicie</span>
+          </span>
+        </div>
+      )}
+
       <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 12 }}>
         {[
           { k: "sound", Icon: Volume2, t: "Dźwięk końca przerwy", d: "sygnał po odliczeniu przerwy w sesji" },
@@ -392,6 +434,21 @@ export function ProfileTab() {
         </div>
       </div>
 
+      <ConfirmSheet
+        open={confirm === "install"}
+        onClose={() => setConfirm(null)}
+        icon={Smartphone}
+        tone="accent"
+        single
+        title="Jak zainstalować FORMĘ"
+        desc={
+          isIOS()
+            ? "1. Otwórz tę stronę w Safari (nie w okienku Messengera/WhatsAppa — tam wybierz „Otwórz w Safari”).\n2. Stuknij przycisk Udostępnij — kwadrat ze strzałką na dolnym pasku.\n3. Przewiń listę i wybierz „Dodaj do ekranu początkowego”.\n4. Stuknij „Dodaj” — ikonka FORMA pojawi się na pulpicie."
+            : "1. Otwórz tę stronę w Chrome (nie w okienku Messengera/WhatsAppa — tam wybierz „Otwórz w przeglądarce”).\n2. Stuknij menu ⋮ w prawym górnym rogu.\n3. Wybierz „Dodaj do ekranu głównego” albo „Zainstaluj aplikację”.\n4. Potwierdź — ikonka FORMA pojawi się na pulpicie."
+        }
+        confirmLabel="Rozumiem"
+        onConfirm={() => setConfirm(null)}
+      />
       <ConfirmSheet
         open={confirm === "wipe"}
         onClose={() => setConfirm(null)}
