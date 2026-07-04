@@ -159,9 +159,9 @@ function WarmupSection({ data, idx, done, toggle }) {
 
 // wspólny hero ze zdjęciem — dzielony przez ekran wyboru dnia i przebieg rozgrzewki;
 // na ekranie wyboru pokazuje ogólne zdjęcie, w przebiegu — zdjęcie wybranego dnia
-function Hero({ onBack, photo = PHOTOS.stretch }) {
+function Hero({ onBack, photo = PHOTOS.stretch, height = 220 }) {
   return (
-    <div style={{ position: "relative", height: 220 }}>
+    <div style={{ position: "relative", height }}>
       <img key={photo} src={photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.45) 0%, rgba(6,9,16,0.1) 35%, rgba(6,9,16,0.6) 100%)" }} />
       {onBack && (
@@ -235,23 +235,34 @@ function WarmupFlow({ day, onBack }) {
 
   return (
     <div key={day} style={{ margin: "-20px -18px 0", paddingBottom: 100 }}>
-      <Hero onBack={onBack} photo={WARMUP_PHOTOS[day]} />
-      <div style={{ position: "relative", marginTop: -26, background: T.bg, borderRadius: "26px 26px 0 0", padding: "10px 18px 0" }}>
-        <div style={{ width: 44, height: 4, borderRadius: 99, background: T.border, margin: "0 auto 14px" }} />
+      <Hero onBack={onBack} photo={WARMUP_PHOTOS[day]} height={165} />
 
-        <div className="fu" style={{ fontFamily: U, fontStyle: "italic", fontWeight: 800, fontSize: "1.6rem", color: "#fff", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
+      {/* karta tytułowa "wypływa" i nachodzi na dół zdjęcia */}
+      <div
+        className="fu"
+        style={{
+          position: "relative",
+          margin: "-40px 18px 0",
+          background: T.card,
+          border: `1px solid ${T.borderSoft}`,
+          borderRadius: 20,
+          padding: "16px 16px 14px",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.4)",
+        }}
+      >
+        <div style={{ fontFamily: U, fontStyle: "italic", fontWeight: 800, fontSize: "1.35rem", color: "#fff", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
           Rozgrzewka <span style={{ color: T.accent }}>{day}</span>
         </div>
-        <div className="fu" style={{ animationDelay: ".05s", fontSize: 12.5, color: T.soft, marginTop: 5, marginBottom: 16 }}>
-          Baza, potem aktywacja pod trening {day} — rób w tej kolejności
-        </div>
+        <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4 }}>Baza, potem aktywacja pod trening {day} — rób w tej kolejności</div>
 
-        <div className="fu" style={{ animationDelay: ".1s", display: "flex", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, marginBottom: 16 }}>
+        <div style={{ display: "flex", background: T.inset, borderRadius: 16, marginTop: 14 }}>
           <StatCell Icon={Layers} label="Sekcje" value={sections.length} sub="baza + dzień" />
           <StatCell Icon={Dumbbell} label="Ćwiczenia" value={totalItems} sub={`${doneTotal} zaliczone`} divider />
           <StatCell Icon={Clock} label="Czas" value="8–10" unit=" min" sub="łącznie" divider />
         </div>
+      </div>
 
+      <div style={{ padding: "18px 18px 0" }}>
         {sections.map((d, i) => (
           <WarmupSection key={i} data={d} idx={i} done={done} toggle={toggle} />
         ))}
