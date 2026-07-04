@@ -228,12 +228,12 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
         <div className="fu" style={{ animationDelay: ".22s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
-            <Moon size={13} color={T.purple} strokeWidth={2.4} />
+            <Moon size={13} color={T.accent} strokeWidth={2.4} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Seria</span>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 34 }}>
             {weekBars.map((v, i) => (
-              <div key={i} style={{ width: 7, height: `${Math.max(v * 100, 12)}%`, borderRadius: 4, background: i === weekBars.length - 1 ? T.purple : `${T.purple}55` }} />
+              <div key={i} style={{ width: 7, height: `${Math.max(v * 100, 12)}%`, borderRadius: 4, background: i === weekBars.length - 1 ? T.accent : `${T.accent}55` }} />
             ))}
           </div>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
@@ -242,11 +242,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
         <div className="fu" style={{ animationDelay: ".26s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
-            <HeartPulse size={13} color={T.danger} strokeWidth={2.4} />
+            <HeartPulse size={13} color={T.accent} strokeWidth={2.4} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Progres</span>
           </div>
           <svg width="72" height="34" viewBox="0 0 72 34" fill="none">
-            <polyline points="0,20 10,20 15,10 21,28 27,6 33,24 38,17 48,17 53,11 60,22 66,17 72,17" stroke={T.danger} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <polyline points="0,20 10,20 15,10 21,28 27,6 33,24 38,17 48,17 53,11 60,22 66,17 72,17" stroke={T.accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
             <strong style={{ color: "#fff", fontFamily: H, fontSize: 13 }}>
