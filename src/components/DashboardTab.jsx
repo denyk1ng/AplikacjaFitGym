@@ -149,32 +149,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </button>
       </div>
 
-      {/* LIMONKOWA KARTA HERO */}
-      <div className="fu" style={{ animationDelay: ".06s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(188,255,49,0.18)" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", padding: "5px 11px", borderRadius: 99, marginBottom: 12, ...hero.chipStyle }}>
-              {hero.chip}
-            </span>
-            <div style={{ fontFamily: H, fontWeight: 700, fontSize: "1.45rem", color: "#000", lineHeight: 1.05 }}>{hero.title}</div>
-            <div style={{ fontSize: 12, color: "rgba(0,0,0,0.62)", marginTop: 4, fontWeight: 600 }}>{hero.sub}</div>
-          </div>
-          <Ring pct={doneCount / 3} size={64} stroke={7} color="#000" track="rgba(0,0,0,0.14)">
-            <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 13, color: "#000" }}>{doneCount}/3</span>
-          </Ring>
-        </div>
-        <button
-          onClick={hero.go}
-          style={{ marginTop: 14, width: "100%", background: "#171717", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 700, fontSize: 13.5, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-        >
-          <Play size={15} color={T.accent} fill={T.accent} strokeWidth={0} />
-          {hero.cta}
-        </button>
-      </div>
-
       {/* KATEGORIE */}
-      <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".1s" />
-      <div className="fu hscroll" style={{ animationDelay: ".12s", marginBottom: 22 }}>
+      <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
+      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 22 }}>
         {cats.map(({ Icon, l, act, go }) => (
           <button key={l} onClick={go} style={{ background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flexShrink: 0, padding: 0 }}>
             <span
@@ -195,6 +172,29 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <span style={{ fontSize: 10.5, fontWeight: 600, color: act ? "#fff" : T.sub, whiteSpace: "nowrap" }}>{l}</span>
           </button>
         ))}
+      </div>
+
+      {/* LIMONKOWA KARTA HERO */}
+      <div className="fu" style={{ animationDelay: ".12s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(188,255,49,0.18)" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", padding: "5px 11px", borderRadius: 99, marginBottom: 12, ...hero.chipStyle }}>
+              {hero.chip}
+            </span>
+            <div style={{ fontFamily: H, fontWeight: 700, fontSize: "1.45rem", color: "#000", lineHeight: 1.05 }}>{hero.title}</div>
+            <div style={{ fontSize: 12, color: "rgba(0,0,0,0.62)", marginTop: 4, fontWeight: 600 }}>{hero.sub}</div>
+          </div>
+          <Ring pct={doneCount / 3} size={64} stroke={7} color="#000" track="rgba(0,0,0,0.14)">
+            <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 13, color: "#000" }}>{doneCount}/3</span>
+          </Ring>
+        </div>
+        <button
+          onClick={hero.go}
+          style={{ marginTop: 14, width: "100%", background: "#171717", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 700, fontSize: 13.5, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+        >
+          <Play size={15} color={T.accent} fill={T.accent} strokeWidth={0} />
+          {hero.cta}
+        </button>
       </div>
 
       {/* AKTYWNOŚĆ */}
