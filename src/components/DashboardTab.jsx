@@ -219,16 +219,16 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       <div
         className="fu"
         onClick={() => goTo("coach")}
-        style={{ animationDelay: ".13s", marginBottom: 22, background: T.card, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 22, padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}
+        style={{ animationDelay: ".13s", marginBottom: 22, background: T.blue, borderRadius: 22, padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 14px 34px rgba(37,99,235,0.3)" }}
       >
-        <span style={{ width: 44, height: 44, borderRadius: "50%", background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Bot size={20} color={T.accent} strokeWidth={2.2} />
+        <span style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Bot size={22} color="#fff" strokeWidth={2.2} />
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: T.accent, marginBottom: 3 }}>Trener AI</div>
-          <div style={{ fontSize: 12, color: T.light, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{coachText}</div>
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: 3 }}>Trener AI</div>
+          <div style={{ fontSize: 12, color: "#fff", lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{coachText}</div>
         </div>
-        <ChevronRight size={16} color={T.faint} strokeWidth={2.2} />
+        <ChevronRight size={16} color="rgba(255,255,255,0.6)" strokeWidth={2.2} />
       </div>
 
       {/* AKTYWNOŚĆ */}
