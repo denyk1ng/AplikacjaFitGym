@@ -181,7 +181,7 @@ export default function App() {
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 
-      {tab !== "dom" && tab !== "trening" && tab !== "cwiczenie" && tab !== "sesja" && (
+      {tab !== "dom" && tab !== "trening" && tab !== "cwiczenie" && tab !== "sesja" && tab !== "rozgrzewka" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
             <p style={{ display: "flex", alignItems: "center", gap: 5, color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
