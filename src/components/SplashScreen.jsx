@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { LogoMark } from "./Logo.jsx";
+import { AnimatedLogo } from "./Logo.jsx";
 
-// Splash: czysta czerń + wyśrodkowany znak (wg wzorca), krótki pop i fade-out
+// Splash: znak ładuje się tak jak przy budowaniu planu (logofill),
+// pod spodem dopisuje się nazwa aplikacji, potem krótki fade-out
 export function SplashScreen({ onDone }) {
   const [leaving, setLeaving] = useState(false);
   useEffect(() => {
-    const t1 = setTimeout(() => setLeaving(true), 1400);
-    const t2 = setTimeout(onDone, 1850);
+    const t1 = setTimeout(() => setLeaving(true), 1700);
+    const t2 = setTimeout(onDone, 2150);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -20,14 +21,27 @@ export function SplashScreen({ onDone }) {
         zIndex: 3000,
         background: "#060910",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        gap: 20,
         opacity: leaving ? 0 : 1,
         transition: "opacity .45s ease",
       }}
     >
-      <div className="pop">
-        <LogoMark size={92} />
+      <AnimatedLogo size={96} />
+      <div
+        className="fu"
+        style={{
+          animationDelay: ".4s",
+          fontFamily: "'Urbanist',sans-serif",
+          fontWeight: 800,
+          fontSize: "1.55rem",
+          letterSpacing: ".13em",
+          color: "#fff",
+        }}
+      >
+        FOR<span style={{ color: "#ff4d00" }}>MA</span>
       </div>
     </div>
   );
