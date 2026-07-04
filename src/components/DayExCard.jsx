@@ -108,7 +108,7 @@ export function DayExCard({ ex, idx, onUpdate }) {
               )}
               <button
                 onClick={() => setTimer(true)}
-                style={{ ...chip, background: "rgba(74,158,255,0.1)", border: "none", color: T.blue, cursor: "pointer", fontWeight: 700, fontSize: 13 }}
+                style={{ ...chip, background: "rgba(37,99,235,0.1)", border: "none", color: T.blue, cursor: "pointer", fontWeight: 700, fontSize: 13 }}
               >
                 <Timer size={14} strokeWidth={2.4} />
                 {formatRest(ex.rest)}
@@ -161,7 +161,7 @@ export function DayExCard({ ex, idx, onUpdate }) {
               </div>
             ) : null}
             {ex.tech ? (
-              <div style={{ marginBottom: 12, padding: "10px 12px", background: "rgba(74,158,255,0.06)", borderRadius: 12 }}>
+              <div style={{ marginBottom: 12, padding: "10px 12px", background: "rgba(37,99,235,0.06)", borderRadius: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.blue, marginBottom: 5 }}>
                   <BookOpen size={13} strokeWidth={2.3} />
                   Technika

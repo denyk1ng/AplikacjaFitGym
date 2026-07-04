@@ -12,7 +12,7 @@ export function Onboarding({ onDone }) {
 
       <div style={{ position: "relative", width: "100%", maxWidth: 330, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div className="pop" style={{ width: 64, height: 64, borderRadius: 22, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: T.accentGlow, marginBottom: 26 }}>
-          <LogoMark size={38} top="#060910" bottom="#ffffff" />
+          <LogoMark size={38} top="#171717" bottom="#ffffff" />
         </div>
 
         <div className="fu" style={{ animationDelay: ".2s", fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "2.1rem", lineHeight: 1.15, color: "#fff" }}>

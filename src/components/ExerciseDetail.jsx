@@ -72,7 +72,7 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
   return (
     <div style={{ margin: "-20px -18px 0", paddingBottom: 120 }}>
       {/* POKAZ RUCHU (start -> koniec) */}
-      <div style={{ position: "relative", height: 290, background: "#0b0d12", overflow: "hidden" }}>
+      <div style={{ position: "relative", height: 290, background: T.card2, overflow: "hidden" }}>
         {imgA && <img src={imgA} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />}
         {imgB && (
           <img
