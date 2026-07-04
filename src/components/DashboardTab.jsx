@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Footprints, Moon, HeartPulse, Play, Flame, Dumbbell, BicepsFlexed, Check, Medal, X, ChevronRight } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -121,11 +121,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         : { chip: "DZIŚ NA PLANIE", chipStyle: { background: "rgba(0,0,0,0.14)", color: "#000" }, title: "Regeneracja", sub: "Rozciąganie i pełny odpoczynek", cta: "Zobacz kalendarz", go: () => goTo("kalendarz") };
 
   const cats = [
-    { Icon: Flame, l: "Rozgrzewka", c: T.accent, act: false, go: () => goTo("rozgrzewka") },
-    { Icon: Dumbbell, l: "Trening A", c: T.blue, act: suggestion?.type === "A", go: () => goTraining("A") },
-    { Icon: Footprints, l: "Trening B", c: T.orange, act: suggestion?.type === "B", go: () => goTraining("B") },
-    { Icon: BicepsFlexed, l: "Trening C", c: T.purple, act: suggestion?.type === "C", go: () => goTraining("C") },
-    { Icon: HeartPulse, l: "Cardio", c: T.danger, act: !suggestion && isCardio, go: () => goTo("kalendarz") },
+    { photo: PHOTOS.stretch, l: "Rozgrzewka", act: false, go: () => goTo("rozgrzewka") },
+    { photo: PHOTOS.A, l: "Trening A", act: suggestion?.type === "A", go: () => goTraining("A") },
+    { photo: PHOTOS.B, l: "Trening B", act: suggestion?.type === "B", go: () => goTraining("B") },
+    { photo: PHOTOS.C, l: "Trening C", act: suggestion?.type === "C", go: () => goTraining("C") },
+    { photo: PHOTOS.cardio, l: "Cardio", act: !suggestion && isCardio, go: () => goTo("kalendarz") },
   ];
 
   return (
@@ -152,7 +152,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       {/* KATEGORIE — pigułki z kolorowym kółkiem ikony, aktywna podświetlona limonką */}
       <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
       <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 22 }}>
-        {cats.map(({ Icon, l, c, act, go }) => (
+        {cats.map(({ photo, l, act, go }) => (
           <button
             key={l}
             onClick={go}
@@ -161,10 +161,10 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
               alignItems: "center",
               gap: 8,
               flexShrink: 0,
-              padding: act ? "6px 16px 6px 6px" : "6px 14px 6px 6px",
+              padding: "6px 16px 6px 6px",
               borderRadius: 99,
-              border: `1px solid ${act ? T.accent : T.borderSoft}`,
-              background: act ? T.accent : T.card,
+              border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
+              background: T.card,
               cursor: "pointer",
               fontFamily: "inherit",
               transition: "all .2s",
@@ -176,15 +176,16 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 height: 30,
                 borderRadius: "50%",
                 flexShrink: 0,
-                background: act ? "rgba(0,0,0,0.16)" : `${c}1c`,
+                overflow: "hidden",
+                border: `1.5px solid ${act ? T.accent : "transparent"}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Icon size={15} color={act ? "#000" : c} strokeWidth={2.3} />
+              <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </span>
-            <span style={{ fontSize: 12.5, fontWeight: 700, color: act ? "#000" : "#fff", whiteSpace: "nowrap" }}>{l}</span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
           </button>
         ))}
       </div>
