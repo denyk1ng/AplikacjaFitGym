@@ -139,65 +139,42 @@ function WarmupSection({ data, idx, done, toggle }) {
         <ChevronDown size={18} color={T.faint} strokeWidth={2.4} style={{ transition: "transform .25s", transform: open ? "rotate(180deg)" : "none", flexShrink: 0 }} />
       </div>
       {open && (
-        <div style={{ padding: "10px 14px 14px", display: "flex", flexDirection: "column", gap: 9 }}>
+        <div style={{ padding: "8px 14px 6px" }}>
           {data.items.map((item, i) => {
             const key = `${idx}-${i}`;
             const on = !!done[key];
+            const last = i === data.items.length - 1;
             return (
-              <div
-                key={i}
-                className="sil"
-                onClick={() => toggle(key)}
-                style={{
-                  animationDelay: `${0.12 + i * 0.09}s`,
-                  position: "relative",
-                  background: on ? "rgba(52,211,153,0.07)" : T.inset,
-                  border: `1px solid ${on ? "rgba(52,211,153,0.28)" : T.borderSoft}`,
-                  borderRadius: 16,
-                  padding: "11px 12px 12px",
-                  cursor: "pointer",
-                  transition: "background .2s, border-color .2s",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <div key={i} className="sil" onClick={() => toggle(key)} style={{ animationDelay: `${0.12 + i * 0.09}s`, display: "flex", gap: 12, cursor: "pointer" }}>
+                <div style={{ width: 26, display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
                   <span
                     style={{
-                      width: 22,
-                      height: 22,
+                      width: 26,
+                      height: 26,
                       borderRadius: "50%",
-                      background: on ? T.ok : "transparent",
+                      background: on ? T.ok : T.card,
                       border: `1.5px solid ${on ? T.ok : data.color}`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                      marginTop: 1,
+                      fontFamily: FONT_NUM,
+                      fontWeight: 800,
+                      fontSize: 12,
+                      color: on ? "#06210f" : data.color,
                       transition: "all .2s",
                     }}
                   >
-                    {on && <Check size={12} color="#000" strokeWidth={3} />}
+                    {on ? <Check size={13} color="#06210f" strokeWidth={3} /> : i + 1}
                   </span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", opacity: on ? 0.5 : 1 }}>
-                      <span style={{ fontWeight: 700, fontSize: 13, color: "#fff", lineHeight: 1.35, textDecoration: on ? "line-through" : "none" }}>{item.name}</span>
-                      <span
-                        style={{
-                          background: T.card,
-                          border: `1px solid ${T.borderSoft}`,
-                          borderRadius: 8,
-                          padding: "3px 8px",
-                          fontFamily: FONT_NUM,
-                          fontWeight: 700,
-                          fontSize: 10.5,
-                          color: data.color,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {item.sets}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.55, marginTop: 6, opacity: on ? 0.5 : 1 }}>{item.desc}</div>
+                  {!last && <span style={{ width: 2, flex: 1, marginTop: 3, marginBottom: 3, borderRadius: 2, background: on ? T.ok : T.faint, opacity: on ? 0.55 : 0.3, transition: "background .2s, opacity .2s" }} />}
+                </div>
+                <div style={{ flex: 1, minWidth: 0, paddingBottom: last ? 10 : 18 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4, opacity: on ? 0.5 : 1 }}>
+                    <span style={{ fontWeight: 600, fontSize: 13, color: "#fff", textDecoration: on ? "line-through" : "none" }}>{item.name}</span>
+                    <span style={{ background: `${data.color}16`, borderRadius: 99, padding: "2px 9px", fontSize: 11, fontWeight: 700, color: data.color, flexShrink: 0 }}>{item.sets}</span>
                   </div>
+                  <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.55, opacity: on ? 0.5 : 1 }}>{item.desc}</div>
                 </div>
               </div>
             );
