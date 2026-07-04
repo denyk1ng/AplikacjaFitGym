@@ -1,34 +1,34 @@
-// Maskotka-bot w stylu "3D toy render" (gradienty + glossy highlight + poświata oczu),
-// czysty SVG bez zewnętrznych zdjęć — używany na kafelku Trenera AI na Dashboardzie.
+// Maskotka-bot w stylu przemysłowego "sci-fi droida" (boxy głowa, obiektyw kamery,
+// żółto-kremowy pancerz) — czysty SVG z gradientami/poświatą, bez zewnętrznych zdjęć.
 export function BotMascot({ size = 110 }) {
   return (
-    <svg width={size} height={(size * 150) / 120} viewBox="0 0 120 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={(size * 160) / 130} viewBox="0 0 130 160" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="botHead" x1="15%" y1="5%" x2="85%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="55%" stopColor="#e7ebf1" />
-          <stop offset="100%" stopColor="#aab0bd" />
+        <linearGradient id="botCream" x1="10%" y1="0%" x2="90%" y2="100%">
+          <stop offset="0%" stopColor="#f7f3e9" />
+          <stop offset="55%" stopColor="#e8e1cf" />
+          <stop offset="100%" stopColor="#c6bda5" />
         </linearGradient>
-        <linearGradient id="botBody" x1="15%" y1="0%" x2="85%" y2="100%">
-          <stop offset="0%" stopColor="#f5f7fa" />
-          <stop offset="60%" stopColor="#dde1e7" />
-          <stop offset="100%" stopColor="#a5abb8" />
+        <linearGradient id="botMustard" x1="10%" y1="0%" x2="90%" y2="100%">
+          <stop offset="0%" stopColor="#ffd873" />
+          <stop offset="55%" stopColor="#f2b83e" />
+          <stop offset="100%" stopColor="#c98a1f" />
         </linearGradient>
         <linearGradient id="botDark" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#20242c" />
-          <stop offset="100%" stopColor="#0a0b0f" />
+          <stop offset="0%" stopColor="#2b2b2c" />
+          <stop offset="100%" stopColor="#0a0a0a" />
         </linearGradient>
-        <radialGradient id="botGlow" cx="50%" cy="40%" r="65%">
-          <stop offset="0%" stopColor="#eaffb0" />
-          <stop offset="55%" stopColor="#bcff31" />
-          <stop offset="100%" stopColor="#82c400" />
+        <radialGradient id="botEye" cx="50%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#fff4c2" />
+          <stop offset="55%" stopColor="#ffc93f" />
+          <stop offset="100%" stopColor="#c9860a" />
         </radialGradient>
         <radialGradient id="botShadow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(0,0,0,0.38)" />
+          <stop offset="0%" stopColor="rgba(0,0,0,0.4)" />
           <stop offset="100%" stopColor="rgba(0,0,0,0)" />
         </radialGradient>
         <filter id="botEmit" x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation="3.2" result="blur" />
+          <feGaussianBlur stdDeviation="2.6" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -36,39 +36,46 @@ export function BotMascot({ size = 110 }) {
         </filter>
       </defs>
 
-      {/* cień pod botem */}
-      <ellipse cx="60" cy="144" rx="34" ry="7" fill="url(#botShadow)" />
+      {/* cień */}
+      <ellipse cx="65" cy="153" rx="36" ry="7" fill="url(#botShadow)" />
 
       {/* antena */}
-      <line x1="60" y1="9" x2="60" y2="23" stroke="#b6bcc7" strokeWidth="3.5" strokeLinecap="round" />
-      <circle cx="60" cy="8" r="6.5" fill="url(#botGlow)" filter="url(#botEmit)" />
+      <line x1="46" y1="6" x2="52" y2="24" stroke="#3a3a3c" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="46" cy="5" r="3" fill="#3a3a3c" />
 
-      {/* ramiona (kikuty, boki korpusu) */}
-      <ellipse cx="10" cy="108" rx="10" ry="16" fill="url(#botBody)" />
-      <ellipse cx="110" cy="108" rx="10" ry="16" fill="url(#botBody)" />
+      {/* ramiona / kikuty boczne korpusu (koła jak zawiasy) */}
+      <circle cx="16" cy="120" r="14" fill="url(#botMustard)" stroke="#0a0a0a" strokeOpacity="0.25" />
+      <circle cx="114" cy="120" r="14" fill="url(#botMustard)" stroke="#0a0a0a" strokeOpacity="0.25" />
 
       {/* korpus */}
-      <rect x="16" y="86" width="88" height="52" rx="26" fill="url(#botBody)" stroke="#8b93a3" strokeOpacity="0.3" />
-      {/* panel piersiowy z rdzeniem */}
-      <rect x="44" y="100" width="32" height="26" rx="9" fill="url(#botDark)" />
-      <circle cx="60" cy="113" r="5" fill="url(#botGlow)" filter="url(#botEmit)" />
+      <rect x="26" y="100" width="78" height="50" rx="18" fill="url(#botMustard)" stroke="#0a0a0a" strokeOpacity="0.25" />
+      <rect x="26" y="120" width="78" height="7" fill="#0a0a0a" opacity="0.55" />
+      <rect x="52" y="128" width="26" height="16" rx="4" fill="url(#botDark)" />
 
-      {/* szyja */}
-      <rect x="50" y="76" width="20" height="12" fill="#c3c8d2" />
+      {/* szyja — segmentowe "kable" */}
+      <rect x="58" y="88" width="14" height="16" fill="#2b2b2c" />
+      <circle cx="58" cy="92" r="3.5" fill="#3a3a3c" />
+      <circle cx="72" cy="98" r="3.5" fill="#3a3a3c" />
 
-      {/* głowa */}
-      <rect x="24" y="20" width="72" height="56" rx="25" fill="url(#botHead)" stroke="#9aa1ad" strokeOpacity="0.35" />
-      {/* czujniki po bokach głowy */}
-      <circle cx="20" cy="50" r="7.5" fill="url(#botBody)" />
-      <circle cx="100" cy="50" r="7.5" fill="url(#botBody)" />
+      {/* głowa (boxy) */}
+      <rect x="24" y="26" width="82" height="64" rx="16" fill="url(#botCream)" stroke="#9b9280" strokeOpacity="0.4" />
 
-      {/* wizjer z oczami */}
-      <rect x="37" y="39" width="46" height="22" rx="11" fill="url(#botDark)" />
-      <circle cx="52" cy="50" r="5.4" fill="url(#botGlow)" filter="url(#botEmit)" />
-      <circle cx="68" cy="50" r="5.4" fill="url(#botGlow)" filter="url(#botEmit)" />
+      {/* obiektyw kamery z boku głowy */}
+      <circle cx="100" cy="58" r="15" fill="url(#botDark)" />
+      <circle cx="100" cy="58" r="9.5" fill="#171717" />
+      <circle cx="103" cy="55" r="3" fill="#565656" opacity="0.8" />
+
+      {/* wizjer z dwoma pionowymi światłami */}
+      <rect x="35" y="42" width="42" height="34" rx="9" fill="url(#botDark)" />
+      <rect x="44" y="49" width="8" height="20" rx="4" fill="url(#botEye)" filter="url(#botEmit)" />
+      <rect x="60" y="49" width="8" height="20" rx="4" fill="url(#botEye)" filter="url(#botEmit)" />
+
+      {/* drobne wentylacje po lewej */}
+      <rect x="29" y="34" width="10" height="3" rx="1.5" fill="#9b9280" opacity="0.6" />
+      <rect x="29" y="40" width="10" height="3" rx="1.5" fill="#9b9280" opacity="0.6" />
 
       {/* glossy highlight na głowie */}
-      <ellipse cx="43" cy="30" rx="15" ry="8" fill="#ffffff" opacity="0.55" transform="rotate(-18 43 30)" />
+      <ellipse cx="42" cy="36" rx="13" ry="7" fill="#ffffff" opacity="0.45" transform="rotate(-14 42 36)" />
     </svg>
   );
 }
