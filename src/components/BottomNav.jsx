@@ -73,7 +73,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
                   width: 48,
                   height: 48,
                   borderRadius: "50%",
-                  background: on ? "#060910" : "rgba(255,255,255,0.055)",
+                  background: on ? "#171717" : "rgba(255,255,255,0.055)",
                   border: "none",
                   cursor: "pointer",
                   display: "flex",
@@ -110,7 +110,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
             justifyContent: "center",
             boxShadow: saveAnim
               ? "0 6px 24px rgba(52,211,153,0.55)"
-              : "0 6px 24px rgba(255,77,0,0.45), 0 0 48px rgba(255,77,0,0.22)",
+              : "0 6px 24px rgba(188,255,49,0.45), 0 0 48px rgba(188,255,49,0.22)",
             transition: "transform .3s cubic-bezier(.22,1,.36,1), background .3s, box-shadow .3s",
           }}
         >

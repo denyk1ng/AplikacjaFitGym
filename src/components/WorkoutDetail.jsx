@@ -158,7 +158,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
       <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: "calc(86px + env(safe-area-inset-bottom))", zIndex: 800, width: "calc(100% - 36px)", maxWidth: 400 }}>
         <button
           onClick={onStart}
-          style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: "0 10px 34px rgba(255,77,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: "0 10px 34px rgba(188,255,49,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
         >
           <Play size={15} color="#000" fill="#000" strokeWidth={0} />
           Rozpocznij trening

@@ -3,9 +3,9 @@
     <clipPath id="u"><polygon points="-5,-5 105,-5 105,46 -5,64"/></clipPath>
     <clipPath id="d"><polygon points="-5,70 105,52 105,105 -5,105"/></clipPath>
   </defs>
-  <rect width="100" height="100" rx="24" fill="#ff4d00"/>
+  <rect width="100" height="100" rx="24" fill="#bcff31"/>
   <g transform="translate(50 50) scale(0.72) translate(-50 -50)">
-    <g clip-path="url(#u)" fill="#060910">
+    <g clip-path="url(#u)" fill="#171717">
       <polygon points="30,12 48,12 30,88 12,88"/>
       <polygon points="48,12 84,12 78,27 44,27"/>
       <polygon points="38,44 72,44 66,59 34,59"/>

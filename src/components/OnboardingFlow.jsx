@@ -114,7 +114,7 @@ function Wizard({ onDone }) {
     gap: 12,
     width: "100%",
     textAlign: "left",
-    background: on ? "rgba(255,77,0,0.12)" : T.card,
+    background: on ? "rgba(188,255,49,0.12)" : T.card,
     border: `1.5px solid ${on ? T.accent : T.borderSoft}`,
     borderRadius: 16,
     padding: "15px 16px",
@@ -195,7 +195,7 @@ function Wizard({ onDone }) {
               <button
                 key={id}
                 onClick={() => setData({ ...data, gender: id })}
-                style={{ flex: 1, aspectRatio: "1", background: data.gender === id ? "rgba(255,77,0,0.12)" : T.card, border: `1.5px solid ${data.gender === id ? T.accent : T.borderSoft}`, borderRadius: 20, cursor: "pointer", fontFamily: U, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all .15s" }}
+                style={{ flex: 1, aspectRatio: "1", background: data.gender === id ? "rgba(188,255,49,0.12)" : T.card, border: `1.5px solid ${data.gender === id ? T.accent : T.borderSoft}`, borderRadius: 20, cursor: "pointer", fontFamily: U, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all .15s" }}
               >
                 <span style={{ fontSize: 44, lineHeight: 1, color: data.gender === id ? T.accent : T.soft, fontWeight: 700 }}>{glyph}</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{label}</span>

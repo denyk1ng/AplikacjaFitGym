@@ -92,7 +92,7 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
           <button
             onClick={() => setPlaying(!playing)}
             title={playing ? "Zatrzymaj pokaz" : "Odtwórz pokaz"}
-            style={{ position: "absolute", right: 16, bottom: 14, width: 44, height: 44, borderRadius: "50%", background: T.accent, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 20px rgba(255,77,0,0.45)" }}
+            style={{ position: "absolute", right: 16, bottom: 14, width: 44, height: 44, borderRadius: "50%", background: T.accent, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 20px rgba(188,255,49,0.45)" }}
           >
             {playing ? <Pause size={18} color="#000" strokeWidth={2.4} /> : <Play size={18} color="#000" fill="#000" strokeWidth={0} />}
           </button>

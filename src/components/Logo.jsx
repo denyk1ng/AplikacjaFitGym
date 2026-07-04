@@ -1,7 +1,7 @@
 import { useId } from "react";
 
 // Znak FORMA — pochylone F z ukośnym cięciem w negatywie, dwukolorowe:
-// część nad cięciem `top` (domyślnie pomarańcz), pod cięciem `bottom` (biel).
+// część nad cięciem `top` (domyślnie limonka), pod cięciem `bottom` (biel).
 // Geometria wybrana przez właściciela (wariant 2D bez kropki, wersja A).
 const P = {
   leg: "30,12 48,12 30,88 12,88",
@@ -11,7 +11,7 @@ const P = {
   clipDown: "-5,70 105,52 105,105 -5,105",
 };
 
-export function LogoMark({ size = 32, top = "#ff4d00", bottom = "#ffffff", style }) {
+export function LogoMark({ size = 32, top = "#bcff31", bottom = "#ffffff", style }) {
   const id = useId().replace(/:/g, "");
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" style={style} aria-label="FORMA">
@@ -56,7 +56,7 @@ export function LogoLockup({ markSize = 22, fontSize = 15, gap = 8, style }) {
     <span style={{ display: "inline-flex", alignItems: "center", gap, ...style }}>
       <LogoMark size={markSize} />
       <span style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize, letterSpacing: ".06em", color: "#fff", lineHeight: 1 }}>
-        FOR<span style={{ color: "#ff4d00" }}>MA</span>
+        FOR<span style={{ color: "#bcff31" }}>MA</span>
       </span>
     </span>
   );

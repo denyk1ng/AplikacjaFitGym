@@ -25,7 +25,7 @@ function GlowOverlay() {
       style={{
         position: "absolute",
         inset: 0,
-        background: "radial-gradient(55% 65% at 50% 48%, rgba(255,109,40,0.4), rgba(255,77,0,0) 72%)",
+        background: "radial-gradient(55% 65% at 50% 48%, rgba(188,255,49,0.3), rgba(188,255,49,0) 72%)",
         mixBlendMode: "screen",
         pointerEvents: "none",
       }}

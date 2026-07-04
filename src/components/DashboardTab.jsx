@@ -150,7 +150,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       </div>
 
       {/* LIMONKOWA KARTA HERO */}
-      <div className="fu" style={{ animationDelay: ".06s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(255,77,0,0.18)" }}>
+      <div className="fu" style={{ animationDelay: ".06s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(188,255,49,0.18)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", padding: "5px 11px", borderRadius: 99, marginBottom: 12, ...hero.chipStyle }}>
@@ -165,7 +165,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
         <button
           onClick={hero.go}
-          style={{ marginTop: 14, width: "100%", background: "#060910", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 700, fontSize: 13.5, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          style={{ marginTop: 14, width: "100%", background: "#171717", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 700, fontSize: 13.5, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
         >
           <Play size={15} color={T.accent} fill={T.accent} strokeWidth={0} />
           {hero.cta}
@@ -186,7 +186,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: act ? "0 6px 22px rgba(255,77,0,0.35)" : "none",
+                boxShadow: act ? "0 6px 22px rgba(188,255,49,0.35)" : "none",
                 transition: "all .2s",
               }}
             >
