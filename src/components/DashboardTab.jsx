@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, Bot } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, MessageCircle } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -10,6 +10,7 @@ import { loadSettings } from "../lib/settings.js";
 import { computeInsights, cardText } from "../lib/coach.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
+import { BotMascot } from "./BotMascot.jsx";
 
 const H = "'Urbanist',sans-serif";
 
@@ -219,16 +220,22 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       <div
         className="fu"
         onClick={() => goTo("coach")}
-        style={{ animationDelay: ".13s", marginBottom: 22, background: T.blue, borderRadius: 22, padding: "14px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 14px 34px rgba(37,99,235,0.3)" }}
+        style={{ animationDelay: ".13s", marginBottom: 22, position: "relative", background: T.blue, borderRadius: 26, padding: "18px 108px 18px 18px", cursor: "pointer", boxShadow: "0 14px 34px rgba(37,99,235,0.32)", overflow: "visible" }}
       >
-        <span style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Bot size={22} color="#fff" strokeWidth={2.2} />
+        <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", background: "rgba(255,255,255,0.18)", padding: "5px 11px", borderRadius: 99, marginBottom: 10 }}>
+          Trener AI
         </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: 3 }}>Trener AI</div>
-          <div style={{ fontSize: 12, color: "#fff", lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{coachText}</div>
+        <div style={{ fontSize: 12.5, color: "#fff", lineHeight: 1.45, fontWeight: 600 }}>{coachText}</div>
+
+        {/* bot bleeduje poza górną krawędź karty, jak na referencji */}
+        <div style={{ position: "absolute", right: 8, bottom: -8, zIndex: 2 }}>
+          <BotMascot size={98} />
         </div>
-        <ChevronRight size={16} color="rgba(255,255,255,0.6)" strokeWidth={2.2} />
+
+        {/* okrągły przycisk czatu w rogu */}
+        <span style={{ position: "absolute", right: 16, bottom: 14, width: 32, height: 32, borderRadius: "50%", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 3 }}>
+          <MessageCircle size={14} color={T.accent} strokeWidth={2.3} />
+        </span>
       </div>
 
       {/* AKTYWNOŚĆ */}
