@@ -157,11 +157,12 @@ function WarmupSection({ data, idx, done, toggle }) {
   );
 }
 
-// wspólny hero ze zdjęciem — dzielony przez ekran wyboru dnia i przebieg rozgrzewki
-function Hero({ onBack }) {
+// wspólny hero ze zdjęciem — dzielony przez ekran wyboru dnia i przebieg rozgrzewki;
+// na ekranie wyboru pokazuje ogólne zdjęcie, w przebiegu — zdjęcie wybranego dnia
+function Hero({ onBack, photo = PHOTOS.stretch }) {
   return (
     <div style={{ position: "relative", height: 220 }}>
-      <img src={PHOTOS.stretch} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <img key={photo} src={photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.45) 0%, rgba(6,9,16,0.1) 35%, rgba(6,9,16,0.6) 100%)" }} />
       {onBack && (
         <button
@@ -234,7 +235,7 @@ function WarmupFlow({ day, onBack }) {
 
   return (
     <div key={day} style={{ margin: "-20px -18px 0", paddingBottom: 100 }}>
-      <Hero onBack={onBack} />
+      <Hero onBack={onBack} photo={WARMUP_PHOTOS[day]} />
       <div style={{ position: "relative", marginTop: -26, background: T.bg, borderRadius: "26px 26px 0 0", padding: "10px 18px 0" }}>
         <div style={{ width: 44, height: 4, borderRadius: 99, background: T.border, margin: "0 auto 14px" }} />
 
