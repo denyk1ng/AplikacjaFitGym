@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check, PersonStanding } from "lucide-react";
+import { ChevronDown, ChevronRight, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { WARMUP_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -7,6 +7,14 @@ import { PHOTOS } from "../data/photos.js";
 const U = "'Urbanist',sans-serif";
 const SECTION_ICON = { zap: Zap, a: Dumbbell, b: Footprints, c: ArrowUpFromLine };
 const DAY_KEYS = ["A", "B", "C"];
+
+// krótki opis pod czym kryje się aktywacja danego dnia — wyciągnięty z realnych
+// notatek ćwiczeń w WARMUP_DATA (co dokładnie przygotowuje)
+const DAY_BLURB = {
+  A: "Rotatory barku i klatka w ruchu — przygotowanie pod wyciskanie sztangi.",
+  B: "Biodra i pośladki w pełnym zakresie — przygotowanie pod przysiad.",
+  C: "Stabilizacja łopatek i mobilizacja kręgosłupa — przygotowanie pod martwy ciąg.",
+};
 
 function StatCell({ Icon, label, value, unit, sub, divider }) {
   return (
@@ -24,28 +32,77 @@ function StatCell({ Icon, label, value, unit, sub, divider }) {
   );
 }
 
-// postać z pomarańczową poświatą — grafika kafelka dnia rozgrzewki
-function DayGlyph({ size = 60 }) {
+// duża karta ze zdjęciem dnia — zamiast jednolitej poświaty, zdjęcie samo
+// odróżnia dni od siebie (to samo zdjęcie co Trening A/B/C, dla spójności)
+function DayCard({ dayKey, onClick, delay }) {
+  const d = WARMUP_DATA[dayKey];
+  const count = WARMUP_DATA.BASE.items.length + d.items.length;
+  const muscles = d.sublabel.replace("Aktywacja — ", "");
   return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-      <div style={{ position: "absolute", inset: -10, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,77,0,0.4) 0%, rgba(255,77,0,0) 72%)" }} />
-      <div
-        style={{
-          position: "relative",
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          background: "linear-gradient(160deg, rgba(255,77,0,0.22), rgba(255,77,0,0.05))",
-          border: `1.5px solid ${T.accentSoftBorder}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: T.accentGlow,
-        }}
-      >
-        <PersonStanding size={size * 0.56} color={T.accent} strokeWidth={2} />
+    <button
+      onClick={onClick}
+      className="fu"
+      style={{
+        animationDelay: delay,
+        display: "block",
+        width: "100%",
+        textAlign: "left",
+        background: T.card,
+        border: `1px solid ${T.borderSoft}`,
+        borderRadius: 22,
+        overflow: "hidden",
+        padding: 0,
+        marginBottom: 12,
+        cursor: "pointer",
+        fontFamily: "inherit",
+      }}
+    >
+      <div style={{ position: "relative", height: 150 }}>
+        <img src={PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(6,9,16,0) 40%, ${T.card} 100%)` }} />
+        <div style={{ position: "absolute", left: 14, right: 14, bottom: 8 }}>
+          <span
+            style={{
+              fontFamily: U,
+              fontStyle: "italic",
+              fontWeight: 800,
+              fontSize: "1.6rem",
+              color: "#fff",
+              letterSpacing: "-0.01em",
+              textShadow: "0 2px 14px rgba(0,0,0,0.55)",
+            }}
+          >
+            Rozgrzewka {dayKey}
+          </span>
+        </div>
       </div>
-    </div>
+      <div style={{ padding: "10px 14px 14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700 }}>
+          <span style={{ color: T.accent }}>{muscles}</span>
+          <span style={{ color: T.faint }}>·</span>
+          <span style={{ color: T.sub, fontWeight: 600 }}>8–10 min</span>
+        </div>
+        <p
+          style={{
+            fontSize: 11.5,
+            color: T.soft,
+            margin: "5px 0 0",
+            lineHeight: 1.5,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
+          {DAY_BLURB[dayKey]}
+        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+          <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 11, color: T.faint }}>{count} ćwiczeń</span>
+          <ChevronRight size={16} color={T.faint} strokeWidth={2.4} />
+        </div>
+      </div>
+    </button>
   );
 }
 
@@ -172,43 +229,14 @@ function DayPicker({ onBack, onPick }) {
           Rozgrzewka
         </div>
         <div className="fu" style={{ animationDelay: ".05s", fontSize: 12.5, color: T.soft, marginTop: 4, marginBottom: 18 }}>
-          Wybierz dzień treningowy — pokażemy bazę i aktywację dopasowaną do niego
+          Wybierz dzień treningowy — zobacz co wchodzi w skład i ile to zajmie
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-          {DAY_KEYS.map((k, i) => {
-            const d = WARMUP_DATA[k];
-            const count = WARMUP_DATA.BASE.items.length + d.items.length;
-            return (
-              <button
-                key={k}
-                onClick={() => onPick(k)}
-                className="fu"
-                style={{
-                  animationDelay: `${0.1 + i * 0.08}s`,
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 10,
-                  background: T.card,
-                  border: `1px solid ${T.borderSoft}`,
-                  borderRadius: 20,
-                  padding: "20px 8px 16px",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                }}
-              >
-                <DayGlyph />
-                <span style={{ fontFamily: U, fontWeight: 700, fontSize: 13.5, color: "#fff", textAlign: "center" }}>Rozgrzewka {k}</span>
-                <span style={{ fontSize: 9.5, color: T.sub, textAlign: "center", lineHeight: 1.4 }}>{d.sublabel.replace("Aktywacja — ", "")}</span>
-                <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 11, color: T.accent, marginTop: 2 }}>{count} ćwiczeń</span>
-              </button>
-            );
-          })}
-        </div>
+        {DAY_KEYS.map((k, i) => (
+          <DayCard key={k} dayKey={k} onClick={() => onPick(k)} delay={`${0.1 + i * 0.08}s`} />
+        ))}
 
-        <div className="fu" style={{ animationDelay: ".34s", display: "flex", gap: 10, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "12px 14px", fontSize: 12, color: T.soft, lineHeight: 1.6 }}>
+        <div className="fu" style={{ animationDelay: ".34s", display: "flex", gap: 10, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "12px 14px", marginTop: 4, fontSize: 12, color: T.soft, lineHeight: 1.6 }}>
           <Lightbulb size={15} color={T.accent} strokeWidth={2.2} style={{ flexShrink: 0, marginTop: 2 }} />
           <span>
             Każda rozgrzewka łączy <strong style={{ color: T.accent }}>bazę</strong> (rozruch ogólny) z{" "}
@@ -235,10 +263,10 @@ function WarmupFlow({ day, onBack }) {
       <div style={{ position: "relative", marginTop: -26, background: T.bg, borderRadius: "26px 26px 0 0", padding: "10px 18px 0" }}>
         <div style={{ width: 44, height: 4, borderRadius: 99, background: T.border, margin: "0 auto 14px" }} />
 
-        <div className="fu" style={{ fontFamily: U, fontWeight: 700, fontSize: "1.5rem", color: "#fff", lineHeight: 1.15 }}>
+        <div className="fu" style={{ fontFamily: U, fontStyle: "italic", fontWeight: 800, fontSize: "1.6rem", color: "#fff", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
           Rozgrzewka <span style={{ color: T.accent }}>{day}</span>
         </div>
-        <div className="fu" style={{ animationDelay: ".05s", fontSize: 12.5, color: T.soft, marginTop: 4, marginBottom: 16 }}>
+        <div className="fu" style={{ animationDelay: ".05s", fontSize: 12.5, color: T.soft, marginTop: 5, marginBottom: 16 }}>
           Baza, potem aktywacja pod trening {day} — rób w tej kolejności
         </div>
 
