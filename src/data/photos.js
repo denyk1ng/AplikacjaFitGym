@@ -6,6 +6,9 @@ import cardio from "../assets/cardio.jpg";
 import food from "../assets/food.jpg";
 import stretch from "../assets/stretch.jpg";
 import hero from "../assets/hero.jpg";
+import warmupA from "../assets/warmup-a.jpg";
+import warmupB from "../assets/warmup-b.jpg";
+import warmupC from "../assets/warmup-c.jpg";
 
 export const PHOTOS = {
   A: workoutA,
@@ -16,3 +19,6 @@ export const PHOTOS = {
   stretch,
   hero,
 };
+
+// osobne zdjęcia dla kafelków Rozgrzewki — inne niż Trening A/B/C, żeby się nie powielały
+export const WARMUP_PHOTOS = { A: warmupA, B: warmupB, C: warmupC };

@@ -1,20 +1,13 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
+import { ChevronDown, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { WARMUP_DATA } from "../data/plan.js";
-import { PHOTOS } from "../data/photos.js";
+import { PHOTOS, WARMUP_PHOTOS } from "../data/photos.js";
 
 const U = "'Urbanist',sans-serif";
 const SECTION_ICON = { zap: Zap, a: Dumbbell, b: Footprints, c: ArrowUpFromLine };
 const DAY_KEYS = ["A", "B", "C"];
 
-// krótki opis pod czym kryje się aktywacja danego dnia — wyciągnięty z realnych
-// notatek ćwiczeń w WARMUP_DATA (co dokładnie przygotowuje)
-const DAY_BLURB = {
-  A: "Rotatory barku i klatka w ruchu — przygotowanie pod wyciskanie sztangi.",
-  B: "Biodra i pośladki w pełnym zakresie — przygotowanie pod przysiad.",
-  C: "Stabilizacja łopatek i mobilizacja kręgosłupa — przygotowanie pod martwy ciąg.",
-};
 
 function StatCell({ Icon, label, value, unit, sub, divider }) {
   return (
@@ -32,75 +25,55 @@ function StatCell({ Icon, label, value, unit, sub, divider }) {
   );
 }
 
-// duża karta ze zdjęciem dnia — zamiast jednolitej poświaty, zdjęcie samo
-// odróżnia dni od siebie (to samo zdjęcie co Trening A/B/C, dla spójności)
+// kompaktowa karta ze zdjęciem dnia (trzy obok siebie w rzędzie) — osobne
+// zdjęcia niż Trening A/B/C, żeby się nie powielały
 function DayCard({ dayKey, onClick, delay }) {
   const d = WARMUP_DATA[dayKey];
   const count = WARMUP_DATA.BASE.items.length + d.items.length;
-  const muscles = d.sublabel.replace("Aktywacja — ", "");
+  const muscleRaw = d.sublabel.replace("Aktywacja — ", "").split(" + ")[0];
+  const muscle = muscleRaw.charAt(0).toUpperCase() + muscleRaw.slice(1);
   return (
     <button
       onClick={onClick}
       className="fu"
       style={{
         animationDelay: delay,
-        display: "block",
-        width: "100%",
+        flex: 1,
+        minWidth: 0,
+        display: "flex",
+        flexDirection: "column",
         textAlign: "left",
         background: T.card,
         border: `1px solid ${T.borderSoft}`,
-        borderRadius: 22,
+        borderRadius: 18,
         overflow: "hidden",
         padding: 0,
-        marginBottom: 12,
         cursor: "pointer",
         fontFamily: "inherit",
       }}
     >
-      <div style={{ position: "relative", height: 150 }}>
-        <img src={PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(6,9,16,0) 40%, ${T.card} 100%)` }} />
-        <div style={{ position: "absolute", left: 14, right: 14, bottom: 8 }}>
+      <div style={{ position: "relative", height: 128 }}>
+        <img src={WARMUP_PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(6,9,16,0) 35%, ${T.card} 100%)` }} />
+        <div style={{ position: "absolute", left: 8, right: 8, bottom: 6 }}>
           <span
             style={{
               fontFamily: U,
               fontStyle: "italic",
               fontWeight: 800,
-              fontSize: "1.6rem",
+              fontSize: "1.02rem",
               color: "#fff",
               letterSpacing: "-0.01em",
-              textShadow: "0 2px 14px rgba(0,0,0,0.55)",
+              textShadow: "0 2px 10px rgba(0,0,0,0.55)",
             }}
           >
-            Rozgrzewka {dayKey}
+            {dayKey}
           </span>
         </div>
       </div>
-      <div style={{ padding: "10px 14px 14px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700 }}>
-          <span style={{ color: T.accent }}>{muscles}</span>
-          <span style={{ color: T.faint }}>·</span>
-          <span style={{ color: T.sub, fontWeight: 600 }}>8–10 min</span>
-        </div>
-        <p
-          style={{
-            fontSize: 11.5,
-            color: T.soft,
-            margin: "5px 0 0",
-            lineHeight: 1.5,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-          }}
-        >
-          {DAY_BLURB[dayKey]}
-        </p>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
-          <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 11, color: T.faint }}>{count} ćwiczeń</span>
-          <ChevronRight size={16} color={T.faint} strokeWidth={2.4} />
-        </div>
+      <div style={{ padding: "7px 8px 9px", textAlign: "center" }}>
+        <div style={{ fontSize: 9.5, fontWeight: 700, color: T.accent }}>{muscle}</div>
+        <div style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 10, color: T.faint, marginTop: 3 }}>{count} ćw.</div>
       </div>
     </button>
   );
@@ -112,7 +85,7 @@ function WarmupSection({ data, idx, done, toggle }) {
   const doneCount = data.items.filter((_, i) => done[`${idx}-${i}`]).length;
   const allDone = doneCount === data.items.length;
   return (
-    <div className="fu" style={{ animationDelay: `${idx * 0.08}s`, background: T.card, border: `1px solid ${allDone ? "rgba(52,211,153,0.3)" : T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 10, transition: "border-color .3s" }}>
+    <div className="sil" style={{ animationDelay: `${idx * 0.1}s`, background: T.card, border: `1px solid ${allDone ? "rgba(52,211,153,0.3)" : T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 10, transition: "border-color .3s" }}>
       <div onClick={() => setOpen(!open)} style={{ padding: "13px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderBottom: open ? `1px solid ${T.borderSoft}` : "none" }}>
         <span
           style={{
@@ -147,9 +120,9 @@ function WarmupSection({ data, idx, done, toggle }) {
             return (
               <div
                 key={i}
-                className="fu"
+                className="sil"
                 onClick={() => toggle(key)}
-                style={{ animationDelay: `${i * 0.07}s`, display: "flex", gap: 12, padding: "12px 0", borderBottom: i < data.items.length - 1 ? `1px solid ${T.borderSoft}` : "none", cursor: "pointer" }}
+                style={{ animationDelay: `${0.12 + i * 0.09}s`, display: "flex", gap: 12, padding: "12px 0", borderBottom: i < data.items.length - 1 ? `1px solid ${T.borderSoft}` : "none", cursor: "pointer" }}
               >
                 <span
                   style={{
@@ -232,9 +205,11 @@ function DayPicker({ onBack, onPick }) {
           Wybierz dzień treningowy — zobacz co wchodzi w skład i ile to zajmie
         </div>
 
-        {DAY_KEYS.map((k, i) => (
-          <DayCard key={k} dayKey={k} onClick={() => onPick(k)} delay={`${0.1 + i * 0.08}s`} />
-        ))}
+        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+          {DAY_KEYS.map((k, i) => (
+            <DayCard key={k} dayKey={k} onClick={() => onPick(k)} delay={`${0.1 + i * 0.08}s`} />
+          ))}
+        </div>
 
         <div className="fu" style={{ animationDelay: ".34s", display: "flex", gap: 10, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "12px 14px", marginTop: 4, fontSize: 12, color: T.soft, lineHeight: 1.6 }}>
           <Lightbulb size={15} color={T.accent} strokeWidth={2.2} style={{ flexShrink: 0, marginTop: 2 }} />
