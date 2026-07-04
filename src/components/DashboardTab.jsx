@@ -106,7 +106,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   const hero = suggestion
     ? {
         chip: suggestion.overdue && settings.overdueAlert ? "ZALEGŁY TRENING" : "DZIŚ NA PLANIE",
-        chipStyle: suggestion.overdue && settings.overdueAlert ? { background: T.yellow, color: "#000" } : { background: "rgba(0,0,0,0.14)", color: "#000" },
+        chipStyle: suggestion.overdue && settings.overdueAlert ? { background: "#171717", color: T.accent } : { background: "rgba(0,0,0,0.14)", color: "#000" },
         title: EXERCISES_DATA[suggestion.type].label,
         sub: suggestion.overdue
           ? `Nadrób do niedzieli — ${exercises[suggestion.type].exercises.length} ćwiczeń`
