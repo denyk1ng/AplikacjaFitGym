@@ -58,7 +58,7 @@ export function computeTotalGain(snapshots) {
   return Math.round(g * 100) / 100;
 }
 
-export function earnedBadges(snapCount, streak, gain) {
+export function earnedBadges({ snapCount, streak, gain, sessionsCount, totalVolume, perfectMonths, nightOwl }) {
   return {
     first: snapCount >= 1,
     s3: streak >= 3,
@@ -66,5 +66,11 @@ export function earnedBadges(snapCount, streak, gain) {
     n10: snapCount >= 10,
     g15: gain >= 15,
     s6: streak >= 6,
+    s12: streak >= 12,
+    sessions25: sessionsCount >= 25,
+    sessions50: sessionsCount >= 50,
+    vol10k: totalVolume >= 10000,
+    perfectMonth: perfectMonths,
+    nightOwl,
   };
 }

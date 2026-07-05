@@ -1,17 +1,30 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
-import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon } from "lucide-react";
+import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
 import { computeStreak, computeTotalGain, earnedBadges } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory } from "../lib/workoutLog.js";
+import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory } from "../lib/workoutLog.js";
 
 const U = "'Urbanist',sans-serif";
 const fmtVol = (v) => (v >= 10000 ? `${Math.round(v / 1000)}k` : v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(v));
 const pl = (n) => String(n).replace(".", ",");
 
 // ikony odznak (bez emoji — spójnie z resztą designu)
-const BADGE_ICON = { first: Target, s3: Flame, g5: Dumbbell, n10: Medal, g15: TrendingUp, s6: Crown };
+const BADGE_ICON = {
+  first: Target,
+  s3: Flame,
+  g5: Dumbbell,
+  n10: Medal,
+  g15: TrendingUp,
+  s6: Crown,
+  s12: Rocket,
+  sessions25: Layers,
+  sessions50: Trophy,
+  vol10k: BarChart3,
+  perfectMonth: Star,
+  nightOwl: Moon,
+};
 
 // pierścień celu tygodnia
 function GoalRing({ pct }) {
@@ -58,7 +71,12 @@ export function StatsTab({ snapshots }) {
   const streakSnap = computeStreak(snapshots);
   const streak = Math.max(streakSnap, logStreak(log));
   const gain = computeTotalGain(snapshots);
-  const badgeMap = earnedBadges(snapshots.length, streak, gain);
+  const sessionsCount = log.filter((e) => e.perExercise && e.perExercise.length > 0).length;
+  const totalVolume = log.reduce((s, e) => s + (e.volume || 0), 0);
+  const last4Completed = weekHistory(log, 5).slice(0, 4);
+  const perfectMonths = last4Completed.length === 4 && last4Completed.every((w) => w.done === 3);
+  const nightOwl = log.some((e) => new Date(e.ts).getHours() >= 21);
+  const badgeMap = earnedBadges({ snapCount: snapshots.length, streak, gain, sessionsCount, totalVolume, perfectMonths, nightOwl });
 
   const st = weekStatus(log);
   const doneCount = ["A", "B", "C"].filter((k) => st[k].done).length;

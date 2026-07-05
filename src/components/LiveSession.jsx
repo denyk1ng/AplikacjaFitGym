@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge } from "lucide-react";
+import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge, Share2 } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { playBeep } from "../lib/sound.js";
 import { EditNum } from "./Editable.jsx";
+import { shareWorkoutImage } from "../lib/shareCard.js";
 
 const U = "'Urbanist',sans-serif";
 
@@ -88,6 +89,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
   );
   const [pendingRpe, setPendingRpe] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [rest, setRest] = useState(0);
   const [stage, setStage] = useState(restored && restored.stage === "summary" ? "summary" : "live"); // live | summary
@@ -281,6 +283,33 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         </div>
 
         <button
+          onClick={async () => {
+            if (sharing) return;
+            setSharing(true);
+            try {
+              await shareWorkoutImage({
+                label: data.label,
+                desc: data.desc,
+                time: fmtTime(elapsed),
+                sets: totalSetsDone,
+                volume: fmtKg(volume),
+                record: records[0] ? records[0].name.split("—")[0].trim() : null,
+              });
+            } catch (e) {
+              // AbortError = użytkownik anulował okno udostępniania — nic nie robimy
+              if (e.name !== "AbortError") console.error(e);
+            } finally {
+              setSharing(false);
+            }
+          }}
+          className="fu"
+          style={{ animationDelay: ".42s", marginTop: 22, width: "100%", background: "transparent", color: T.light, border: `1.5px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+        >
+          <Share2 size={16} strokeWidth={2.2} />
+          {sharing ? "Generuję…" : "Udostępnij trening"}
+        </button>
+
+        <button
           onClick={() => {
             clearLiveState();
             const perExercise = exs
@@ -289,7 +318,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
             onSaveAll({ time: elapsed, sets: totalSetsDone, volume, perExercise });
           }}
           className="fu"
-          style={{ animationDelay: ".45s", marginTop: 22, width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: T.accentGlow }}
+          style={{ animationDelay: ".45s", marginTop: 10, width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: T.accentGlow }}
         >
           Zapisz trening
         </button>

@@ -94,4 +94,10 @@ export const BADGES = [
   { id: "n10", label: "10 zapisów", need: "Zapisz ciężary 10 razy" },
   { id: "g15", label: "+15 kg łącznie", need: "Łączny przyrost 15 kg" },
   { id: "s6", label: "Seria 6 tyg.", need: "6 tygodni z rzędu z treningiem" },
+  { id: "s12", label: "Seria 12 tyg.", need: "12 tygodni z rzędu z treningiem" },
+  { id: "sessions25", label: "25 sesji", need: "Ukończ 25 treningów na żywo" },
+  { id: "sessions50", label: "50 sesji", need: "Ukończ 50 treningów na żywo" },
+  { id: "vol10k", label: "10 000 kg", need: "Łączna objętość 10 000 kg ze wszystkich sesji" },
+  { id: "perfectMonth", label: "Miesiąc kompletny", need: "4 tygodnie z rzędu z kompletem A·B·C" },
+  { id: "nightOwl", label: "Nocna sowa", need: "Trening zaliczony po 21:00" },
 ];
