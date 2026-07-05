@@ -4,6 +4,7 @@ import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
 import { EditNum } from "./Editable.jsx";
+import { estimate1RM } from "../lib/utils.js";
 
 const U = "'Urbanist',sans-serif";
 
@@ -55,6 +56,8 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
   const maxW = history.length ? Math.max(...history.map((h) => h.w)) : null;
   const gain = history.length >= 2 ? Math.round((history[history.length - 1].w - history[0].w) * 100) / 100 : 0;
   const chartMax = last7.length ? Math.max(...last7.map((h) => h.w)) : 1;
+
+  const oneRM = estimate1RM(currentWeight ?? ex.weight, ex.reps);
 
   // kroki techniki z notatek planu
   const steps = ex.tech
@@ -129,6 +132,20 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
           </div>
           <EditNum value={currentWeight ?? ex.weight} unit={ex.unit || "kg"} onChange={onChangeWeight} />
         </div>
+
+        {/* SZACOWANE 1RM — wzór Epley, na bazie ciężaru roboczego i docelowych powtórzeń */}
+        {oneRM !== null && (
+          <div className="fu" style={{ animationDelay: ".075s", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 16 }}>
+            <span style={{ width: 40, height: 40, borderRadius: 13, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <TrendingUp size={18} color={T.soft} strokeWidth={2.2} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Szacowane 1RM</div>
+              <div style={{ fontSize: 10.5, color: T.sub, marginTop: 2 }}>maksimum na jedno powtórzenie (wzór Epley)</div>
+            </div>
+            <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: "1.2rem", color: T.light }}>{fmtW(oneRM)}</span>
+          </div>
+        )}
 
         {/* ZAKŁADKI */}
         <div className="fu" style={{ animationDelay: ".08s", display: "flex", gap: 18, borderBottom: `1px solid ${T.borderSoft}`, marginBottom: 14 }}>

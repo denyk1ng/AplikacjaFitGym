@@ -1,3 +1,13 @@
+// szacowane maksimum na jedno powtórzenie (wzór Epley) — na bazie ciężaru
+// roboczego i docelowych powtórzeń z planu; zwraca null gdy powtórzenia
+// nie są liczbą (np. ćwiczenia czasowe "30s" albo ciężar własny)
+export function estimate1RM(weight, reps) {
+  const r = parseInt(reps);
+  if (!weight || weight <= 0 || !r || r <= 0) return null;
+  if (r === 1) return weight;
+  return Math.round(weight * (1 + r / 30) * 10) / 10;
+}
+
 export function formatRest(s) {
   if (s >= 120) return `${s / 60} min`;
   if (s >= 60) return "1 min";

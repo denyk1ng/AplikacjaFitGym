@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus } from "lucide-react";
+import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
+import { EXERCISES_DATA } from "../data/plan.js";
 import { playBeep } from "../lib/sound.js";
 import { EditNum } from "./Editable.jsx";
 
@@ -34,6 +35,13 @@ export function clearLiveState() {
 const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const repsInt = (r) => parseInt(r) || 0;
 const fmtKg = (v) => (v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(Math.round(v)));
+const RPE_OPTS = [6, 7, 8, 9, 10];
+
+function avg(arr) {
+  const nums = arr.filter((v) => v !== null && v !== undefined);
+  if (!nums.length) return null;
+  return Math.round((nums.reduce((a, b) => a + b, 0) / nums.length) * 10) / 10;
+}
 
 // półkolisty zegar z kresek (wg wzorca rest-timera)
 function TickGauge({ pct, color }) {
@@ -65,27 +73,37 @@ function TickGauge({ pct, color }) {
 }
 
 export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, snapshots }) {
-  const exs = data.exercises;
+  const baseExs = data.exercises;
   const [restored] = useState(() => loadLiveState(dayKey));
+  const [exsState, setExsState] = useState(() =>
+    restored && Array.isArray(restored.exsState) && restored.exsState.length === baseExs.length ? restored.exsState : baseExs
+  );
+  const exs = exsState;
   const [idx, setIdx] = useState(restored && restored.idx < exs.length ? restored.idx : 0);
   const [setsDone, setSetsDone] = useState(() =>
     restored && Array.isArray(restored.setsDone) && restored.setsDone.length === exs.length ? restored.setsDone : exs.map(() => 0)
   );
+  const [rpeData, setRpeData] = useState(() =>
+    restored && Array.isArray(restored.rpeData) && restored.rpeData.length === exs.length ? restored.rpeData : exs.map(() => [])
+  );
+  const [pendingRpe, setPendingRpe] = useState(false);
+  const [showSwap, setShowSwap] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [rest, setRest] = useState(0);
   const [stage, setStage] = useState(restored && restored.stage === "summary" ? "summary" : "live"); // live | summary
   const [confirmExit, setConfirmExit] = useState(false);
   const restEnd = useRef(null);
   const startTs = useRef(restored && restored.startTs ? restored.startTs : Date.now());
+  const pendingRestRef = useRef(true);
 
   const ex = exs[idx];
 
   // każda zmiana postępu ląduje od razu w localStorage
   useEffect(() => {
     try {
-      localStorage.setItem(LIVE_KEY, JSON.stringify({ dayKey, idx, setsDone, stage, startTs: startTs.current, savedAt: Date.now() }));
+      localStorage.setItem(LIVE_KEY, JSON.stringify({ dayKey, idx, setsDone, rpeData, exsState, stage, startTs: startTs.current, savedAt: Date.now() }));
     } catch (e) {}
-  }, [dayKey, idx, setsDone, stage]);
+  }, [dayKey, idx, setsDone, rpeData, exsState, stage]);
 
   const exit = () => {
     clearLiveState();
@@ -112,12 +130,25 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
   const totalSetsDone = setsDone.reduce((a, b) => a + b, 0);
   const volume = exs.reduce((sum, e, i) => sum + setsDone[i] * repsInt(e.reps) * (e.weight || 0), 0);
 
+  // zaliczenie serii nie startuje od razu przerwy — najpierw krótkie,
+  // opcjonalne pytanie o RPE (jak ciężko było), potem leci timer
   const doneSet = () => {
     if (setsDone[idx] >= ex.sets) return;
     const next = [...setsDone];
     next[idx] += 1;
     setSetsDone(next);
-    if (!(next[idx] >= ex.sets && idx === exs.length - 1)) {
+    pendingRestRef.current = !(next[idx] >= ex.sets && idx === exs.length - 1);
+    setPendingRpe(true);
+  };
+
+  const submitRpe = (value) => {
+    setRpeData((prev) => {
+      const copy = prev.map((a) => [...a]);
+      copy[idx] = [...copy[idx], value];
+      return copy;
+    });
+    setPendingRpe(false);
+    if (pendingRestRef.current) {
       restEnd.current = Date.now() + ex.rest * 1000;
       setRest(ex.rest);
     }
@@ -140,6 +171,35 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
   const jumpTo = (i) => {
     setRest(0);
     setIdx(i);
+  };
+
+  // alternatywy dla bieżącego ćwiczenia: ta sama partia (cat), z całego
+  // planu, bez powtórzeń nazw i bez ćwiczeń już będących w dzisiejszej sesji
+  const alternatives = useMemo(() => {
+    const seen = new Set(exs.map((e) => e.name));
+    const out = [];
+    Object.values(EXERCISES_DATA).forEach((day) => {
+      day.exercises.forEach((cand) => {
+        if (cand.cat === ex.cat && cand.id !== ex.id && !seen.has(cand.name)) {
+          seen.add(cand.name);
+          out.push(cand);
+        }
+      });
+    });
+    return out;
+  }, [ex.id, ex.cat]);
+
+  const swapExercise = (alt) => {
+    const next = [...exsState];
+    next[idx] = { ...alt, sets: ex.sets, rest: ex.rest }; // te same serie/przerwa co zaplanowane, inny ruch
+    setExsState(next);
+    const nextSets = [...setsDone];
+    nextSets[idx] = 0;
+    setSetsDone(nextSets);
+    const nextRpe = rpeData.map((a) => [...a]);
+    nextRpe[idx] = [];
+    setRpeData(nextRpe);
+    setShowSwap(false);
   };
 
   const hasOtherUnfinished = exs.some((e, i) => i !== idx && setsDone[i] < e.sets);
@@ -205,23 +265,26 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         <div className="fu" style={{ animationDelay: ".38s", marginTop: 20, flex: 1 }}>
           <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft, marginBottom: 8 }}>Ćwiczenia</div>
           {doneExs.length === 0 && <p style={{ fontSize: 12.5, color: T.sub }}>Żadna seria nie została zaliczona.</p>}
-          {exs.map((e, i) =>
-            setsDone[i] > 0 ? (
+          {exs.map((e, i) => {
+            if (setsDone[i] === 0) return null;
+            const avgR = avg(rpeData[i] || []);
+            return (
               <div key={e.id} style={{ display: "flex", alignItems: "center", padding: "10px 2px", borderBottom: `1px solid ${T.borderSoft}` }}>
                 <span style={{ flex: 1, fontSize: 13, color: "#fff", fontFamily: U, fontWeight: 600 }}>{e.name.split("—")[0].trim()}</span>
                 <span style={{ fontSize: 12, color: T.sub }}>
                   {setsDone[i]} serie{e.weight > 0 ? ` · ${String(e.weight).replace(".", ",")} ${e.unit}` : ""}
+                  {avgR !== null ? ` · RPE ${String(avgR).replace(".", ",")}` : ""}
                 </span>
               </div>
-            ) : null
-          )}
+            );
+          })}
         </div>
 
         <button
           onClick={() => {
             clearLiveState();
             const perExercise = exs
-              .map((e, i) => ({ id: e.id, weight: e.weight || 0, unit: e.unit, setsDone: setsDone[i], sets: e.sets }))
+              .map((e, i) => ({ id: e.id, weight: e.weight || 0, unit: e.unit, setsDone: setsDone[i], sets: e.sets, avgRpe: avg(rpeData[i] || []) }))
               .filter((e) => e.setsDone > 0);
             onSaveAll({ time: elapsed, sets: totalSetsDone, volume, perExercise });
           }}
@@ -336,6 +399,15 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
       <div key={ex.id} className="fu" style={{ position: "relative", flex: 1, minHeight: 210, borderRadius: 24, overflow: "hidden", marginTop: 14, border: `1px solid ${T.borderSoft}` }}>
         <img src={EX_THUMB[ex.id]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.12) 0%, rgba(6,9,16,0.35) 52%, rgba(6,9,16,0.94) 100%)" }} />
+        {setsDone[idx] === 0 && (
+          <button
+            onClick={() => setShowSwap(true)}
+            title="Zamień ćwiczenie"
+            style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, borderRadius: "50%", background: "rgba(6,9,16,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            <Repeat size={15} strokeWidth={2.2} />
+          </button>
+        )}
         <div style={{ position: "absolute", left: 16, right: 16, bottom: 14, display: "flex", alignItems: "flex-end", gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: U }}>
@@ -359,29 +431,54 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         </div>
       </div>
 
-      {/* akcje */}
-      <button
-        onClick={doneSet}
-        disabled={allSetsDone}
-        style={{ width: "100%", background: allSetsDone ? T.inset : T.card, color: allSetsDone ? T.faint : "#fff", border: `1px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 20px", cursor: allSetsDone ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 18 }}
-      >
-        {allSetsDone ? (
-          <>
-            <Check size={16} color={T.ok} strokeWidth={2.8} /> Serie komplet
-          </>
-        ) : (
-          <>
-            <Plus size={16} strokeWidth={2.6} /> Zalicz serię ({setsDone[idx] + 1}/{ex.sets})
-          </>
-        )}
-      </button>
-      <button
-        onClick={nextExercise}
-        style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, boxShadow: T.accentGlow }}
-      >
-        {hasOtherUnfinished ? "Następne ćwiczenie" : "Zakończ trening"}
-        <ChevronRight size={17} strokeWidth={2.6} />
-      </button>
+      {/* pytanie o RPE — krótkie, opcjonalne, pojawia się zaraz po zaliczeniu serii */}
+      {pendingRpe ? (
+        <div className="fu" style={{ background: T.card, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 18, padding: "12px 14px", marginTop: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <Gauge size={15} color={T.accent} strokeWidth={2.2} />
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Jak ciężka była ta seria? (RPE)</span>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {RPE_OPTS.map((v) => (
+              <button
+                key={v}
+                onClick={() => submitRpe(v)}
+                style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: "#fff", fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15, padding: "10px 0", cursor: "pointer" }}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => submitRpe(null)} style={{ width: "100%", marginTop: 8, background: "transparent", border: "none", color: T.sub, fontSize: 11.5, fontWeight: 600, cursor: "pointer", fontFamily: U }}>
+            Pomiń
+          </button>
+        </div>
+      ) : (
+        <>
+          <button
+            onClick={doneSet}
+            disabled={allSetsDone}
+            style={{ width: "100%", background: allSetsDone ? T.inset : T.card, color: allSetsDone ? T.faint : "#fff", border: `1px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 20px", cursor: allSetsDone ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 18 }}
+          >
+            {allSetsDone ? (
+              <>
+                <Check size={16} color={T.ok} strokeWidth={2.8} /> Serie komplet
+              </>
+            ) : (
+              <>
+                <Plus size={16} strokeWidth={2.6} /> Zalicz serię ({setsDone[idx] + 1}/{ex.sets})
+              </>
+            )}
+          </button>
+          <button
+            onClick={nextExercise}
+            style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, boxShadow: T.accentGlow }}
+          >
+            {hasOtherUnfinished ? "Następne ćwiczenie" : "Zakończ trening"}
+            <ChevronRight size={17} strokeWidth={2.6} />
+          </button>
+        </>
+      )}
 
       {/* arkusz potwierdzenia wyjścia */}
       {confirmExit && (
@@ -399,6 +496,41 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
             <button onClick={() => setConfirmExit(false)} style={{ width: "100%", marginTop: 10, background: T.inset, color: T.light, border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "14px 20px", cursor: "pointer" }}>
               Wróć do treningu
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* arkusz zamiany ćwiczenia — tylko zanim zaliczysz pierwszą serię */}
+      {showSwap && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
+          <div onClick={() => setShowSwap(false)} style={{ position: "absolute", inset: 0, background: "rgba(6,9,16,0.7)", backdropFilter: "blur(3px)" }} />
+          <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "72vh", overflowY: "auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <span style={{ fontFamily: U, fontWeight: 700, fontSize: "1.1rem", color: "#fff" }}>Zamień ćwiczenie</span>
+              <button onClick={() => setShowSwap(false)} aria-label="Zamknij" style={{ width: 32, height: 32, borderRadius: 10, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <X size={15} strokeWidth={2.4} />
+              </button>
+            </div>
+            <p style={{ fontSize: 11.5, color: T.sub, marginBottom: 14 }}>Ta sama partia mięśniowa co „{ex.name.split("—")[0].trim()}" — zamiana obowiązuje tylko na dzisiejszą sesję.</p>
+            {alternatives.length === 0 ? (
+              <p style={{ fontSize: 12.5, color: T.sub, textAlign: "center", padding: "10px 0" }}>Brak innych ćwiczeń na tę partię w planie.</p>
+            ) : (
+              alternatives.map((alt) => (
+                <button
+                  key={alt.id}
+                  onClick={() => swapExercise(alt)}
+                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: 10, marginBottom: 8, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+                >
+                  <img src={EX_THUMB[alt.id]} alt="" style={{ width: 46, height: 46, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: U }}>{alt.name}</span>
+                    <span style={{ display: "block", fontSize: 11, color: T.sub, marginTop: 2 }}>
+                      {ex.sets} serie · {alt.reps} powt.{alt.weight > 0 ? ` · ${String(alt.weight).replace(".", ",")} ${alt.unit}` : ""}
+                    </span>
+                  </span>
+                </button>
+              ))
+            )}
           </div>
         </div>
       )}
