@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, MessageCircle } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { computeStreak, computeTotalGain, isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
-import { computeInsights, cardText } from "../lib/coach.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
-import { BotMascot } from "./BotMascot.jsx";
 
 const H = "'Urbanist',sans-serif";
 
@@ -103,7 +101,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   });
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
-  const coachText = cardText(computeInsights(log, exercises));
 
   // karta hero: dzisiejszy plan → zaległości → cardio/regeneracja/komplet
   const hero = suggestion
@@ -214,28 +211,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           <Play size={15} color={T.accent} fill={T.accent} strokeWidth={0} />
           {hero.cta}
         </button>
-      </div>
-
-      {/* TRENER AI — heurystyka na bazie workout_log, czat po podłączeniu klucza */}
-      <div
-        className="fu"
-        onClick={() => goTo("coach")}
-        style={{ animationDelay: ".13s", marginBottom: 22, position: "relative", background: T.blue, borderRadius: 26, padding: "18px 108px 18px 18px", cursor: "pointer", boxShadow: "0 14px 34px rgba(37,99,235,0.32)", overflow: "visible" }}
-      >
-        <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", background: "rgba(255,255,255,0.18)", padding: "5px 11px", borderRadius: 99, marginBottom: 10 }}>
-          Trener AI
-        </span>
-        <div style={{ fontSize: 12.5, color: "#fff", lineHeight: 1.45, fontWeight: 600 }}>{coachText}</div>
-
-        {/* bot bleeduje poza górną krawędź karty, jak na referencji */}
-        <div style={{ position: "absolute", right: 8, bottom: -8, zIndex: 2 }}>
-          <BotMascot size={98} />
-        </div>
-
-        {/* okrągły przycisk czatu w rogu */}
-        <span style={{ position: "absolute", right: 16, bottom: 14, width: 32, height: 32, borderRadius: "50%", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 3 }}>
-          <MessageCircle size={14} color={T.accent} strokeWidth={2.3} />
-        </span>
       </div>
 
       {/* AKTYWNOŚĆ */}
