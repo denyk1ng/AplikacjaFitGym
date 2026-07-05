@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
 import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
+import { EmptyState } from "./EmptyState.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
 import { computeStreak, computeTotalGain, earnedBadges } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory } from "../lib/workoutLog.js";
@@ -253,23 +254,20 @@ export function StatsTab({ snapshots }) {
       )}
 
       {snapshots.length === 0 ? (
-        <div className="fu" style={{ textAlign: "center", padding: "40px 20px" }}>
-          <div style={{ width: 68, height: 68, borderRadius: 22, background: T.card, border: `1px solid ${T.borderSoft}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-            <TrendingUp size={30} color={T.accent} strokeWidth={2} />
-          </div>
-          <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.05rem", marginBottom: 8 }}>Brak zapisów</div>
-          <div style={{ fontSize: 13, color: T.sub, lineHeight: 1.6 }}>
-            Ustaw ciężary w Treningu i zapisz je
-            <br />
-            <strong style={{ color: T.accent }}>przyciskiem na środku dolnego paska</strong> — każdy zapis to punkt tutaj.
-          </div>
-        </div>
+        <EmptyState
+          icon={TrendingUp}
+          title="Brak zapisów"
+          desc={
+            <>
+              Ustaw ciężary w Treningu i zapisz je
+              <br />
+              <strong style={{ color: T.accent }}>przyciskiem na środku dolnego paska</strong> — każdy zapis to punkt tutaj.
+            </>
+          }
+        />
       ) : history.length === 0 ? (
-        <div className="fu" style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 18, padding: "22px", textAlign: "center", marginBottom: 12 }}>
-          <div style={{ fontSize: 13, color: T.sub, lineHeight: 1.6 }}>
-            Brak zapisów dla tego ćwiczenia
-            <br />w wybranym okresie.
-          </div>
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 18, marginBottom: 12 }}>
+          <EmptyState nested icon={Dumbbell} desc="Brak zapisów dla tego ćwiczenia w wybranym okresie." />
         </div>
       ) : (
         <>

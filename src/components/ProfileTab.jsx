@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler } from "lucide-react";
+import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler, Scale } from "lucide-react";
 import { T } from "../theme.js";
 import { storage } from "../lib/storage.js";
 import { loadSettings, saveSettings } from "../lib/settings.js";
 import { canInstall, onInstallable, promptInstall, isStandalone, isIOS } from "../lib/install.js";
 import { EditNum } from "./Editable.jsx";
+import { EmptyState } from "./EmptyState.jsx";
 import { ConfirmSheet } from "./ConfirmSheet.jsx";
 import { LogoMark } from "./Logo.jsx";
 
@@ -385,10 +386,7 @@ export function ProfileTab() {
           })}
         </div>
       ) : (
-        <div className="fu" style={{ animationDelay: ".25s", textAlign: "center", padding: "26px 20px", color: T.sub, fontSize: 13, lineHeight: 1.6 }}>
-          Brak wpisów wagi. Dodaj pierwszy powyżej —<br />
-          zobaczysz tu wykres i trend.
-        </div>
+        <EmptyState icon={Scale} title="Brak wpisów wagi" desc="Dodaj pierwszy powyżej — zobaczysz tu wykres i trend." />
       )}
 
       {/* POMIARY CIAŁA */}
@@ -466,7 +464,7 @@ export function ProfileTab() {
         <div style={{ fontSize: 10.5, color: T.faint, marginTop: 8 }}>Wypełnij tylko to, co akurat mierzysz — reszta zostaje puste.</div>
       </div>
 
-      {sortedM.length > 0 && (
+      {sortedM.length > 0 ? (
         <div className="fu" style={{ animationDelay: ".29s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 14 }}>
           <div style={{ padding: "10px 14px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, borderBottom: `1px solid ${T.borderSoft}` }}>
             Historia pomiarów
@@ -483,6 +481,8 @@ export function ProfileTab() {
             </div>
           ))}
         </div>
+      ) : (
+        <EmptyState nested icon={Ruler} desc="Brak pomiarów. Dodaj pierwszy powyżej — zobaczysz tu historię zmian." />
       )}
 
       {/* USTAWIENIA */}

@@ -106,6 +106,17 @@ button {
 .sil {
   animation: slideInLeft 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+@keyframes tabOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.tabout {
+  animation: tabOut 0.16s ease-in both;
+}
 
 @keyframes spin {
   to {

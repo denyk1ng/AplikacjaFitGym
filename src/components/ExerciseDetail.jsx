@@ -4,6 +4,7 @@ import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
 import { EditNum } from "./Editable.jsx";
+import { EmptyState } from "./EmptyState.jsx";
 import { estimate1RM } from "../lib/utils.js";
 
 const U = "'Urbanist',sans-serif";
@@ -187,9 +188,7 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
           {tab === "history" && (
             <>
               {history.length === 0 ? (
-                <p style={{ fontSize: 13, color: T.sub, lineHeight: 1.6, textAlign: "center", padding: "18px 0" }}>
-                  Brak zapisów — zapisz ciężary plusem na dolnym pasku, a historia pojawi się tutaj.
-                </p>
+                <EmptyState icon={TrendingUp} title="Brak zapisów" desc="Zapisz ciężary plusem na dolnym pasku, a historia pojawi się tutaj." />
               ) : (
                 [...history].reverse().slice(0, 10).map((h, i, arr) => {
                   const idx = history.findIndex((x) => x.ts === h.ts);

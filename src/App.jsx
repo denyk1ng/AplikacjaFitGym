@@ -22,6 +22,21 @@ import { CoachTab } from "./components/CoachTab.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
+  // treść i nagłówek renderują się z opóźnionym `displayTab` zamiast `tab`
+  // bezpośrednio — daje to krótkie płynne zniknięcie starej zakładki przed
+  // wejściem nowej, zamiast twardego cięcia. BottomNav podświetla się od razu
+  // na `tab`, żeby dotyk czuł się responsywnie.
+  const [displayTab, setDisplayTab] = useState("dom");
+  const [tabPhase, setTabPhase] = useState("in"); // "out" | "in"
+  useEffect(() => {
+    if (tab === displayTab) return;
+    setTabPhase("out");
+    const t = setTimeout(() => {
+      setDisplayTab(tab);
+      setTabPhase("in");
+    }, 160);
+    return () => clearTimeout(t);
+  }, [tab]);
   const [selectedDay, setSelectedDay] = useState(() => {
     const d = new Date().getDay();
     return d === 3 ? "B" : d === 5 ? "C" : "A";
@@ -48,17 +63,17 @@ export default function App() {
   // przewinięcia co poprzednia (potrafi schować przycisk "wstecz" pod górną krawędzią)
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [tab, exerciseId, selectedDay]);
+  }, [displayTab, exerciseId, selectedDay]);
 
   // imię z profilu (odświeżane przy wejściu na ekran główny)
   useEffect(() => {
-    if (tab !== "dom") return;
+    if (displayTab !== "dom") return;
     storage.get("profile").then((p) => {
       try {
         if (p && p.value) setUserName(JSON.parse(p.value).name || "");
       } catch (e) {}
     });
-  }, [tab]);
+  }, [displayTab]);
 
   useEffect(() => {
     async function load() {
@@ -189,7 +204,7 @@ export default function App() {
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 
-      {tab !== "dom" && tab !== "trening" && tab !== "cwiczenie" && tab !== "sesja" && tab !== "rozgrzewka" && (
+      {displayTab !== "dom" && displayTab !== "trening" && displayTab !== "cwiczenie" && displayTab !== "sesja" && displayTab !== "rozgrzewka" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
             <p style={{ display: "flex", alignItems: "center", gap: 5, color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
@@ -197,7 +212,7 @@ export default function App() {
               FOR<span style={{ color: T.accent, marginLeft: -5 }}>MA</span>
             </p>
             <h1 style={{ fontFamily: "'Urbanist',sans-serif", fontSize: "1.6rem", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1, color: "#fff" }}>
-              {titles[tab]}
+              {titles[displayTab]}
             </h1>
           </div>
           <button
@@ -210,7 +225,7 @@ export default function App() {
               padding: 0,
               overflow: "hidden",
               background: T.card,
-              border: `1.5px solid ${tab === "profil" ? T.accent : T.border}`,
+              border: `1.5px solid ${displayTab === "profil" ? T.accent : T.border}`,
               cursor: "pointer",
               flexShrink: 0,
             }}
@@ -223,10 +238,10 @@ export default function App() {
       {!storageReady && <div style={{ textAlign: "center", padding: "48px", color: T.faint, fontSize: 13 }}>Ładowanie...</div>}
 
       {storageReady && (
-        <div key={tab} className="fu">
-          {tab === "dom" && <DashboardTab key={logRefresh} snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} />}
+        <div key={displayTab} className={tabPhase === "out" ? "tabout" : "fu"}>
+          {displayTab === "dom" && <DashboardTab key={logRefresh} snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} />}
 
-          {tab === "trening" && (
+          {displayTab === "trening" && (
             <WorkoutDetail
               dayKey={selectedDay}
               data={day}
@@ -241,7 +256,7 @@ export default function App() {
             />
           )}
 
-          {tab === "cwiczenie" && exerciseId && (
+          {displayTab === "cwiczenie" && exerciseId && (
             <ExerciseDetail
               exerciseId={exerciseId}
               snapshots={snapshots}
@@ -265,7 +280,7 @@ export default function App() {
             />
           )}
 
-          {tab === "sesja" && (
+          {displayTab === "sesja" && (
             <LiveSession
               dayKey={selectedDay}
               data={day}
@@ -283,15 +298,15 @@ export default function App() {
             />
           )}
 
-          {tab === "stats" && <StatsTab snapshots={snapshots} />}
-          {tab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
-          {tab === "profil" && <ProfileTab />}
-          {tab === "kalendarz" && <CalendarTab key={logRefresh} goTraining={goTraining} />}
-          {tab === "coach" && <CoachTab exercises={exercises} />}
+          {displayTab === "stats" && <StatsTab snapshots={snapshots} />}
+          {displayTab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
+          {displayTab === "profil" && <ProfileTab />}
+          {displayTab === "kalendarz" && <CalendarTab key={logRefresh} goTraining={goTraining} />}
+          {displayTab === "coach" && <CoachTab exercises={exercises} />}
         </div>
       )}
 
-      {storageReady && !showOnboard && tab !== "sesja" && <BottomNav tab={tab} setTab={setTab} onSave={() => setShowQuickAdd(true)} saveAnim={saveAnim} />}
+      {storageReady && !showOnboard && displayTab !== "sesja" && <BottomNav tab={tab} setTab={setTab} onSave={() => setShowQuickAdd(true)} saveAnim={saveAnim} />}
 
       <QuickAddSheet
         open={showQuickAdd}

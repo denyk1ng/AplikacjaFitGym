@@ -239,20 +239,23 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </button>
       </div>
 
-      {/* AKTYWNOŚĆ */}
+      {/* AKTYWNOŚĆ — układ bento: duży kafelek celu tygodnia + dwa mniejsze ułożone obok */}
       <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".16s" />
-      <div style={{ display: "flex", gap: 10, marginBottom: 22 }}>
-        <div className="fu" style={{ animationDelay: ".18s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gridTemplateRows: "auto auto", gap: 10, marginBottom: 22 }}>
+        <div
+          className="fu"
+          style={{ animationDelay: ".18s", gridRow: "1 / 3", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 24, padding: "16px 14px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
             <Check size={13} color={T.accent} strokeWidth={2.6} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Treningi</span>
           </div>
-          <Ring pct={doneCount / 3} size={58} stroke={6} color={T.accent}>
-            <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 13, color: "#fff" }}>{doneCount}/3</span>
+          <Ring pct={doneCount / 3} size={84} stroke={8} color={T.accent}>
+            <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 18, color: "#fff" }}>{doneCount}/3</span>
           </Ring>
-          <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>w tym tygodniu</span>
+          <span style={{ fontSize: 10, color: T.sub, fontWeight: 600 }}>w tym tygodniu</span>
         </div>
-        <div className="fu" style={{ animationDelay: ".22s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <div className="fu" style={{ animationDelay: ".22s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
             <Moon size={13} color={T.accent} strokeWidth={2.4} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Seria</span>
@@ -266,7 +269,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <strong style={{ color: "#fff", fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 14 }}>{Math.round(cStreak)}</strong> tyg. z rzędu
           </span>
         </div>
-        <div className="fu" style={{ animationDelay: ".26s", flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <div className="fu" style={{ animationDelay: ".26s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
             <HeartPulse size={13} color={T.accent} strokeWidth={2.4} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Progres</span>
