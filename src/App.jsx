@@ -43,6 +43,13 @@ export default function App() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [logRefresh, setLogRefresh] = useState(0); // odświeża dom/kalendarz po szybkiej akcji
 
+  // appka nie ma routera, więc przeglądarka nie scrolluje sama do góry przy
+  // zmianie "ekranu" — bez tego nowa zakładka otwiera się w tym samym miejscu
+  // przewinięcia co poprzednia (potrafi schować przycisk "wstecz" pod górną krawędzią)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [tab, exerciseId, selectedDay]);
+
   // imię z profilu (odświeżane przy wejściu na ekran główny)
   useEffect(() => {
     if (tab !== "dom") return;
@@ -298,10 +305,7 @@ export default function App() {
           setShowQuickAdd(false);
           setTab("trening");
         }}
-        onSaveWeights={() => {
-          setShowQuickAdd(false);
-          handleSave();
-        }}
+        onSaveWeights={handleSave}
         onLogChanged={() => setLogRefresh((c) => c + 1)}
       />
     </div>

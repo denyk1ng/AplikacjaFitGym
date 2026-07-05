@@ -14,14 +14,21 @@ export function QuickAddSheet({ open, onClose, onStartWorkout, onOpenPlan, onSav
   const [showWeight, setShowWeight] = useState(false);
   const [weightInput, setWeightInput] = useState("");
   const [weightSaved, setWeightSaved] = useState(false);
+  const [weightsLogged, setWeightsLogged] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setShowWeight(false);
     setWeightInput("");
     setWeightSaved(false);
+    setWeightsLogged(false);
     loadWorkoutLog().then(setLog);
   }, [open]);
+
+  const logWeights = () => {
+    onSaveWeights();
+    setWeightsLogged(true);
+  };
 
   if (!open) return null;
 
@@ -110,13 +117,13 @@ export function QuickAddSheet({ open, onClose, onStartWorkout, onOpenPlan, onSav
         )}
 
         {/* 2. zapisz ciężary */}
-        <button onClick={onSaveWeights} style={rowStyle(false)}>
-          <Bubble Icon={TrendingUp} />
+        <button onClick={weightsLogged ? undefined : logWeights} style={{ ...rowStyle(false), cursor: weightsLogged ? "default" : "pointer" }}>
+          <Bubble Icon={weightsLogged ? Check : TrendingUp} ok={weightsLogged} />
           <span style={{ flex: 1, minWidth: 0 }}>
-            <Title>Zapisz ciężary</Title>
-            <Desc>punkt progresu do statystyk i historii ćwiczeń</Desc>
+            <Title>{weightsLogged ? "Ciężary zapisane" : "Zapisz ciężary"}</Title>
+            <Desc>{weightsLogged ? "nowy punkt progresu dodany do statystyk" : "punkt progresu do statystyk i historii ćwiczeń"}</Desc>
           </span>
-          <ChevronRight size={15} color={T.faint} strokeWidth={2.2} />
+          {!weightsLogged && <ChevronRight size={15} color={T.faint} strokeWidth={2.2} />}
         </button>
 
         {/* 3. zapisz wagę */}

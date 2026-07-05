@@ -51,6 +51,8 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
   };
 
   const exs = data.exercises;
+  // ulubione (serduszko) pływają na górę listy — inaczej ten przycisk nic nie robi
+  const sortedExs = [...exs].sort((a, b) => (favs.includes(b.id) ? 1 : 0) - (favs.includes(a.id) ? 1 : 0));
   const totalSets = exs.reduce((s, e) => s + e.sets, 0);
   const estMin = Math.round((totalSets * 2.5) / 5) * 5;
   const pad2 = (n) => String(n).padStart(2, "0");
@@ -115,7 +117,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
           <span style={{ fontSize: 11, color: T.sub }}>{exs.length} łącznie</span>
         </div>
 
-        {exs.map((ex, i) => (
+        {sortedExs.map((ex, i) => (
           <div
             key={ex.id}
             className="fu"

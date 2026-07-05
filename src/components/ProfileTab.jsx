@@ -11,6 +11,15 @@ import { LogoMark } from "./Logo.jsx";
 
 const DEFAULT_PROFILE = { name: "", height: 180, goalWeight: 0 };
 
+// etykiety celów z kreatora onboardingu (src/components/OnboardingFlow.jsx) —
+// profil pokazuje realnie wybrany cel zamiast stałego tekstu
+const GOAL_LABELS = {
+  muscle: "budowa mięśni",
+  cut: "redukcja",
+  fit: "forma i zdrowie",
+  strength: "siła",
+};
+
 // przełącznik w stylu iOS, w kolorach systemu
 function Toggle({ on, onChange }) {
   return (
@@ -167,7 +176,9 @@ export function ProfileTab() {
             placeholder="Twoje imię…"
             style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 700, fontSize: "1.25rem", background: "transparent", border: "none", borderBottom: `1px dashed ${T.faint}`, color: T.text, outline: "none", width: "100%", padding: "0 0 2px" }}
           />
-          <div style={{ fontSize: 12, color: T.sub, marginTop: 4 }}>Cel: rekompozycja — siła w górę, tłuszcz w dół</div>
+          <div style={{ fontSize: 12, color: T.sub, marginTop: 4 }}>
+            Cel: {profile.goal ? GOAL_LABELS[profile.goal] || profile.goal : "nie ustawiono"}
+          </div>
         </div>
       </div>
 
