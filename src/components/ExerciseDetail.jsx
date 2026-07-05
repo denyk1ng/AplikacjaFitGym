@@ -83,10 +83,10 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", animation: playing ? "abfade 1.5s ease-in-out infinite alternate" : "none", opacity: playing ? undefined : 0 }}
           />
         )}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.55) 0%, transparent 25%, transparent 70%, rgba(6,9,16,0.7) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.55) 0%, transparent 25%, transparent 70%, rgba(23,23,23,0.7) 100%)" }} />
         <button
           onClick={onBack}
-          style={{ position: "absolute", top: 18, left: 18, width: 40, height: 40, borderRadius: 13, background: "rgba(6,9,16,0.65)", backdropFilter: "blur(8px)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          style={{ position: "absolute", top: 18, left: 18, width: 40, height: 40, borderRadius: 13, background: "rgba(23,23,23,0.65)", backdropFilter: "blur(8px)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           <ArrowLeft size={18} strokeWidth={2.2} />
         </button>
@@ -178,7 +178,7 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
                 </p>
               )}
               {ex.note && (
-                <div style={{ marginTop: 6, padding: "10px 13px", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 14, fontSize: 12, color: "#ffb391", lineHeight: 1.5 }}>
+                <div style={{ marginTop: 6, padding: "10px 13px", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 14, fontSize: 12, color: T.light, lineHeight: 1.5 }}>
                   {ex.note}
                 </div>
               )}

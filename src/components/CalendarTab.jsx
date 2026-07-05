@@ -76,7 +76,7 @@ export function CalendarTab({ goTraining }) {
             key={d.label}
             style={{
               flex: 1,
-              background: d.today ? T.accent : "#16181f",
+              background: d.today ? T.accent : T.inset,
               borderRadius: 16,
               padding: "10px 2px 9px",
               display: "flex",
@@ -167,14 +167,14 @@ export function CalendarTab({ goTraining }) {
                 width: 42,
                 height: 42,
                 borderRadius: 14,
-                background: s.done ? T.ok : "#16181f",
+                background: s.done ? T.ok : T.inset,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
               }}
             >
-              {s.done ? <Check size={19} color="#000" strokeWidth={2.8} /> : <Icon size={18} color={s.overdue ? T.yellow : "#e8e8ea"} strokeWidth={2} />}
+              {s.done ? <Check size={19} color="#000" strokeWidth={2.8} /> : <Icon size={18} color={s.overdue ? T.yellow : T.light} strokeWidth={2} />}
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: "#fff" }}>{EXERCISES_DATA[k].label}</div>
@@ -212,8 +212,8 @@ export function CalendarTab({ goTraining }) {
 
       {/* PLAN POZOSTAŁYCH DNI */}
       <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "12px 14px", margin: "6px 0 18px", display: "flex", gap: 12 }}>
-        <span style={{ width: 42, height: 42, borderRadius: 14, background: "#16181f", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <HeartPulse size={18} color="#e8e8ea" strokeWidth={2} />
+        <span style={{ width: 42, height: 42, borderRadius: 14, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <HeartPulse size={18} color={T.light} strokeWidth={2} />
         </span>
         <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.6 }}>
           <strong style={{ color: T.light }}>Wtorek i czwartek:</strong> cardio + sauna (bieżnia 12% · 3,5 km/h · 50 min).

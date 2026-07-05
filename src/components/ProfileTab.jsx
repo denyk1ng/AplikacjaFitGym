@@ -30,7 +30,7 @@ function Toggle({ on, onChange }) {
       aria-checked={on}
       style={{ width: 44, height: 26, borderRadius: 99, background: on ? T.accent : T.track, border: "none", position: "relative", cursor: "pointer", transition: "background .25s", padding: 0, flexShrink: 0 }}
     >
-      <span style={{ position: "absolute", top: 3, left: on ? 21 : 3, width: 20, height: 20, borderRadius: "50%", background: on ? "#000" : "#8b8b90", transition: "left .25s" }} />
+      <span style={{ position: "absolute", top: 3, left: on ? 21 : 3, width: 20, height: 20, borderRadius: "50%", background: on ? "#000" : T.soft, transition: "left .25s" }} />
     </button>
   );
 }

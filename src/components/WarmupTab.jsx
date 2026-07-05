@@ -80,7 +80,7 @@ function DayCard({ dayKey, onClick, delay }) {
       <div style={{ position: "relative", height: 128 }}>
         <img src={WARMUP_PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: WARMUP_PHOTO_POS[dayKey] }} />
         <GlowOverlay />
-        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(6,9,16,0) 35%, ${T.card} 100%)` }} />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(23,23,23,0) 35%, ${T.card} 100%)` }} />
         <div style={{ position: "absolute", left: 8, right: 8, bottom: 6 }}>
           <span
             style={{
@@ -192,7 +192,7 @@ function Hero({ onBack, photo = PHOTOS.stretch, height = 220, objectPosition = "
     <div style={{ position: "relative", height }}>
       <img key={photo} src={photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition }} />
       {glow && <GlowOverlay />}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.45) 0%, rgba(6,9,16,0.1) 35%, rgba(6,9,16,0.6) 100%)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.45) 0%, rgba(23,23,23,0.1) 35%, rgba(23,23,23,0.6) 100%)" }} />
       {onBack && (
         <button
           onClick={onBack}
@@ -203,7 +203,7 @@ function Hero({ onBack, photo = PHOTOS.stretch, height = 220, objectPosition = "
             width: 40,
             height: 40,
             borderRadius: 13,
-            background: "rgba(6,9,16,0.65)",
+            background: "rgba(23,23,23,0.65)",
             backdropFilter: "blur(8px)",
             border: "none",
             color: "#fff",

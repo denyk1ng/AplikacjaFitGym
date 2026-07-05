@@ -427,12 +427,12 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
       {/* bieżące ćwiczenie: duża karta ze zdjęciem, serią i ciężarem */}
       <div key={ex.id} className="fu" style={{ position: "relative", flex: 1, minHeight: 210, borderRadius: 24, overflow: "hidden", marginTop: 14, border: `1px solid ${T.borderSoft}` }}>
         <img src={EX_THUMB[ex.id]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.12) 0%, rgba(6,9,16,0.35) 52%, rgba(6,9,16,0.94) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.12) 0%, rgba(23,23,23,0.35) 52%, rgba(23,23,23,0.94) 100%)" }} />
         {setsDone[idx] === 0 && (
           <button
             onClick={() => setShowSwap(true)}
             title="Zamień ćwiczenie"
-            style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, borderRadius: "50%", background: "rgba(6,9,16,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             <Repeat size={15} strokeWidth={2.2} />
           </button>
@@ -442,7 +442,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
             <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: U }}>
               Seria {Math.min(setsDone[idx] + 1, ex.sets)} / {ex.sets} · {ex.reps} powt.
             </div>
-            <div style={{ fontSize: 12, color: "#c9c9cd", marginTop: 4, display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ fontSize: 12, color: T.light, marginTop: 4, display: "flex", alignItems: "center", gap: 5 }}>
               {ex.weight > 0 ? (
                 <>
                   ciężar: <EditNum value={ex.weight} unit={ex.unit} onChange={(v) => updateWeight(ex.id, v)} />
@@ -512,7 +512,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
       {/* arkusz potwierdzenia wyjścia */}
       {confirmExit && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
-          <div onClick={() => setConfirmExit(false)} style={{ position: "absolute", inset: 0, background: "rgba(6,9,16,0.7)", backdropFilter: "blur(3px)" }} />
+          <div onClick={() => setConfirmExit(false)} style={{ position: "absolute", inset: 0, background: "rgba(23,23,23,0.7)", backdropFilter: "blur(3px)" }} />
           <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: T.card2, borderRadius: "26px 26px 0 0", padding: "26px 22px calc(34px + env(safe-area-inset-bottom))", textAlign: "center" }}>
             <div style={{ width: 54, height: 54, borderRadius: "50%", background: "rgba(244,63,94,0.15)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
               <LogOut size={22} color={T.danger} strokeWidth={2.2} />
@@ -532,7 +532,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
       {/* arkusz zamiany ćwiczenia — tylko zanim zaliczysz pierwszą serię */}
       {showSwap && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
-          <div onClick={() => setShowSwap(false)} style={{ position: "absolute", inset: 0, background: "rgba(6,9,16,0.7)", backdropFilter: "blur(3px)" }} />
+          <div onClick={() => setShowSwap(false)} style={{ position: "absolute", inset: 0, background: "rgba(23,23,23,0.7)", backdropFilter: "blur(3px)" }} />
           <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "72vh", overflowY: "auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
               <span style={{ fontFamily: U, fontWeight: 700, fontSize: "1.1rem", color: "#fff" }}>Zamień ćwiczenie</span>

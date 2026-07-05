@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { T } from "../theme.js";
 
 // Znak FORMA — pochylone F z ukośnym cięciem w negatywie, dwukolorowe:
 // część nad cięciem `top` (domyślnie limonka), pod cięciem `bottom` (biel).
@@ -42,7 +43,7 @@ export function LogoMark({ size = 32, top = "#bcff31", bottom = "#ffffff", style
 export function AnimatedLogo({ size = 84 }) {
   return (
     <div style={{ position: "relative", width: size, height: size }}>
-      <LogoMark size={size} top="#1c2029" bottom="#1c2029" style={{ position: "absolute", inset: 0 }} />
+      <LogoMark size={size} top={T.card} bottom={T.card} style={{ position: "absolute", inset: 0 }} />
       <div style={{ position: "absolute", inset: 0, animation: "logofill 1.7s cubic-bezier(.4,0,.2,1) infinite" }}>
         <LogoMark size={size} />
       </div>

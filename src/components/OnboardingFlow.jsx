@@ -63,10 +63,10 @@ function Intro({ onDone }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 2000, background: T.bg, overflow: "hidden" }}>
       <img key={i} src={s.photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(6,9,16,0.5) 0%, rgba(6,9,16,0.25) 40%, rgba(6,9,16,0.96) 82%)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.5) 0%, rgba(23,23,23,0.25) 40%, rgba(23,23,23,0.96) 82%)" }} />
       <button
         onClick={onDone}
-        style={{ position: "absolute", top: "calc(22px + env(safe-area-inset-top))", right: 20, background: "rgba(6,9,16,0.5)", border: `1px solid ${T.border}`, color: T.soft, borderRadius: 99, fontSize: 12, fontWeight: 600, padding: "8px 14px", cursor: "pointer", fontFamily: U }}
+        style={{ position: "absolute", top: "calc(22px + env(safe-area-inset-top))", right: 20, background: "rgba(23,23,23,0.5)", border: `1px solid ${T.border}`, color: T.soft, borderRadius: 99, fontSize: 12, fontWeight: 600, padding: "8px 14px", cursor: "pointer", fontFamily: U }}
       >
         Pomiń
       </button>
@@ -338,7 +338,7 @@ function Ready({ data, onDone }) {
       </div>
       <div style={{ position: "relative", height: "38%" }}>
         <img src={PHOTOS.B} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, ${T.bg} 0%, rgba(6,9,16,0.35) 45%, rgba(6,9,16,0.85) 100%)` }} />
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, ${T.bg} 0%, rgba(23,23,23,0.35) 45%, rgba(23,23,23,0.85) 100%)` }} />
         <div style={{ position: "absolute", left: 24, right: 24, bottom: "calc(34px + env(safe-area-inset-bottom))" }}>
           <PrimaryBtn onClick={onDone}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>

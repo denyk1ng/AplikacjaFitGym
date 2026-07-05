@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Home, Dumbbell, BarChart3, CalendarDays, Plus, Check } from "lucide-react";
 import { T } from "../theme.js";
 
-const BAR_BG = "#16181f";
+const BAR_BG = T.inset;
 const H = 62; // wysokość paska
 const RADIUS = H / 2;
 const BTN = 56; // średnica centralnego przycisku
@@ -84,7 +84,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
                   transition: "all .2s",
                 }}
               >
-                <Icon size={21} color={on ? T.accent : "#8b8b90"} strokeWidth={on ? 2.2 : 1.9} />
+                <Icon size={21} color={on ? T.accent : T.soft} strokeWidth={on ? 2.2 : 1.9} />
               </button>
             );
           })}
