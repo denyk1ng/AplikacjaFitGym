@@ -4,7 +4,7 @@ import { EXERCISES_DATA } from "./data/plan.js";
 import { PHOTOS } from "./data/photos.js";
 import { storage } from "./lib/storage.js";
 import { isoWeekStart } from "./lib/utils.js";
-import { loadWorkoutLog, saveWorkoutLog } from "./lib/workoutLog.js";
+import { loadWorkoutLog, saveWorkoutLog, weekStatus } from "./lib/workoutLog.js";
 import { DashboardTab } from "./components/DashboardTab.jsx";
 import { StatsTab } from "./components/StatsTab.jsx";
 import { WarmupTab } from "./components/WarmupTab.jsx";
@@ -112,9 +112,14 @@ export default function App() {
         setTab("sesja");
       }
       setStorageReady(true);
+      updateAppBadge();
     }
     load();
   }, []);
+
+  useEffect(() => {
+    if (storageReady && logRefresh > 0) updateAppBadge();
+  }, [logRefresh]);
 
   const persist = async (exState) => {
     try {
@@ -184,6 +189,21 @@ export default function App() {
     const rest = log.filter((e) => !(e.type === type && e.ts >= start));
     rest.push({ ts: Date.now(), date: new Date().toLocaleDateString("sv-SE"), type, ...stats });
     saveWorkoutLog(rest);
+    updateAppBadge();
+  };
+
+  // Badge API — pokazuje na ikonie zainstalowanej PWA liczbę treningów
+  // (A/B/C) zostałych do zaliczenia w bieżącym tygodniu. Substytut widżetu
+  // ekranu głównego, którego web PWA nie może zaoferować (brak API systemu).
+  const updateAppBadge = async () => {
+    if (!("setAppBadge" in navigator)) return;
+    try {
+      const log = await loadWorkoutLog();
+      const st = weekStatus(log);
+      const remaining = ["A", "B", "C"].filter((k) => !st[k].done).length;
+      if (remaining > 0) await navigator.setAppBadge(remaining);
+      else await navigator.clearAppBadge();
+    } catch (e) {}
   };
 
   const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz", coach: "Trener AI" };
