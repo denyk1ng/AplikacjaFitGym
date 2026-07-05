@@ -129,6 +129,26 @@ export function typicalHour(log, minEntries = 3) {
   return best;
 }
 
+// najbliższy niezrobiony trening tego tygodnia (zaległe liczą się jako "teraz"),
+// z docelowym znacznikiem czasu wyliczonym z typowej pory treningu użytkownika
+// (albo 18:00 jako domyślna godzina, gdy za mało danych na typicalHour) —
+// napędza kafelek odliczania na dashboardzie
+export function nextWorkoutTarget(log, ref = Date.now()) {
+  const st = weekStatus(log, ref);
+  const todayIdx = dayIndex(new Date(ref).getDay());
+  const undone = ["A", "B", "C"].filter((k) => !st[k].done);
+  if (!undone.length) return null;
+  const withDist = undone.map((k) => ({ k, dist: Math.max(dayIndex(PLAN_DOW[k]) - todayIdx, 0) }));
+  withDist.sort((a, b) => a.dist - b.dist);
+  const { k, dist } = withDist[0];
+  const hour = typicalHour(log) ?? 18;
+  const target = new Date(ref);
+  target.setDate(target.getDate() + dist);
+  target.setHours(hour, 0, 0, 0);
+  if (target.getTime() < ref) target.setTime(ref); // godzina dziś już minęła — pokaż "teraz"
+  return { type: k, targetTs: target.getTime() };
+}
+
 // podsumowanie ostatnich tygodni: ile z 3 treningów zrobiono
 export function weekHistory(log, weeks = 4, ref = Date.now()) {
   const start = isoWeekStart(ref);
