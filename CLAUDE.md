@@ -49,8 +49,12 @@ patterns coexist, don't assume one is authoritative. Key keys: `plan_custom` (pe
 weight/sets/reps/rest overrides, keyed by exercise id), `progress_snapshots` (array of `{ts, date,
 dateShort, weights}` — one entry per "Zapisz ciężary" tap, drives all progress charts),
 `workout_log` (array of `{ts, date, type: "A"|"B"|"C"|"cardio", ...stats}` — one entry per
-completed session, drives the weekly-completion calendar logic), `body_weight_log`, `profile`,
-`fav_exercises`, `forma_onboarded`, `settings` (see `src/lib/settings.js`).
+completed session, drives the weekly-completion calendar logic; `stats` from `LiveSession.jsx`
+also includes `perExercise: [{id, weight, unit, setsDone, sets}]`, the per-exercise actual-weight/
+completed-sets record — currently unconsumed since the feature that read it was removed, see
+Known dead code), `body_weight_log`, `profile`, `fav_exercises`, `forma_onboarded`, `settings`
+(see `src/lib/settings.js`, includes an unused `aiApiKey` field left over from the same removed
+feature).
 
 **Week-based completion logic lives in `src/lib/workoutLog.js`.** Trainings A/B/C don't need to
 happen on their nominal weekday (`PLAN_DOW = {A:1, B:3, C:5}`) — they need to happen once each
@@ -113,17 +117,25 @@ icons need regenerating to match, they won't update automatically.
 
 **Bottom-sheet and full-screen-overlay components are portaled to `document.body`**
 (`ConfirmSheet.jsx`, `QuickAddSheet.jsx`, the notification panel in `DashboardTab.jsx`, the
-exit-confirm sheet in `LiveSession.jsx`, `RestDisplay.jsx`) specifically to escape the `.fu`
-fade-up animation's stacking context on ancestor elements — a plain `position: fixed` nested
-inside an animated parent gets clipped/mispositioned without the portal.
+exit-confirm sheet in `LiveSession.jsx`) specifically to escape the `.fu` fade-up animation's
+stacking context on ancestor elements — a plain `position: fixed` nested inside an animated
+parent gets clipped/mispositioned without the portal.
 
 ## Known dead code
 
-`src/components/DayExCard.jsx`, `RestDisplay.jsx`, `Onboarding.jsx`, `DietTab.jsx`, and
-`SetCounter.jsx` are not imported from `App.jsx` or any reachable component — they're leftovers
-from earlier iterations (an older onboarding flow, an old per-set card UI, a diet-tracking tab
-that was explicitly dropped from scope). Don't assume they're wired up; check reachability from
-`App.jsx` before modifying a component.
+`src/components/DayExCard.jsx`, `RestDisplay.jsx` (only ever imported by `DayExCard.jsx`, so
+transitively dead too), `Onboarding.jsx`, `DietTab.jsx`, and `SetCounter.jsx` are not imported from
+`App.jsx` or any reachable component — they're leftovers from earlier iterations (an older
+onboarding flow, an old per-set card UI, a diet-tracking tab that was explicitly dropped from
+scope). Don't assume they're wired up; check reachability from `App.jsx` before modifying a
+component.
+
+`src/components/CoachTab.jsx`, `src/components/BotMascot.jsx`, `src/lib/coach.js`, and
+`src/lib/aiClient.js` implement a "Trener AI" feature (heuristic weight-progression insights +
+an optional Anthropic-API chat, gated behind a user-supplied API key) that was built, then its
+Dashboard entry point was removed. `App.jsx` still renders `{tab === "coach" && <CoachTab .../>}`
+and has a `coach: "Trener AI"` title, but nothing calls `goTo("coach")` anymore, so the tab is
+unreachable — the files aren't wired up for real use, they're parked for a possible return.
 
 ## Git / PR conventions specific to this repo
 
