@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight } from "lucide-react";
+import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler } from "lucide-react";
 import { T } from "../theme.js";
 import { storage } from "../lib/storage.js";
 import { loadSettings, saveSettings } from "../lib/settings.js";
@@ -74,6 +74,8 @@ function bmiLabel(bmi) {
 export function ProfileTab() {
   const [profile, setProfile] = useState(DEFAULT_PROFILE);
   const [log, setLog] = useState([]);
+  const [measurements, setMeasurements] = useState([]);
+  const [mInputs, setMInputs] = useState({ waist: "", chest: "", arm: "", thigh: "" });
   const [ready, setReady] = useState(false);
   const [input, setInput] = useState("");
   const [settings, setSettings] = useState(loadSettings);
@@ -124,6 +126,10 @@ export function ProfileTab() {
         const l = await storage.get("body_weight_log");
         if (l && l.value) setLog(JSON.parse(l.value));
       } catch (e) {}
+      try {
+        const m = await storage.get("body_measurements_log");
+        if (m && m.value) setMeasurements(JSON.parse(m.value));
+      } catch (e) {}
       setReady(true);
     }
     load();
@@ -151,6 +157,29 @@ export function ProfileTab() {
     persistLog(log.filter((e) => e.ts !== ts));
   };
 
+  const persistMeasurements = (updated) => {
+    setMeasurements(updated);
+    storage.set("body_measurements_log", JSON.stringify(updated));
+  };
+
+  const addMeasurement = () => {
+    const parse = (v) => {
+      const n = parseFloat(String(v).replace(",", "."));
+      return !isNaN(n) && n > 0 ? Math.round(n * 10) / 10 : null;
+    };
+    const entry = { waist: parse(mInputs.waist), chest: parse(mInputs.chest), arm: parse(mInputs.arm), thigh: parse(mInputs.thigh) };
+    if (!entry.waist && !entry.chest && !entry.arm && !entry.thigh) return; // nic nie wypełniono
+    const now = new Date();
+    persistMeasurements(
+      [...measurements, { ts: now.getTime(), dateShort: now.toLocaleDateString("pl-PL", { day: "numeric", month: "short" }), ...entry }].sort((a, b) => a.ts - b.ts)
+    );
+    setMInputs({ waist: "", chest: "", arm: "", thigh: "" });
+  };
+
+  const removeMeasurement = (ts) => {
+    persistMeasurements(measurements.filter((e) => e.ts !== ts));
+  };
+
   const sorted = [...log].sort((a, b) => a.ts - b.ts);
   const last = sorted[sorted.length - 1];
   const first = sorted[0];
@@ -159,6 +188,14 @@ export function ProfileTab() {
   const toGoal = last && profile.goalWeight > 0 ? Math.round((last.kg - profile.goalWeight) * 10) / 10 : null;
 
   const chartData = sorted.map((e) => ({ date: e.dateShort, kg: e.kg }));
+
+  const sortedM = [...measurements].sort((a, b) => a.ts - b.ts);
+  const lastM = sortedM[sortedM.length - 1];
+  const prevM = sortedM.length >= 2 ? sortedM[sortedM.length - 2] : null;
+  const measureDelta = (field) => {
+    if (!lastM || lastM[field] == null || !prevM || prevM[field] == null) return null;
+    return Math.round((lastM[field] - prevM[field]) * 10) / 10;
+  };
 
   if (!ready) return null;
 
@@ -354,8 +391,102 @@ export function ProfileTab() {
         </div>
       )}
 
+      {/* POMIARY CIAŁA */}
+      <div className="fu" style={{ animationDelay: ".26s", display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft, margin: "22px 0 10px" }}>
+        <Ruler size={13} color={T.accent} strokeWidth={2.4} />
+        Pomiary ciała
+      </div>
+
+      <div className="fu" style={{ animationDelay: ".27s", display: "flex", gap: 8, marginBottom: 10 }}>
+        {[
+          { key: "waist", l: "Talia" },
+          { key: "chest", l: "Klatka" },
+          { key: "arm", l: "Biceps" },
+          { key: "thigh", l: "Uda" },
+        ].map(({ key, l }) => {
+          const d = measureDelta(key);
+          return (
+            <div key={key} style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "10px 6px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: T.sub, textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 700 }}>{l}</div>
+              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.05rem", color: "#fff", marginTop: 4 }}>
+                {lastM && lastM[key] != null ? `${lastM[key]}` : "—"}
+                {lastM && lastM[key] != null && <span style={{ fontSize: 10, color: T.sub }}> cm</span>}
+              </div>
+              {d !== null && d !== 0 && (
+                <div style={{ fontSize: 9.5, fontWeight: 700, color: d < 0 ? T.ok : T.yellow, marginTop: 2 }}>
+                  {d > 0 ? "+" : ""}
+                  {d}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="fu" style={{ animationDelay: ".28s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 16px", marginBottom: 14 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 10 }}>Dodaj pomiar</div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <input
+            value={mInputs.waist}
+            onChange={(e) => setMInputs({ ...mInputs, waist: e.target.value })}
+            placeholder="Talia cm"
+            inputMode="decimal"
+            style={{ flex: 1, minWidth: 0, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: T.text, padding: "10px 11px", fontSize: 13.5, fontWeight: 700, fontFamily: "inherit", outline: "none" }}
+          />
+          <input
+            value={mInputs.chest}
+            onChange={(e) => setMInputs({ ...mInputs, chest: e.target.value })}
+            placeholder="Klatka cm"
+            inputMode="decimal"
+            style={{ flex: 1, minWidth: 0, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: T.text, padding: "10px 11px", fontSize: 13.5, fontWeight: 700, fontFamily: "inherit", outline: "none" }}
+          />
+        </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          <input
+            value={mInputs.arm}
+            onChange={(e) => setMInputs({ ...mInputs, arm: e.target.value })}
+            placeholder="Biceps cm"
+            inputMode="decimal"
+            style={{ flex: 1, minWidth: 0, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: T.text, padding: "10px 11px", fontSize: 13.5, fontWeight: 700, fontFamily: "inherit", outline: "none" }}
+          />
+          <input
+            value={mInputs.thigh}
+            onChange={(e) => setMInputs({ ...mInputs, thigh: e.target.value })}
+            placeholder="Uda cm"
+            inputMode="decimal"
+            style={{ flex: 1, minWidth: 0, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: T.text, padding: "10px 11px", fontSize: 13.5, fontWeight: 700, fontFamily: "inherit", outline: "none" }}
+          />
+        </div>
+        <button
+          onClick={addMeasurement}
+          style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 14, fontWeight: 800, fontSize: 13, padding: "12px 18px", cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}
+        >
+          <Plus size={16} strokeWidth={2.8} /> Dodaj pomiar
+        </button>
+        <div style={{ fontSize: 10.5, color: T.faint, marginTop: 8 }}>Wypełnij tylko to, co akurat mierzysz — reszta zostaje puste.</div>
+      </div>
+
+      {sortedM.length > 0 && (
+        <div className="fu" style={{ animationDelay: ".29s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 14 }}>
+          <div style={{ padding: "10px 14px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, borderBottom: `1px solid ${T.borderSoft}` }}>
+            Historia pomiarów
+          </div>
+          {[...sortedM].reverse().slice(0, 10).map((e, i, arr) => (
+            <div key={e.ts} style={{ padding: "10px 14px", display: "flex", alignItems: "center", gap: 10, borderBottom: i < arr.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
+              <div style={{ flex: 1, fontSize: 12.5, color: T.light }}>{e.dateShort}</div>
+              <div style={{ fontSize: 11, color: T.sub }}>
+                {[e.waist && `talia ${e.waist}`, e.chest && `klatka ${e.chest}`, e.arm && `biceps ${e.arm}`, e.thigh && `uda ${e.thigh}`].filter(Boolean).join(" · ")}
+              </div>
+              <button onClick={() => removeMeasurement(e.ts)} title="Usuń wpis" style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4, display: "flex", flexShrink: 0 }}>
+                <Trash2 size={14} color={T.faint} strokeWidth={2.2} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* USTAWIENIA */}
-      <div className="fu" style={{ animationDelay: ".28s", display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft, margin: "22px 0 10px" }}>
+      <div className="fu" style={{ animationDelay: ".3s", display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft, margin: "22px 0 10px" }}>
         <Settings size={13} color={T.accent} strokeWidth={2.4} />
         Ustawienia
       </div>

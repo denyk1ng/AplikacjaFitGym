@@ -1,5 +1,9 @@
 import { T } from "../theme.js";
 
+// etykiety partii mięśniowych (pole `cat` każdego ćwiczenia niżej) —
+// współdzielone m.in. przez ExerciseDetail.jsx i StatsTab.jsx
+export const CAT_LABEL = { KLATKA: "Klatka", PLECY: "Plecy", BARKI: "Barki", BICEPS: "Biceps", TRICEPS: "Triceps", NOGI: "Nogi", BRZUCH: "Brzuch" };
+
 // Prawdziwy plan treningowy — dane użytkownika (ciężary robocze, serie, powtórzenia, przerwy)
 export const EXERCISES_DATA = {
   A: {

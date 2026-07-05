@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ArrowLeft, Play, Pause, Dumbbell, Gauge, Tag, TrendingUp } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
-import { EXERCISES_DATA } from "../data/plan.js";
+import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
 import { EditNum } from "./Editable.jsx";
 import { estimate1RM } from "../lib/utils.js";
@@ -30,8 +30,6 @@ function equipmentOf(name) {
   if (n.includes("kółko")) return "Kółko AB";
   return "Ciężar własny";
 }
-
-const CAT_LABEL = { KLATKA: "Klatka", PLECY: "Plecy", BARKI: "Barki", BICEPS: "Biceps", TRICEPS: "Triceps", NOGI: "Nogi", BRZUCH: "Brzuch" };
 
 export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeWeight, onBack }) {
   const [tab, setTab] = useState("howto");

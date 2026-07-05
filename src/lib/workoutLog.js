@@ -91,6 +91,24 @@ export function weekVolumes(log, exercisesData, weeks = 6, ref = Date.now()) {
   });
 }
 
+// objętość (kg) łącznie per partia mięśniowa (cat) — na bazie perExercise
+// zapisanego przy realnych sesjach na żywo (LiveSession); wpisy odhaczone
+// ręcznie w kalendarzu nie mają perExercise i nie wchodzą do tego rozbicia
+export function volumeByCategory(log, exercisesData) {
+  const meta = {};
+  Object.values(exercisesData).forEach((day) => day.exercises.forEach((e) => (meta[e.id] = e)));
+  const totals = {};
+  log.forEach((entry) => {
+    (entry.perExercise || []).forEach((pe) => {
+      const e = meta[pe.id];
+      if (!e) return;
+      const vol = (parseInt(e.reps) || 0) * pe.setsDone * (pe.weight || 0);
+      totals[e.cat] = (totals[e.cat] || 0) + vol;
+    });
+  });
+  return totals;
+}
+
 // podsumowanie ostatnich tygodni: ile z 3 treningów zrobiono
 export function weekHistory(log, weeks = 4, ref = Date.now()) {
   const start = isoWeekStart(ref);

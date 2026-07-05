@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
+import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
-import { EXERCISES_DATA, BADGES } from "../data/plan.js";
+import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
 import { computeStreak, computeTotalGain, earnedBadges } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, logStreak, weekVolumes } from "../lib/workoutLog.js";
+import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory } from "../lib/workoutLog.js";
 
 const U = "'Urbanist',sans-serif";
 const fmtVol = (v) => (v >= 10000 ? `${Math.round(v / 1000)}k` : v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(v));
@@ -65,6 +65,9 @@ export function StatsTab({ snapshots }) {
   const goalPct = Math.round((doneCount / 3) * 100);
   const vols = weekVolumes(log, EXERCISES_DATA, 6);
   const maxVol = Math.max(...vols.map((v) => v.vol), 1);
+  const catTotals = volumeByCategory(log, EXERCISES_DATA);
+  const catData = Object.keys(CAT_LABEL).map((cat) => ({ cat: CAT_LABEL[cat], vol: Math.round(catTotals[cat] || 0) }));
+  const hasCatData = Object.keys(catTotals).length > 0;
 
   const getList = () => {
     const days = filterDay === "ALL" ? ["A", "B", "C"] : [filterDay];
@@ -143,6 +146,32 @@ export function StatsTab({ snapshots }) {
         </div>
         <p style={{ fontSize: 9.5, color: T.faint, margin: "10px 0 0", textAlign: "center" }}>
           suma serie × powtórzenia × ciężar z zapisanych sesji
+        </p>
+      </div>
+
+      {/* OBJĘTOŚĆ PER PARTIA MIĘŚNIOWA */}
+      <div className="fu" style={{ animationDelay: ".055s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 16px 12px", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 4 }}>
+          <RadarIcon size={13} color={T.accent} strokeWidth={2.4} />
+          Objętość per partia mięśniowa
+        </div>
+        {hasCatData ? (
+          <div style={{ height: 210, margin: "0 -8px" }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={catData} outerRadius="72%">
+                <PolarGrid stroke={T.borderSoft} />
+                <PolarAngleAxis dataKey="cat" tick={{ fill: T.soft, fontSize: 10.5, fontFamily: "'Urbanist',sans-serif" }} />
+                <Radar dataKey="vol" stroke={T.accent} fill={T.accent} fillOpacity={0.28} strokeWidth={2} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <p style={{ fontSize: 11.5, color: T.sub, textAlign: "center", padding: "22px 10px" }}>
+            Zrób kilka pełnych sesji na żywo, a appka pokaże tu rozkład objętości między partiami.
+          </p>
+        )}
+        <p style={{ fontSize: 9.5, color: T.faint, margin: "6px 0 0", textAlign: "center" }}>
+          suma serie × powtórzenia × ciężar, od początku · z sesji na żywo
         </p>
       </div>
 
