@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Watch, Battery } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Battery } from "lucide-react";
+import { WatchIcon3D } from "./WatchIcon3D.jsx";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -305,7 +306,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
       </div>
 
-      {/* APPLE WATCH — atrapa parowania (brak dostępu do API zegarka z poziomu przeglądarki) */}
+      {/* APPLE WATCH — atrapa parowania (brak dostępu do API zegarka z poziomu przeglądarki), mały kafelek */}
       <div
         className="fu"
         onClick={() => watchState === "connected" && setShowWatchSheet(true)}
@@ -313,31 +314,29 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           animationDelay: ".28s",
           background: "rgba(37,99,235,0.09)",
           border: "1px solid rgba(37,99,235,0.3)",
-          borderRadius: 22,
-          padding: "14px 16px",
+          borderRadius: 18,
+          padding: "8px 10px 8px 8px",
           marginBottom: 22,
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
-          gap: 14,
+          gap: 8,
           cursor: watchState === "connected" ? "pointer" : "default",
         }}
       >
-        <span style={{ width: 46, height: 46, borderRadius: 15, background: "rgba(37,99,235,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Watch size={22} color={T.blue} strokeWidth={2.2} />
-        </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: H, fontWeight: 700, fontSize: 14, color: "#fff" }}>Apple Watch</div>
-          <div style={{ fontSize: 11.5, color: T.sub, marginTop: 2 }}>
-            {watchState === "connected" ? "Połączono · Series 9" : watchState === "connecting" ? "Łączenie…" : "Nie połączono"}
+        <WatchIcon3D size={30} />
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#fff", whiteSpace: "nowrap" }}>Apple Watch</div>
+          <div style={{ fontSize: 10, color: T.sub, marginTop: 1, whiteSpace: "nowrap" }}>
+            {watchState === "connected" ? "Połączono" : watchState === "connecting" ? "Łączenie…" : "Nie połączono"}
           </div>
         </div>
         {watchState === "connected" ? (
-          <span style={{ width: 10, height: 10, borderRadius: "50%", background: T.ok, flexShrink: 0 }} />
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: T.ok, flexShrink: 0, marginLeft: 4 }} />
         ) : (
           <button
             onClick={connectWatch}
             disabled={watchState === "connecting"}
-            style={{ background: T.blue, color: "#fff", border: "none", borderRadius: 99, fontWeight: 700, fontSize: 12.5, padding: "9px 16px", cursor: watchState === "connecting" ? "default" : "pointer", fontFamily: H, flexShrink: 0, opacity: watchState === "connecting" ? 0.7 : 1 }}
+            style={{ background: T.blue, color: "#fff", border: "none", borderRadius: 99, fontWeight: 700, fontSize: 11, padding: "6px 12px", cursor: watchState === "connecting" ? "default" : "pointer", fontFamily: H, flexShrink: 0, marginLeft: 4, opacity: watchState === "connecting" ? 0.7 : 1 }}
           >
             {watchState === "connecting" ? "…" : "Połącz"}
           </button>
@@ -436,7 +435,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(37,99,235,0.09)", border: "1px solid rgba(37,99,235,0.3)", borderRadius: 18, padding: "14px 16px", marginBottom: 14 }}>
                 <span style={{ width: 46, height: 46, borderRadius: 15, background: "rgba(37,99,235,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Watch size={22} color={T.blue} strokeWidth={2.2} />
+                  <WatchIcon3D size={34} />
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: H, fontWeight: 700, fontSize: 14, color: "#fff" }}>Apple Watch Series 9</div>
