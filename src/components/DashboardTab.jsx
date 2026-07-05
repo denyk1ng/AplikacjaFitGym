@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Battery, Timer } from "lucide-react";
-import { WatchIcon3D } from "./WatchIcon3D.jsx";
+import appleWatchPhoto from "../assets/apple-watch.png";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -328,7 +328,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       </div>
 
       {/* MAŁE KAFELKI: Apple Watch (atrapa) + odliczanie do najbliższego treningu (realne) */}
-      <div className="hscroll" style={{ marginBottom: 22, paddingTop: 16 }}>
+      <div className="hscroll" style={{ marginBottom: 28, paddingTop: 22 }}>
         <div
           className="fu"
           onClick={() => watchState === "connected" && setShowWatchSheet(true)}
@@ -338,7 +338,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             background: T.blue,
             border: "1px solid rgba(255,255,255,0.16)",
             borderRadius: 18,
-            padding: "10px 12px 10px 58px",
+            padding: "10px 12px 10px 66px",
             minWidth: 196,
             display: "inline-flex",
             alignItems: "center",
@@ -347,9 +347,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             cursor: watchState === "connected" ? "pointer" : "default",
           }}
         >
-          <span style={{ position: "absolute", left: -8, top: -18, filter: "drop-shadow(0 8px 12px rgba(0,0,0,0.4))" }}>
-            <WatchIcon3D size={60} />
-          </span>
+          <img
+            src={appleWatchPhoto}
+            alt="Apple Watch"
+            style={{ position: "absolute", left: -12, top: -20, height: 92, width: "auto", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.4))" }}
+          />
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#fff", whiteSpace: "nowrap" }}>Apple Watch</div>
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.75)", marginTop: 1, whiteSpace: "nowrap" }}>
@@ -490,9 +492,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 </button>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(37,99,235,0.09)", border: "1px solid rgba(37,99,235,0.3)", borderRadius: 18, padding: "14px 16px", marginBottom: 14 }}>
-                <span style={{ width: 46, height: 46, borderRadius: 15, background: "rgba(37,99,235,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <WatchIcon3D size={34} />
-                </span>
+                <img src={appleWatchPhoto} alt="Apple Watch" style={{ height: 56, width: "auto", flexShrink: 0, filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: H, fontWeight: 700, fontSize: 14, color: "#fff" }}>Apple Watch Series 9</div>
                   <div style={{ fontSize: 11.5, color: T.ok, marginTop: 2, fontWeight: 600 }}>Połączono</div>
