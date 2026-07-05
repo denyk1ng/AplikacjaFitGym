@@ -1,28 +1,18 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Battery, Timer } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Battery } from "lucide-react";
 import appleWatchPhoto from "../assets/apple-watch.png";
+import { BotMascot } from "./BotMascot.jsx";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { computeStreak, computeTotalGain, isoWeekStart } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, typicalHour, nextWorkoutTarget } from "../lib/workoutLog.js";
+import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, typicalHour } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
 
 const H = "'Urbanist',sans-serif";
-
-function fmtCountdown(ms) {
-  if (ms <= 60000) return "teraz";
-  const totalMin = Math.round(ms / 60000);
-  const days = Math.floor(totalMin / 1440);
-  const hours = Math.floor((totalMin % 1440) / 60);
-  const mins = totalMin % 60;
-  if (days > 0) return `za ${days} ${days === 1 ? "dzień" : "dni"}`;
-  if (hours > 0) return `za ${hours}h${mins > 0 ? ` ${mins}m` : ""}`;
-  return `za ${mins} min`;
-}
 
 function SectionHead({ title, onSee, delay }) {
   return (
@@ -72,15 +62,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
     localStorage.removeItem("watch_mock_connected");
     setShowWatchSheet(false);
   };
-
-  // odliczanie do najbliższego niezrobionego treningu — realna funkcja (nie
-  // atrapa), tyka co minutę żeby napis się odświeżał bez przeładowania
-  const [, forceTick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => forceTick((n) => n + 1), 60000);
-    return () => clearInterval(id);
-  }, []);
-  const nextTarget = nextWorkoutTarget(log);
 
   const settings = loadSettings();
   const st = weekStatus(log);
@@ -327,7 +308,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
       </div>
 
-      {/* MAŁE KAFELKI: Apple Watch (atrapa) + odliczanie do najbliższego treningu (realne) */}
+      {/* MAŁE KAFELKI: Apple Watch (atrapa) + Asystent AI (realny — wznawia CoachTab) */}
       <div className="hscroll" style={{ marginBottom: 28, paddingTop: 22 }}>
         <div
           className="fu"
@@ -371,34 +352,33 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           )}
         </div>
 
-        {nextTarget && (
-          <div
-            className="fu"
-            onClick={() => goTraining(nextTarget.type)}
-            style={{
-              animationDelay: ".3s",
-              background: T.accentSoftBg,
-              border: `1px solid ${T.accentSoftBorder}`,
-              borderRadius: 18,
-              padding: "10px 14px 10px 10px",
-              minWidth: 172,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              flexShrink: 0,
-              cursor: "pointer",
-              marginLeft: 10,
-            }}
-          >
-            <span style={{ width: 32, height: 32, borderRadius: 12, background: "rgba(188,255,49,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Timer size={17} color={T.accent} strokeWidth={2.2} />
-            </span>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#fff", whiteSpace: "nowrap" }}>{EXERCISES_DATA[nextTarget.type].label}</div>
-              <div style={{ fontSize: 10, color: T.accent, marginTop: 1, fontWeight: 600, whiteSpace: "nowrap" }}>{fmtCountdown(nextTarget.targetTs - Date.now())}</div>
-            </div>
+        <div
+          className="fu"
+          onClick={() => goTo("coach")}
+          style={{
+            animationDelay: ".3s",
+            position: "relative",
+            background: T.accent,
+            border: "1px solid rgba(0,0,0,0.12)",
+            borderRadius: 18,
+            padding: "10px 14px 10px 70px",
+            minWidth: 196,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            flexShrink: 0,
+            cursor: "pointer",
+            marginLeft: 10,
+          }}
+        >
+          <span style={{ position: "absolute", left: -14, top: -22, filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.4))" }}>
+            <BotMascot size={78} />
+          </span>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#000", whiteSpace: "nowrap" }}>Asystent AI</div>
+            <div style={{ fontSize: 10, color: "rgba(0,0,0,0.6)", marginTop: 1, whiteSpace: "nowrap" }}>Trener AI</div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* TWOJE TRENINGI */}

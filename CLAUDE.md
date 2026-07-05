@@ -132,10 +132,11 @@ component.
 
 `src/components/CoachTab.jsx`, `src/components/BotMascot.jsx`, `src/lib/coach.js`, and
 `src/lib/aiClient.js` implement a "Trener AI" feature (heuristic weight-progression insights +
-an optional Anthropic-API chat, gated behind a user-supplied API key) that was built, then its
-Dashboard entry point was removed. `App.jsx` still renders `{tab === "coach" && <CoachTab .../>}`
-and has a `coach: "Trener AI"` title, but nothing calls `goTo("coach")` anymore, so the tab is
-unreachable — the files aren't wired up for real use, they're parked for a possible return.
+an optional Anthropic-API chat, gated behind a user-supplied API key). Its Dashboard entry point
+was removed at one point, then reinstated as the "Asystent AI" tile in `DashboardTab.jsx` (next to
+the Apple Watch tile, solid `T.accent` background, `BotMascot` overflowing the top-left corner),
+which calls `goTo("coach")` — `BotMascot.jsx` was recolored from its original cream/mustard palette
+to the locked brand palette (white/black/gray case, lime glowing eyes) as part of that change.
 
 ## Git / PR conventions specific to this repo
 

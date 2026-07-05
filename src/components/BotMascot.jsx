@@ -1,32 +1,33 @@
-// Maskotka-bot — wektorowe odwzorowanie referencyjnego droida (boxy głowa,
+// Maskotka-bota — wektorowe odwzorowanie referencyjnego droida (boxy głowa,
 // obiektyw kamery, krótkie świecące "oczy", odsłonięta szyja, zniszczony pancerz).
-// Czysty SVG z gradientami, bez zewnętrznych zdjęć.
+// Czysty SVG z gradientami, bez zewnętrznych zdjęć. Kolorystyka w palecie
+// marki: biel/czerń/szarość na kopercie, limonka na świecących "oczach".
 export function BotMascot({ size = 110 }) {
   return (
     <svg width={size} height={(size * 155) / 130} viewBox="0 0 130 155" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="botCream" x1="15%" y1="0%" x2="85%" y2="100%">
-          <stop offset="0%" stopColor="#f7f2e6" />
-          <stop offset="55%" stopColor="#e3dac2" />
-          <stop offset="100%" stopColor="#b8ab8c" />
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="55%" stopColor="#dedfd9" />
+          <stop offset="100%" stopColor="#94978f" />
         </linearGradient>
         <linearGradient id="botMustard" x1="10%" y1="0%" x2="90%" y2="100%">
-          <stop offset="0%" stopColor="#ffd873" />
-          <stop offset="50%" stopColor="#f0b43a" />
-          <stop offset="100%" stopColor="#c07f1d" />
+          <stop offset="0%" stopColor="#3a3b38" />
+          <stop offset="50%" stopColor="#232420" />
+          <stop offset="100%" stopColor="#131311" />
         </linearGradient>
         <linearGradient id="botDark" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#2e2e2f" />
           <stop offset="100%" stopColor="#0a0a0a" />
         </linearGradient>
         <radialGradient id="botEye" cx="50%" cy="30%" r="80%">
-          <stop offset="0%" stopColor="#fff2b8" />
-          <stop offset="55%" stopColor="#ffb92f" />
-          <stop offset="100%" stopColor="#b06d00" />
+          <stop offset="0%" stopColor="#eaffb0" />
+          <stop offset="55%" stopColor="#bcff31" />
+          <stop offset="100%" stopColor="#7a9e1f" />
         </radialGradient>
         <radialGradient id="botLens" cx="40%" cy="35%" r="70%">
-          <stop offset="0%" stopColor="#8a9a4a" />
-          <stop offset="60%" stopColor="#2b2f1c" />
+          <stop offset="0%" stopColor="#5c7a24" />
+          <stop offset="60%" stopColor="#1c2410" />
           <stop offset="100%" stopColor="#0a0a0a" />
         </radialGradient>
         <radialGradient id="botShadow" cx="50%" cy="50%" r="50%">
@@ -67,12 +68,12 @@ export function BotMascot({ size = 110 }) {
       <circle cx="60" cy="101" r="4" fill="#333335" />
 
       {/* głowa — boxy */}
-      <rect x="30" y="20" width="76" height="66" rx="14" fill="url(#botCream)" stroke="#8f8567" strokeOpacity="0.4" />
+      <rect x="30" y="20" width="76" height="66" rx="14" fill="url(#botCream)" stroke="#94978f" strokeOpacity="0.4" />
 
       {/* obiektyw kamery, górny prawy róg głowy */}
       <circle cx="98" cy="42" r="17" fill="url(#botCream)" />
       <circle cx="98" cy="42" r="12.5" fill="url(#botLens)" />
-      <circle cx="94" cy="38" r="3" fill="#c9d98a" opacity="0.6" />
+      <circle cx="94" cy="38" r="3" fill="#bcff31" opacity="0.6" />
 
       {/* antena */}
       <line x1="100" y1="8" x2="94" y2="24" stroke="#2e2e2f" strokeWidth="3" strokeLinecap="round" />
@@ -84,8 +85,8 @@ export function BotMascot({ size = 110 }) {
       <rect x="66" y="49" width="7" height="18" rx="3.5" fill="url(#botEye)" filter="url(#botEmit)" />
 
       {/* drobne detale / śruby na głowie */}
-      <circle cx="37" cy="30" r="2" fill="#8f8567" opacity="0.5" />
-      <circle cx="37" cy="76" r="2" fill="#8f8567" opacity="0.5" />
+      <circle cx="37" cy="30" r="2" fill="#94978f" opacity="0.5" />
+      <circle cx="37" cy="76" r="2" fill="#94978f" opacity="0.5" />
 
       {/* zabrudzenia na głowie */}
       <ellipse cx="46" cy="66" rx="6" ry="3" fill="#0a0a0a" opacity="0.1" transform="rotate(-10 46 66)" />
