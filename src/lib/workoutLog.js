@@ -109,6 +109,26 @@ export function volumeByCategory(log, exercisesData) {
   return totals;
 }
 
+// najczęstsza godzina treningu (tryb) na bazie znaczników czasu z historii —
+// używane do przypomnienia "zwykle trenujesz teraz"; null gdy za mało danych
+export function typicalHour(log, minEntries = 3) {
+  if (log.length < minEntries) return null;
+  const counts = {};
+  log.forEach((e) => {
+    const h = new Date(e.ts).getHours();
+    counts[h] = (counts[h] || 0) + 1;
+  });
+  let best = null;
+  let bestCount = 0;
+  Object.entries(counts).forEach(([h, c]) => {
+    if (c > bestCount) {
+      bestCount = c;
+      best = parseInt(h);
+    }
+  });
+  return best;
+}
+
 // podsumowanie ostatnich tygodni: ile z 3 treningów zrobiono
 export function weekHistory(log, weeks = 4, ref = Date.now()) {
   const start = isoWeekStart(ref);

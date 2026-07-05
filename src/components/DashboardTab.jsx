@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3 } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { computeStreak, computeTotalGain, isoWeekStart } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES } from "../lib/workoutLog.js";
+import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, typicalHour } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
@@ -60,13 +60,39 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           go: () => goTraining(k),
         });
     });
+  const typHour = typicalHour(log);
+  const nearUsualTime = typHour !== null && Math.abs(new Date().getHours() - typHour) <= 1;
   if (settings.remindPlan && suggestion && !suggestion.overdue)
     notifs.push({
       Icon: Dumbbell,
-      t: `Dziś na planie: ${EXERCISES_DATA[suggestion.type].label}`,
+      t: nearUsualTime ? `Zwykle trenujesz teraz — ${EXERCISES_DATA[suggestion.type].label}` : `Dziś na planie: ${EXERCISES_DATA[suggestion.type].label}`,
       d: `${exercises[suggestion.type].exercises.length} ćwiczeń · ~60 min`,
       go: () => goTraining(suggestion.type),
     });
+
+  // cotygodniowe podsumowanie — pokazuje się raz na tydzień, gdy poprzedni
+  // tydzień miał jakąkolwiek aktywność; bez backendu więc to powiadomienie
+  // w appce, nie push po zamknięciu appki
+  const hist3 = weekHistory(log, 3);
+  const vols3 = weekVolumes(log, EXERCISES_DATA, 3);
+  const lastWeek = hist3[hist3.length - 2];
+  const weekBefore = hist3[hist3.length - 3];
+  const lastWeekVol = vols3[vols3.length - 2]?.vol || 0;
+  const weekBeforeVol = vols3[vols3.length - 3]?.vol || 0;
+  const summarySeenWeek = localStorage.getItem("week_summary_seen");
+  if (lastWeek && (lastWeek.done > 0 || lastWeekVol > 0) && summarySeenWeek !== String(weekStart)) {
+    const doneDelta = lastWeek.done - (weekBefore?.done || 0);
+    const volDelta = weekBeforeVol > 0 ? Math.round(((lastWeekVol - weekBeforeVol) / weekBeforeVol) * 100) : null;
+    notifs.push({
+      Icon: BarChart3,
+      t: "Podsumowanie tygodnia",
+      d: `${lastWeek.done}/3 treningi (${doneDelta > 0 ? "+" : ""}${doneDelta} vs poprzedni)${volDelta !== null ? ` · objętość ${volDelta > 0 ? "+" : ""}${volDelta}%` : ""}`,
+      go: () => {
+        localStorage.setItem("week_summary_seen", String(weekStart));
+        goTo("kalendarz");
+      },
+    });
+  }
   if (snapshots.length >= 2) {
     const lastS = snapshots[snapshots.length - 1];
     const prevMax = {};

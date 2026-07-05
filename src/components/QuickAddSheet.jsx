@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Play, TrendingUp, Scale, HeartPulse, Check, ChevronRight, ClipboardList } from "lucide-react";
+import { X, Play, TrendingUp, Scale, HeartPulse, Check, ChevronRight, ClipboardList, Moon } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { loadWorkoutLog, saveWorkoutLog, suggestToday } from "../lib/workoutLog.js";
@@ -35,11 +35,21 @@ export function QuickAddSheet({ open, onClose, onStartWorkout, onOpenPlan, onSav
   const suggestion = suggestToday(log);
   const todayKey = new Date().toLocaleDateString("sv-SE");
   const cardioDone = log.some((e) => e.type === "cardio" && e.date === todayKey);
+  const restDone = log.some((e) => e.type === "rest" && e.date === todayKey);
 
   const toggleCardio = () => {
     const updated = cardioDone
       ? log.filter((e) => !(e.type === "cardio" && e.date === todayKey))
       : [...log, { ts: Date.now(), date: todayKey, type: "cardio" }];
+    setLog(updated);
+    saveWorkoutLog(updated);
+    onLogChanged && onLogChanged();
+  };
+
+  const toggleRest = () => {
+    const updated = restDone
+      ? log.filter((e) => !(e.type === "rest" && e.date === todayKey))
+      : [...log, { ts: Date.now(), date: todayKey, type: "rest" }];
     setLog(updated);
     saveWorkoutLog(updated);
     onLogChanged && onLogChanged();
@@ -155,13 +165,23 @@ export function QuickAddSheet({ open, onClose, onStartWorkout, onOpenPlan, onSav
         )}
 
         {/* 4. cardio */}
-        <button onClick={toggleCardio} style={rowStyle(true)}>
+        <button onClick={toggleCardio} style={rowStyle(false)}>
           <Bubble Icon={cardioDone ? Check : HeartPulse} ok={cardioDone} />
           <span style={{ flex: 1, minWidth: 0 }}>
             <Title>{cardioDone ? "Cardio odhaczone" : "Odhacz cardio / saunę"}</Title>
             <Desc>{cardioDone ? "kliknij, aby cofnąć dzisiejszy wpis" : "bieżnia 12% · 3,5 km/h · 50 min — wpis do kalendarza"}</Desc>
           </span>
           {!cardioDone && <ChevronRight size={15} color={T.faint} strokeWidth={2.2} />}
+        </button>
+
+        {/* 5. szybki check-in — dziś regeneracja, gdy nie ma czasu na trening */}
+        <button onClick={toggleRest} style={rowStyle(true)}>
+          <Bubble Icon={restDone ? Check : Moon} ok={restDone} />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <Title>{restDone ? "Regeneracja odhaczona" : "Dziś regeneracja"}</Title>
+            <Desc>{restDone ? "kliknij, aby cofnąć dzisiejszy wpis" : "brak czasu na trening? odhacz dzień odpoczynku"}</Desc>
+          </span>
+          {!restDone && <ChevronRight size={15} color={T.faint} strokeWidth={2.2} />}
         </button>
       </div>
     </div>,
