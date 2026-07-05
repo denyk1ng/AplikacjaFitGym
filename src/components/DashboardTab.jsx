@@ -328,16 +328,18 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       </div>
 
       {/* MAŁE KAFELKI: Apple Watch (atrapa) + odliczanie do najbliższego treningu (realne) */}
-      <div className="hscroll" style={{ marginBottom: 22 }}>
+      <div className="hscroll" style={{ marginBottom: 22, paddingTop: 16 }}>
         <div
           className="fu"
           onClick={() => watchState === "connected" && setShowWatchSheet(true)}
           style={{
             animationDelay: ".28s",
-            background: "rgba(37,99,235,0.09)",
-            border: "1px solid rgba(37,99,235,0.3)",
+            position: "relative",
+            background: T.blue,
+            border: "1px solid rgba(255,255,255,0.16)",
             borderRadius: 18,
-            padding: "8px 10px 8px 8px",
+            padding: "10px 12px 10px 58px",
+            minWidth: 196,
             display: "inline-flex",
             alignItems: "center",
             gap: 8,
@@ -345,20 +347,22 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             cursor: watchState === "connected" ? "pointer" : "default",
           }}
         >
-          <WatchIcon3D size={30} />
-          <div style={{ minWidth: 0 }}>
+          <span style={{ position: "absolute", left: -8, top: -18, filter: "drop-shadow(0 8px 12px rgba(0,0,0,0.4))" }}>
+            <WatchIcon3D size={60} />
+          </span>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#fff", whiteSpace: "nowrap" }}>Apple Watch</div>
-            <div style={{ fontSize: 10, color: T.sub, marginTop: 1, whiteSpace: "nowrap" }}>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.75)", marginTop: 1, whiteSpace: "nowrap" }}>
               {watchState === "connected" ? "Połączono" : watchState === "connecting" ? "Łączenie…" : "Nie połączono"}
             </div>
           </div>
           {watchState === "connected" ? (
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: T.ok, flexShrink: 0, marginLeft: 4 }} />
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff", flexShrink: 0, marginLeft: 4 }} />
           ) : (
             <button
               onClick={connectWatch}
               disabled={watchState === "connecting"}
-              style={{ background: T.blue, color: "#fff", border: "none", borderRadius: 99, fontWeight: 700, fontSize: 11, padding: "6px 12px", cursor: watchState === "connecting" ? "default" : "pointer", fontFamily: H, flexShrink: 0, marginLeft: 4, opacity: watchState === "connecting" ? 0.7 : 1 }}
+              style={{ background: "#fff", color: T.blue, border: "none", borderRadius: 99, fontWeight: 700, fontSize: 11, padding: "6px 12px", cursor: watchState === "connecting" ? "default" : "pointer", fontFamily: H, flexShrink: 0, marginLeft: 4, opacity: watchState === "connecting" ? 0.7 : 1 }}
             >
               {watchState === "connecting" ? "…" : "Połącz"}
             </button>
@@ -374,19 +378,20 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
               background: T.accentSoftBg,
               border: `1px solid ${T.accentSoftBorder}`,
               borderRadius: 18,
-              padding: "8px 10px 8px 8px",
+              padding: "10px 14px 10px 10px",
+              minWidth: 172,
               display: "inline-flex",
               alignItems: "center",
-              gap: 8,
+              gap: 10,
               flexShrink: 0,
               cursor: "pointer",
               marginLeft: 10,
             }}
           >
-            <span style={{ width: 30, height: 30, borderRadius: 12, background: "rgba(188,255,49,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Timer size={16} color={T.accent} strokeWidth={2.2} />
+            <span style={{ width: 32, height: 32, borderRadius: 12, background: "rgba(188,255,49,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Timer size={17} color={T.accent} strokeWidth={2.2} />
             </span>
-            <div style={{ minWidth: 0 }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#fff", whiteSpace: "nowrap" }}>{EXERCISES_DATA[nextTarget.type].label}</div>
               <div style={{ fontSize: 10, color: T.accent, marginTop: 1, fontWeight: 600, whiteSpace: "nowrap" }}>{fmtCountdown(nextTarget.targetTs - Date.now())}</div>
             </div>
