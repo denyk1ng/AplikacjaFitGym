@@ -146,18 +146,21 @@ export default function App() {
     }));
   };
 
-  const handleSave = async () => {
-    await persist(exercises);
+  // buduje wpis snapshotu (punkt na wykresie progresu) z aktualnego stanu ćwiczeń
+  const buildSnapshot = (exState) => {
     const now = new Date();
     const dateFull = now.toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
     const dateShort = now.toLocaleDateString("pl-PL", { day: "numeric", month: "short" });
     const weights = {};
-    Object.values(exercises).forEach((d) =>
+    Object.values(exState).forEach((d) =>
       d.exercises.forEach((e) => {
         if (e.weight > 0) weights[e.id] = e.weight;
       })
     );
-    const snapshot = { ts: now.getTime(), date: dateFull.charAt(0).toUpperCase() + dateFull.slice(1), dateShort, weights };
+    return { ts: now.getTime(), date: dateFull.charAt(0).toUpperCase() + dateFull.slice(1), dateShort, weights };
+  };
+
+  const saveSnapshot = (snapshot) => {
     setSnapshots((prev) => {
       const updated = [...prev, snapshot];
       try {
@@ -167,6 +170,37 @@ export default function App() {
     });
     setSaveAnim(true);
     setTimeout(() => setSaveAnim(false), 2200);
+  };
+
+  const handleSave = async () => {
+    await persist(exercises);
+    saveSnapshot(buildSnapshot(exercises));
+  };
+
+  // edycja ciężaru pojedynczego ćwiczenia z zakładki Statystyki — od razu
+  // dopisuje nowy punkt do progresu (żeby zmiana była widoczna na wykresie),
+  // budując snapshot z jawnie obliczonego stanu zamiast czekać na re-render
+  const changeWeightAndSnapshot = async (exerciseId, v) => {
+    const next = {};
+    Object.entries(exercises).forEach(([dk, d]) => {
+      next[dk] = { ...d, exercises: d.exercises.map((e) => (e.id === exerciseId ? { ...e, weight: v } : e)) };
+    });
+    setExercises(next);
+    await persist(next);
+    saveSnapshot(buildSnapshot(next));
+  };
+
+  // edycja docelowych powtórzeń — tylko aktualizuje plan, bez wpływu na
+  // wykres progresu (który dotyczy ciężaru), zapis do plan_custom leci
+  // automatycznie przez efekt obserwujący `exercises`
+  const changeReps = (exerciseId, v) => {
+    for (const [dk, d] of Object.entries(exercises)) {
+      const i = d.exercises.findIndex((e) => e.id === exerciseId);
+      if (i >= 0) {
+        updateEx(dk, i, { ...d.exercises[i], reps: v });
+        break;
+      }
+    }
   };
 
   const dismissOnboard = () => {
@@ -318,7 +352,9 @@ export default function App() {
             />
           )}
 
-          {displayTab === "stats" && <StatsTab snapshots={snapshots} />}
+          {displayTab === "stats" && (
+            <StatsTab snapshots={snapshots} exercises={exercises} onChangeWeight={changeWeightAndSnapshot} onChangeReps={changeReps} />
+          )}
           {displayTab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
           {displayTab === "profil" && <ProfileTab />}
           {displayTab === "kalendarz" && <CalendarTab key={logRefresh} goTraining={goTraining} />}

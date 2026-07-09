@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart
 import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
+import { EditNum, EditStr } from "./Editable.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
 import { computeStreak, computeTotalGain, earnedBadges } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory } from "../lib/workoutLog.js";
@@ -56,7 +57,7 @@ function GoalRing({ pct }) {
   );
 }
 
-export function StatsTab({ snapshots }) {
+export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps }) {
   const [range, setRange] = useState(0);
   const [filterDay, setFilterDay] = useState("ALL");
   const [selectedId, setSelectedId] = useState("");
@@ -109,6 +110,17 @@ export function StatsTab({ snapshots }) {
   }, [filterDay]);
 
   const ex = list.find((e) => e.id === selectedId) || list[0];
+
+  // aktualny ciężar/powtórzenia z żywego stanu planu (może się różnić od
+  // statycznych danych EXERCISES_DATA, jeśli użytkownik już je edytował)
+  const liveEx = (() => {
+    if (!ex || !exercises) return ex;
+    for (const d of Object.values(exercises)) {
+      const found = d.exercises.find((e) => e.id === ex.id);
+      if (found) return found;
+    }
+    return ex;
+  })();
 
   const history = ex
     ? filtered
@@ -250,6 +262,24 @@ export function StatsTab({ snapshots }) {
               </option>
             ))}
           </select>
+
+          {liveEx && (
+            <>
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 12px" }}>
+                  <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Ciężar roboczy</div>
+                  <EditNum value={liveEx.weight} unit={liveEx.unit || "kg"} onChange={(v) => onChangeWeight && onChangeWeight(ex.id, v)} />
+                </div>
+                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 12px" }}>
+                  <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Powtórzenia</div>
+                  <EditStr value={liveEx.reps} onChange={(v) => onChangeReps && onChangeReps(ex.id, v)} />
+                </div>
+              </div>
+              <p style={{ fontSize: 9.5, color: T.faint, margin: "8px 0 0" }}>
+                Zmiana ciężaru dopisuje nowy punkt do wykresu progresu poniżej.
+              </p>
+            </>
+          )}
         </div>
       )}
 
