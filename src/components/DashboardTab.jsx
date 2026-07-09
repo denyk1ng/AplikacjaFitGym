@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Battery } from "lucide-react";
 import appleWatchPhoto from "../assets/apple-watch.png";
-import { BotMascot } from "./BotMascot.jsx";
+import aiRobotPhoto from "../assets/ai-robot.png";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -361,8 +361,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             background: T.accent,
             border: "1px solid rgba(0,0,0,0.12)",
             borderRadius: 18,
-            padding: "10px 14px 10px 70px",
-            minWidth: 196,
+            padding: "10px 14px 10px 82px",
+            minWidth: 200,
             display: "inline-flex",
             alignItems: "center",
             gap: 8,
@@ -371,9 +371,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             marginLeft: 10,
           }}
         >
-          <span style={{ position: "absolute", left: -14, top: -22, filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.4))" }}>
-            <BotMascot size={78} />
-          </span>
+          <img
+            src={aiRobotPhoto}
+            alt="Asystent AI"
+            style={{ position: "absolute", left: -4, bottom: 0, height: 96, width: "auto", filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.4))" }}
+          />
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#000", whiteSpace: "nowrap" }}>Asystent AI</div>
             <div style={{ fontSize: 10, color: "rgba(0,0,0,0.6)", marginTop: 1, whiteSpace: "nowrap" }}>Trener AI</div>

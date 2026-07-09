@@ -130,13 +130,14 @@ onboarding flow, an old per-set card UI, a diet-tracking tab that was explicitly
 scope). Don't assume they're wired up; check reachability from `App.jsx` before modifying a
 component.
 
-`src/components/CoachTab.jsx`, `src/components/BotMascot.jsx`, `src/lib/coach.js`, and
-`src/lib/aiClient.js` implement a "Trener AI" feature (heuristic weight-progression insights +
-an optional Anthropic-API chat, gated behind a user-supplied API key). Its Dashboard entry point
-was removed at one point, then reinstated as the "Asystent AI" tile in `DashboardTab.jsx` (next to
-the Apple Watch tile, solid `T.accent` background, `BotMascot` overflowing the top-left corner),
-which calls `goTo("coach")` — `BotMascot.jsx` was recolored from its original cream/mustard palette
-to the locked brand palette (white/black/gray case, lime glowing eyes) as part of that change.
+`src/components/CoachTab.jsx`, `src/lib/coach.js`, and `src/lib/aiClient.js` implement a "Trener
+AI" feature (heuristic weight-progression insights + an optional Anthropic-API chat, gated behind
+a user-supplied API key). Its Dashboard entry point was removed at one point, then reinstated as
+the "Asystent AI" tile in `DashboardTab.jsx` (next to the Apple Watch tile, solid `T.accent`
+background, a background-removed android-bust photo `src/assets/ai-robot.png` — white chassis,
+glowing purple eyes/neck cabling, matching a user-provided reference image — overflowing the
+top-left corner), which calls `goTo("coach")`. `src/components/BotMascot.jsx` (a procedural SVG
+droid) is again unused dead code — it briefly backed that tile before being swapped for the photo.
 
 ## Git / PR conventions specific to this repo
 
