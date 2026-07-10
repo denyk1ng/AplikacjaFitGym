@@ -132,12 +132,12 @@ component.
 
 `src/components/CoachTab.jsx`, `src/lib/coach.js`, and `src/lib/aiClient.js` implement a "Trener
 AI" feature (heuristic weight-progression insights + an optional Anthropic-API chat, gated behind
-a user-supplied API key). Its Dashboard entry point was removed at one point, then reinstated as
-the "Asystent AI" tile in `DashboardTab.jsx` (next to the Apple Watch tile, solid `T.accent`
-background, a background-removed android-bust photo `src/assets/ai-robot.png` — white chassis,
-glowing purple eyes/neck cabling, matching a user-provided reference image — overflowing the
-top-left corner), which calls `goTo("coach")`. `src/components/BotMascot.jsx` (a procedural SVG
-droid) is again unused dead code — it briefly backed that tile before being swapped for the photo.
+a user-supplied API key). Its Dashboard entry point has gone back and forth: removed, reinstated
+as an "Asystent AI" tile, then removed again (together with a mock Apple Watch pairing tile) after
+the owner judged the tile row tacky — so `CoachTab` is currently unreachable from `App.jsx` (the
+`tab === "coach"` branch and `settings.aiApiKey` remain wired, only the entry point is gone).
+`src/components/BotMascot.jsx` (a procedural SVG droid) is likewise unused dead code left over
+from an iteration of that tile.
 
 ## Git / PR conventions specific to this repo
 

@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Battery } from "lucide-react";
-import appleWatchPhoto from "../assets/apple-watch.png";
-import aiRobotPhoto from "../assets/ai-robot.png";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3 } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -44,24 +42,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   useEffect(() => {
     loadWorkoutLog().then(setLog);
   }, []);
-
-  // "połączenie" z Apple Watch — czysta appka webowa nie ma dostępu do
-  // żadnego API zegarka (Apple tego nie udostępnia stronom), więc to
-  // wizualna atrapa parowania, nie prawdziwa integracja
-  const [watchState, setWatchState] = useState(() => (localStorage.getItem("watch_mock_connected") ? "connected" : "idle"));
-  const [showWatchSheet, setShowWatchSheet] = useState(false);
-  const connectWatch = () => {
-    setWatchState("connecting");
-    setTimeout(() => {
-      setWatchState("connected");
-      localStorage.setItem("watch_mock_connected", "1");
-    }, 1600);
-  };
-  const disconnectWatch = () => {
-    setWatchState("idle");
-    localStorage.removeItem("watch_mock_connected");
-    setShowWatchSheet(false);
-  };
 
   const settings = loadSettings();
   const st = weekStatus(log);
@@ -308,81 +288,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
       </div>
 
-      {/* MAŁE KAFELKI: Apple Watch (atrapa) + Asystent AI (realny — wznawia CoachTab) */}
-      <div className="hscroll" style={{ marginBottom: 28, paddingTop: 22 }}>
-        <div
-          className="fu"
-          onClick={() => watchState === "connected" && setShowWatchSheet(true)}
-          style={{
-            animationDelay: ".28s",
-            position: "relative",
-            background: T.blue,
-            border: "1px solid rgba(255,255,255,0.16)",
-            borderRadius: 18,
-            padding: "10px 12px 10px 66px",
-            minWidth: 196,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            flexShrink: 0,
-            cursor: watchState === "connected" ? "pointer" : "default",
-          }}
-        >
-          <img
-            src={appleWatchPhoto}
-            alt="Apple Watch"
-            style={{ position: "absolute", left: -12, top: -20, height: 92, width: "auto", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.4))" }}
-          />
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#fff", whiteSpace: "nowrap" }}>Apple Watch</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.75)", marginTop: 1, whiteSpace: "nowrap" }}>
-              {watchState === "connected" ? "Połączono" : watchState === "connecting" ? "Łączenie…" : "Nie połączono"}
-            </div>
-          </div>
-          {watchState === "connected" ? (
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff", flexShrink: 0, marginLeft: 4 }} />
-          ) : (
-            <button
-              onClick={connectWatch}
-              disabled={watchState === "connecting"}
-              style={{ background: "#fff", color: T.blue, border: "none", borderRadius: 99, fontWeight: 700, fontSize: 11, padding: "6px 12px", cursor: watchState === "connecting" ? "default" : "pointer", fontFamily: H, flexShrink: 0, marginLeft: 4, opacity: watchState === "connecting" ? 0.7 : 1 }}
-            >
-              {watchState === "connecting" ? "…" : "Połącz"}
-            </button>
-          )}
-        </div>
-
-        <div
-          className="fu"
-          onClick={() => goTo("coach")}
-          style={{
-            animationDelay: ".3s",
-            position: "relative",
-            background: T.accent,
-            border: "1px solid rgba(0,0,0,0.12)",
-            borderRadius: 18,
-            padding: "10px 14px 10px 82px",
-            minWidth: 200,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            flexShrink: 0,
-            cursor: "pointer",
-            marginLeft: 10,
-          }}
-        >
-          <img
-            src={aiRobotPhoto}
-            alt="Asystent AI"
-            style={{ position: "absolute", left: -4, bottom: 0, height: 96, width: "auto", filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.4))" }}
-          />
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontFamily: H, fontWeight: 700, fontSize: 12.5, color: "#000", whiteSpace: "nowrap" }}>Asystent AI</div>
-            <div style={{ fontSize: 10, color: "rgba(0,0,0,0.6)", marginTop: 1, whiteSpace: "nowrap" }}>Trener AI</div>
-          </div>
-        </div>
-      </div>
-
       {/* TWOJE TRENINGI */}
       <SectionHead title="Twoje treningi" onSee={() => goTo("trening")} delay=".3s" />
       <div className="hscroll" style={{ marginBottom: 8 }}>
@@ -456,43 +361,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
               <p style={{ fontSize: 10, color: T.faint, textAlign: "center", margin: "14px 0 0" }}>
                 Rodzaje powiadomień włączasz w Profilu → Ustawienia.
               </p>
-            </div>
-          </div>,
-          document.body
-        )}
-
-      {/* ARKUSZ APPLE WATCH — status atrapy połączenia */}
-      {showWatchSheet &&
-        createPortal(
-          <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
-            <div onClick={() => setShowWatchSheet(false)} style={{ position: "absolute", inset: 0, background: "rgba(23,23,23,0.7)", backdropFilter: "blur(3px)" }} />
-            <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxWidth: 680, margin: "0 auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-                <span style={{ fontFamily: H, fontWeight: 700, fontSize: "1.15rem", color: "#fff" }}>Apple Watch</span>
-                <button onClick={() => setShowWatchSheet(false)} aria-label="Zamknij" style={{ width: 34, height: 34, borderRadius: 11, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <X size={16} strokeWidth={2.4} />
-                </button>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(37,99,235,0.09)", border: "1px solid rgba(37,99,235,0.3)", borderRadius: 18, padding: "14px 16px", marginBottom: 14 }}>
-                <img src={appleWatchPhoto} alt="Apple Watch" style={{ height: 56, width: "auto", flexShrink: 0, filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: H, fontWeight: 700, fontSize: 14, color: "#fff" }}>Apple Watch Series 9</div>
-                  <div style={{ fontSize: 11.5, color: T.ok, marginTop: 2, fontWeight: 600 }}>Połączono</div>
-                </div>
-                <span style={{ display: "flex", alignItems: "center", gap: 4, color: T.sub, fontSize: 12 }}>
-                  <Battery size={15} strokeWidth={2} />
-                  82%
-                </span>
-              </div>
-              <p style={{ fontSize: 11.5, color: T.faint, lineHeight: 1.6, marginBottom: 16 }}>
-                Podgląd — FORMA jest aplikacją webową i nie ma dostępu do prawdziwych danych z zegarka (Apple nie udostępnia takiego API przeglądarkom). To wizualny placeholder na przyszłość.
-              </p>
-              <button
-                onClick={disconnectWatch}
-                style={{ width: "100%", background: T.inset, color: T.light, border: "none", borderRadius: 14, fontWeight: 700, fontSize: 13, padding: "13px 18px", cursor: "pointer", fontFamily: H }}
-              >
-                Rozłącz
-              </button>
             </div>
           </div>,
           document.body
