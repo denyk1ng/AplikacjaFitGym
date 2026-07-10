@@ -23,7 +23,9 @@ const displayStyle = {
   fontSize: 15,
 };
 
-export function EditNum({ value, unit, onChange }) {
+// min/max chronią przed bezsensownymi wartościami (ujemny ciężar psuł
+// objętość, 1RM i wykresy) — wartość spoza zakresu jest odrzucana bez zapisu
+export function EditNum({ value, unit, onChange, min = 0, max = 999 }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(String(value));
   const ref = useRef(null);
@@ -36,7 +38,7 @@ export function EditNum({ value, unit, onChange }) {
   const commit = () => {
     setEditing(false);
     const n = parseFloat(String(val).replace(",", "."));
-    if (!isNaN(n) && n !== value) onChange(n);
+    if (!isNaN(n) && n >= min && n <= max && n !== value) onChange(n);
     else setVal(String(value));
   };
   if (editing)
@@ -44,6 +46,7 @@ export function EditNum({ value, unit, onChange }) {
       <input
         ref={ref}
         value={val}
+        inputMode="decimal"
         onChange={(e) => setVal(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {
@@ -64,7 +67,11 @@ export function EditNum({ value, unit, onChange }) {
   );
 }
 
-export function EditStr({ value, onChange }) {
+// domyślna walidacja powtórzeń: musi zawierać cyfrę i mieć sensowną długość
+// (przyjmie "8", "8-10", "8 +AMRAP", "30s"; odrzuci pusty tekst i "banan")
+const defaultValidate = (v) => /\d/.test(v) && v.trim().length > 0 && v.trim().length <= 14;
+
+export function EditStr({ value, onChange, validate = defaultValidate }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
   const ref = useRef(null);
@@ -76,7 +83,8 @@ export function EditStr({ value, onChange }) {
   }, [editing]);
   const commit = () => {
     setEditing(false);
-    if (val !== value) onChange(val);
+    if (val !== value && validate(val)) onChange(val.trim());
+    else setVal(value);
   };
   if (editing)
     return (

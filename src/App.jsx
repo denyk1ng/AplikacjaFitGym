@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { Play } from "lucide-react";
 import { T } from "./theme.js";
 import { EXERCISES_DATA } from "./data/plan.js";
 import { PHOTOS } from "./data/photos.js";
@@ -6,19 +7,21 @@ import { storage } from "./lib/storage.js";
 import { isoWeekStart } from "./lib/utils.js";
 import { loadWorkoutLog, saveWorkoutLog, weekStatus } from "./lib/workoutLog.js";
 import { DashboardTab } from "./components/DashboardTab.jsx";
-import { StatsTab } from "./components/StatsTab.jsx";
 import { WarmupTab } from "./components/WarmupTab.jsx";
 import { BottomNav } from "./components/BottomNav.jsx";
 import { OnboardingFlow } from "./components/OnboardingFlow.jsx";
-import { ProfileTab } from "./components/ProfileTab.jsx";
+// Statystyki i Profil ciągną Recharts (~200 kB) — ładowane leniwie, żeby
+// pierwszy start appki nie płacił za wykresy, których jeszcze nie widać
+const StatsTab = lazy(() => import("./components/StatsTab.jsx").then((m) => ({ default: m.StatsTab })));
+const ProfileTab = lazy(() => import("./components/ProfileTab.jsx").then((m) => ({ default: m.ProfileTab })));
 import { CalendarTab } from "./components/CalendarTab.jsx";
 import { SplashScreen } from "./components/SplashScreen.jsx";
 import { LogoMark } from "./components/Logo.jsx";
 import { WorkoutDetail } from "./components/WorkoutDetail.jsx";
 import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
-import { LiveSession, loadLiveState } from "./components/LiveSession.jsx";
+import { LiveSession, loadLiveState, clearLiveState } from "./components/LiveSession.jsx";
 import { QuickAddSheet } from "./components/QuickAddSheet.jsx";
-import { CoachTab } from "./components/CoachTab.jsx";
+import { ConfirmSheet } from "./components/ConfirmSheet.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -57,6 +60,25 @@ export default function App() {
   const [userName, setUserName] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [logRefresh, setLogRefresh] = useState(0); // odświeża dom/kalendarz po szybkiej akcji
+  const [pendingStart, setPendingStart] = useState(null); // dzień, którego start koliduje z trwającą sesją
+  const [toast, setToast] = useState(null); // krótki komunikat sukcesu (np. po zapisie treningu)
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2600);
+  };
+
+  // start sesji z ochroną przed nadpisaniem: jeśli w localStorage wisi
+  // niedokończona sesja INNEGO dnia, pytamy zamiast po cichu ją skasować
+  const startSession = (dayKey) => {
+    const saved = loadLiveState();
+    if (saved && saved.dayKey && saved.dayKey !== dayKey && EXERCISES_DATA[saved.dayKey]) {
+      setPendingStart(dayKey);
+      return;
+    }
+    setSelectedDay(dayKey);
+    setTab("sesja");
+  };
 
   // appka nie ma routera, więc przeglądarka nie scrolluje sama do góry przy
   // zmianie "ekranu" — bez tego nowa zakładka otwiera się w tym samym miejscu
@@ -64,6 +86,23 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [displayTab, exerciseId, selectedDay]);
+
+  // minimalna integracja z przyciskiem "wstecz" (Android/gest): wejście na
+  // ekran inny niż Dom odkłada wpis w historii, a cofnięcie wraca na Dom
+  // zamiast od razu zamykać aplikację; z Domu — standardowe wyjście.
+  // Sesja live jest bezpieczna: jej stan i tak siedzi w localStorage.
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  useEffect(() => {
+    if (displayTab !== "dom") history.pushState({ t: displayTab }, "");
+  }, [displayTab]);
+  useEffect(() => {
+    const onPop = () => {
+      if (tabRef.current !== "dom") setTab("dom");
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   // imię z profilu (odświeżane przy wejściu na ekran główny)
   useEffect(() => {
@@ -160,8 +199,13 @@ export default function App() {
     return { ts: now.getTime(), date: dateFull.charAt(0).toUpperCase() + dateFull.slice(1), dateShort, weights };
   };
 
+  // dopisuje punkt progresu TYLKO gdy ciężary faktycznie się zmieniły od
+  // ostatniego zapisu — wcześniej każdy "Zapisz trening" dodawał płaski dubel
+  // na wykres i zawyżał licznik zapisów
   const saveSnapshot = (snapshot) => {
     setSnapshots((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && JSON.stringify(last.weights) === JSON.stringify(snapshot.weights)) return prev;
       const updated = [...prev, snapshot];
       try {
         storage.set("progress_snapshots", JSON.stringify(updated));
@@ -219,10 +263,10 @@ export default function App() {
   // stats z sesji na żywo (czas, serie, objętość) trafiają do wpisu
   const markWorkoutDone = async (type, stats = {}) => {
     const log = await loadWorkoutLog();
-    const start = isoWeekStart(Date.now());
-    const rest = log.filter((e) => !(e.type === type && e.ts >= start));
-    rest.push({ ts: Date.now(), date: new Date().toLocaleDateString("sv-SE"), type, ...stats });
-    saveWorkoutLog(rest);
+    // dopisujemy, nie zastępujemy — drugi trening tego samego typu w tygodniu
+    // nie kasuje statystyk pierwszego (logika tygodnia patrzy "czy jest ≥1")
+    log.push({ ts: Date.now(), date: new Date().toLocaleDateString("sv-SE"), type, ...stats });
+    saveWorkoutLog(log);
     updateAppBadge();
   };
 
@@ -240,7 +284,7 @@ export default function App() {
     } catch (e) {}
   };
 
-  const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz", coach: "Trener AI" };
+  const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
 
   return (
     <div
@@ -302,7 +346,7 @@ export default function App() {
               onBack={() => setTab("dom")}
               onWarmup={() => setTab("rozgrzewka")}
               onSelectDay={setSelectedDay}
-              onStart={() => setTab("sesja")}
+              onStart={() => startSession(selectedDay)}
               onExercise={(id) => {
                 setExerciseId(id);
                 setTab("cwiczenie");
@@ -321,15 +365,7 @@ export default function App() {
                 }
                 return null;
               })()}
-              onChangeWeight={(v) => {
-                for (const [dk, d] of Object.entries(exercises)) {
-                  const i = d.exercises.findIndex((e) => e.id === exerciseId);
-                  if (i >= 0) {
-                    updateEx(dk, i, { ...d.exercises[i], weight: v });
-                    break;
-                  }
-                }
-              }}
+              onChangeWeight={(v) => changeWeightAndSnapshot(exerciseId, v)}
               onBack={() => setTab("trening")}
             />
           )}
@@ -340,25 +376,29 @@ export default function App() {
               data={day}
               snapshots={snapshots}
               onExit={() => setTab("trening")}
-              updateWeight={(id, v) => {
-                const idx = day.exercises.findIndex((e) => e.id === id);
-                if (idx >= 0) updateEx(selectedDay, idx, { ...day.exercises[idx], weight: v });
-              }}
+              updateWeight={changeWeightAndSnapshot}
+              updateReps={changeReps}
               onSaveAll={async (stats) => {
                 await handleSave();
                 await markWorkoutDone(selectedDay, stats);
                 setTab("dom");
+                showToast(`Zapisano — Trening ${selectedDay} zaliczony`);
               }}
             />
           )}
 
           {displayTab === "stats" && (
-            <StatsTab snapshots={snapshots} exercises={exercises} onChangeWeight={changeWeightAndSnapshot} onChangeReps={changeReps} />
+            <Suspense fallback={<div style={{ textAlign: "center", padding: 48, color: T.faint, fontSize: 13 }}>Ładowanie…</div>}>
+              <StatsTab snapshots={snapshots} exercises={exercises} onChangeWeight={changeWeightAndSnapshot} onChangeReps={changeReps} />
+            </Suspense>
           )}
           {displayTab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}
-          {displayTab === "profil" && <ProfileTab />}
-          {displayTab === "kalendarz" && <CalendarTab key={logRefresh} goTraining={goTraining} />}
-          {displayTab === "coach" && <CoachTab exercises={exercises} />}
+          {displayTab === "profil" && (
+            <Suspense fallback={<div style={{ textAlign: "center", padding: 48, color: T.faint, fontSize: 13 }}>Ładowanie…</div>}>
+              <ProfileTab />
+            </Suspense>
+          )}
+          {displayTab === "kalendarz" && <CalendarTab key={logRefresh} goTraining={goTraining} onLogChanged={updateAppBadge} />}
         </div>
       )}
 
@@ -369,8 +409,7 @@ export default function App() {
         onClose={() => setShowQuickAdd(false)}
         onStartWorkout={(type) => {
           setShowQuickAdd(false);
-          setSelectedDay(type);
-          setTab("sesja");
+          startSession(type);
         }}
         onOpenPlan={() => {
           setShowQuickAdd(false);
@@ -379,6 +418,59 @@ export default function App() {
         onSaveWeights={handleSave}
         onLogChanged={() => setLogRefresh((c) => c + 1)}
       />
+
+      {/* konflikt: start treningu przy niedokończonej sesji innego dnia */}
+      <ConfirmSheet
+        open={!!pendingStart}
+        onClose={() => {
+          // "Wznów tamten" — wracamy do zapisanej sesji zamiast ją kasować
+          const saved = loadLiveState();
+          setPendingStart(null);
+          if (saved && saved.dayKey && EXERCISES_DATA[saved.dayKey]) {
+            setSelectedDay(saved.dayKey);
+            setTab("sesja");
+          }
+        }}
+        icon={Play}
+        tone="accent"
+        title={`Masz niedokończony Trening ${loadLiveState()?.dayKey || ""}`}
+        desc={`Rozpoczęcie Treningu ${pendingStart || ""} skasuje zapisany postęp tamtej sesji.`}
+        confirmLabel={`Porzuć i zacznij Trening ${pendingStart || ""}`}
+        cancelLabel={`Wznów Trening ${loadLiveState()?.dayKey || ""}`}
+        onConfirm={() => {
+          clearLiveState();
+          const target = pendingStart;
+          setPendingStart(null);
+          setSelectedDay(target);
+          setTab("sesja");
+        }}
+      />
+
+      {/* toast sukcesu (np. po zapisie treningu) */}
+      {toast && (
+        <div
+          className="fu"
+          style={{
+            position: "fixed",
+            left: "50%",
+            transform: "translateX(-50%)",
+            bottom: "calc(96px + env(safe-area-inset-bottom))",
+            zIndex: 1700,
+            background: T.card2,
+            border: `1px solid ${T.accentSoftBorder}`,
+            color: T.accent,
+            fontFamily: "'Urbanist',sans-serif",
+            fontWeight: 700,
+            fontSize: 13,
+            padding: "12px 20px",
+            borderRadius: 99,
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

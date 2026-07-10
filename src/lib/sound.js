@@ -9,6 +9,15 @@ function getCtx() {
   return ctx;
 }
 
+// iOS/Safari blokuje AudioContext utworzony poza gestem użytkownika — beep
+// końca przerwy odpala się z timera, więc kontekst trzeba "odblokować"
+// wcześniej, przy tapnięciu (np. Zalicz serię)
+export function unlockAudio() {
+  try {
+    getCtx();
+  } catch (e) {}
+}
+
 export function playBeep(times = 3) {
   const settings = loadSettings();
   try {

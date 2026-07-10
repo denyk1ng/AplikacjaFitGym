@@ -3,8 +3,8 @@ import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge, Sha
 import { T, FONT_NUM } from "../theme.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EXERCISES_DATA } from "../data/plan.js";
-import { playBeep } from "../lib/sound.js";
-import { EditNum } from "./Editable.jsx";
+import { playBeep, unlockAudio } from "../lib/sound.js";
+import { EditNum, EditStr } from "./Editable.jsx";
 import { shareWorkoutImage } from "../lib/shareCard.js";
 
 const U = "'Urbanist',sans-serif";
@@ -73,7 +73,7 @@ function TickGauge({ pct, color }) {
   );
 }
 
-export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, snapshots }) {
+export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, updateReps, snapshots }) {
   const baseExs = data.exercises;
   const [restored] = useState(() => loadLiveState(dayKey));
   const [exsState, setExsState] = useState(() =>
@@ -136,11 +136,24 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
   // opcjonalne pytanie o RPE (jak ciężko było), potem leci timer
   const doneSet = () => {
     if (setsDone[idx] >= ex.sets) return;
+    unlockAudio(); // gest użytkownika — odblokuj Web Audio dla beeta końca przerwy (iOS)
     const next = [...setsDone];
     next[idx] += 1;
     setSetsDone(next);
     pendingRestRef.current = !(next[idx] >= ex.sets && idx === exs.length - 1);
     setPendingRpe(true);
+  };
+
+  // edycja ciężaru/powtórzeń w trakcie sesji: aktualizuje lokalny stan sesji
+  // (UI + objętość od razu) ORAZ plan/progres przez rodzica — wcześniej szła
+  // tylko do planu, więc na ekranie sesji nic się nie zmieniało
+  const editWeight = (v) => {
+    setExsState((s) => s.map((e, i) => (i === idx ? { ...e, weight: v } : e)));
+    updateWeight && updateWeight(ex.id, v);
+  };
+  const editReps = (v) => {
+    setExsState((s) => s.map((e, i) => (i === idx ? { ...e, reps: v } : e)));
+    updateReps && updateReps(ex.id, v);
   };
 
   const submitRpe = (value) => {
@@ -158,7 +171,11 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
 
   // kolejne NIEDOKOŃCZONE ćwiczenie (z zawinięciem) — pominięte przez
   // zajętą maszynę wracają do kolejki; podsumowanie dopiero gdy komplet
+  // przy otwartym pytaniu o RPE nawigacja jest zablokowana — skok na inne
+  // ćwiczenie zapisywałby odpowiedź do złego ćwiczenia i startował przerwę
+  // z cudzym czasem
   const nextExercise = () => {
+    if (pendingRpe) return;
     setRest(0);
     for (let step = 1; step <= exs.length; step++) {
       const j = (idx + step) % exs.length;
@@ -171,6 +188,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
   };
 
   const jumpTo = (i) => {
+    if (pendingRpe) return;
     setRest(0);
     setIdx(i);
   };
@@ -311,19 +329,23 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
 
         <button
           onClick={() => {
+            if (totalSetsDone === 0) return;
             clearLiveState();
             const perExercise = exs
               .map((e, i) => ({ id: e.id, weight: e.weight || 0, unit: e.unit, setsDone: setsDone[i], sets: e.sets, avgRpe: avg(rpeData[i] || []) }))
               .filter((e) => e.setsDone > 0);
             onSaveAll({ time: elapsed, sets: totalSetsDone, volume, perExercise });
           }}
+          disabled={totalSetsDone === 0}
           className="fu"
-          style={{ animationDelay: ".45s", marginTop: 10, width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: T.accentGlow }}
+          style={{ animationDelay: ".45s", marginTop: 10, width: "100%", background: totalSetsDone === 0 ? T.inset : T.accent, color: totalSetsDone === 0 ? T.faint : "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: totalSetsDone === 0 ? "default" : "pointer", boxShadow: totalSetsDone === 0 ? "none" : T.accentGlow }}
         >
           Zapisz trening
         </button>
         <p style={{ fontSize: 10.5, color: T.faint, textAlign: "center", marginTop: 10, lineHeight: 1.5 }}>
-          Zapis odhaczy {data.label} w kalendarzu tygodnia i doda punkt progresu ciężarów.
+          {totalSetsDone === 0
+            ? "Zalicz przynajmniej jedną serię, żeby zapisać trening."
+            : `Zapis odhaczy ${data.label} w kalendarzu tygodnia i doda punkt progresu ciężarów.`}
         </p>
       </div>
     );
@@ -396,12 +418,14 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
             <button
               key={e.id}
               onClick={() => jumpTo(i)}
+              disabled={pendingRpe}
               title={e.name.split("—")[0].trim()}
               style={{
                 width: 38,
                 height: 38,
                 borderRadius: "50%",
                 flexShrink: 0,
+                opacity: pendingRpe ? 0.35 : 1,
                 border: `1.5px solid ${cur ? T.accent : done ? "rgba(52,211,153,0.4)" : started ? T.accentSoftBorder : T.border}`,
                 background: cur ? T.accent : done ? "rgba(52,211,153,0.12)" : T.card,
                 color: cur ? "#000" : done ? T.ok : started ? T.accent : T.sub,
@@ -439,13 +463,13 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
         )}
         <div style={{ position: "absolute", left: 16, right: 16, bottom: 14, display: "flex", alignItems: "flex-end", gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: U }}>
-              Seria {Math.min(setsDone[idx] + 1, ex.sets)} / {ex.sets} · {ex.reps} powt.
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: U, display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
+              Seria {Math.min(setsDone[idx] + 1, ex.sets)} / {ex.sets} · <EditStr value={String(ex.reps)} onChange={editReps} /> powt.
             </div>
             <div style={{ fontSize: 12, color: T.light, marginTop: 4, display: "flex", alignItems: "center", gap: 5 }}>
               {ex.weight > 0 ? (
                 <>
-                  ciężar: <EditNum value={ex.weight} unit={ex.unit} onChange={(v) => updateWeight(ex.id, v)} />
+                  ciężar: <EditNum value={ex.weight} unit={ex.unit} min={0.5} max={500} onChange={editWeight} />
                 </>
               ) : (
                 "ciężar własny"
@@ -503,7 +527,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, sna
             onClick={nextExercise}
             style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, boxShadow: T.accentGlow }}
           >
-            {hasOtherUnfinished ? "Następne ćwiczenie" : "Zakończ trening"}
+            {exs.every((e, i) => setsDone[i] >= e.sets) ? "Zobacz podsumowanie" : "Następne ćwiczenie"}
             <ChevronRight size={17} strokeWidth={2.6} />
           </button>
         </>
