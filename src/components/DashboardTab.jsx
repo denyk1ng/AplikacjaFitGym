@@ -4,8 +4,8 @@ import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, Chev
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
-import { computeStreak, computeTotalGain, isoWeekStart } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, typicalHour } from "../lib/workoutLog.js";
+import { computeTotalGain, isoWeekStart } from "../lib/utils.js";
+import { loadWorkoutLog, weekStatus, suggestToday, logStreak, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, typicalHour } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
@@ -28,13 +28,10 @@ function SectionHead({ title, onSee, delay }) {
 export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName }) {
   const dow = new Date().getDay();
   const isCardio = dow === 2 || dow === 4;
-  const streak = computeStreak(snapshots);
   const gain = computeTotalGain(snapshots);
   const weekStart = isoWeekStart(Date.now());
-  const thisWeekSaves = snapshots.filter((s) => s.ts >= weekStart).length;
 
   const cGain = useCountUp(gain, 1100);
-  const cStreak = useCountUp(streak, 800);
 
   // dziennik treningów — podpowiedź dnia + postęp tygodnia
   const [log, setLog] = useState([]);
@@ -42,6 +39,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   useEffect(() => {
     loadWorkoutLog().then(setLog);
   }, []);
+
+  // seria tygodni z dziennika treningów — to samo źródło co w Statystykach
+  // (wcześniej Dom liczył ją z zapisów ciężarów i liczby się rozjeżdżały)
+  const streak = logStreak(log);
+  const cStreak = useCountUp(streak, 800);
 
   const settings = loadSettings();
   const st = weekStatus(log);
@@ -120,12 +122,20 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
     });
   const hasAlert = notifs.some((n) => n.warn);
 
-  const WEEK = 7 * 24 * 3600 * 1000;
-  const weekBars = [3, 2, 1, 0].map((off) => {
-    const start = weekStart - off * WEEK;
-    const n = snapshots.filter((s) => s.ts >= start && s.ts < start + WEEK).length;
-    return Math.min(n / 3, 1);
-  });
+  // słupki serii: ukończone treningi A/B/C per tydzień (spójne z podpisem
+  // "tyg. z rzędu" — wcześniej liczyły zapisy ciężarów, czyli inną metrykę)
+  const weekBars = weekHistory(log, 4).map((w) => w.done / 3);
+
+  // prawdziwy mini-wykres progresu: suma ciężarów z kolejnych zapisów
+  // (wcześniej hardkodowana dekoracja udająca dane)
+  const sparkPts = (() => {
+    const totals = snapshots.slice(-12).map((s) => Object.values(s.weights || {}).reduce((a, b) => a + b, 0));
+    if (totals.length < 2) return null;
+    const min = Math.min(...totals);
+    const max = Math.max(...totals);
+    const span = max - min || 1;
+    return totals.map((v, i) => `${(i / (totals.length - 1)) * 72},${28 - ((v - min) / span) * 22}`).join(" ");
+  })();
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
 
@@ -147,13 +157,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         ? { chip: "DZIŚ NA PLANIE", chipStyle: { background: "rgba(0,0,0,0.14)", color: "#000" }, title: "Cardio + sauna", sub: "Bieżnia 12% · 3,5 km/h · 50 min", cta: "Zobacz kalendarz", go: () => goTo("kalendarz") }
         : { chip: "DZIŚ NA PLANIE", chipStyle: { background: "rgba(0,0,0,0.14)", color: "#000" }, title: "Regeneracja", sub: "Rozciąganie i pełny odpoczynek", cta: "Zobacz kalendarz", go: () => goTo("kalendarz") };
 
-  const cats = [
-    { photo: PHOTOS.stretch, l: "Rozgrzewka", act: false, go: () => goTo("rozgrzewka") },
-    { photo: PHOTOS.A, l: "Trening A", act: suggestion?.type === "A", go: () => goTraining("A") },
-    { photo: PHOTOS.B, l: "Trening B", act: suggestion?.type === "B", go: () => goTraining("B") },
-    { photo: PHOTOS.C, l: "Trening C", act: suggestion?.type === "C", go: () => goTraining("C") },
-    { photo: PHOTOS.cardio, l: "Cardio", act: !suggestion && isCardio, go: () => goTo("kalendarz") },
-  ];
 
   return (
     <div>
@@ -174,47 +177,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <span style={{ position: "absolute", top: 9, right: 10, width: 7, height: 7, borderRadius: "50%", background: T.yellow, border: `1.5px solid ${T.card}` }} />
           )}
         </button>
-      </div>
-
-      {/* KATEGORIE — pigułki z kolorowym kółkiem ikony, aktywna podświetlona limonką */}
-      <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
-      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 22 }}>
-        {cats.map(({ photo, l, act, go }) => (
-          <button
-            key={l}
-            onClick={go}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              flexShrink: 0,
-              padding: "6px 16px 6px 6px",
-              borderRadius: 99,
-              border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
-              background: T.card,
-              cursor: "pointer",
-              fontFamily: "inherit",
-              transition: "all .2s",
-            }}
-          >
-            <span
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: "50%",
-                flexShrink: 0,
-                overflow: "hidden",
-                border: `1.5px solid ${act ? T.accent : "transparent"}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </span>
-            <span style={{ fontSize: 12.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
-          </button>
-        ))}
       </div>
 
       {/* LIMONKOWA KARTA HERO */}
@@ -267,7 +229,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             ))}
           </div>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
-            <strong style={{ color: "#fff", fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 14 }}>{Math.round(cStreak)}</strong> tyg. z rzędu
+            <strong style={{ color: "#fff", fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 16 }}>{Math.round(cStreak)}</strong> tyg. z rzędu
           </span>
         </div>
         <div className="fu" style={{ animationDelay: ".26s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
@@ -276,7 +238,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Progres</span>
           </div>
           <svg width="72" height="34" viewBox="0 0 72 34" fill="none">
-            <polyline points="0,20 10,20 15,10 21,28 27,6 33,24 38,17 48,17 53,11 60,22 66,17 72,17" stroke={T.accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            {sparkPts ? (
+              <polyline points={sparkPts} stroke={T.accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            ) : (
+              <line x1="2" y1="17" x2="70" y2="17" stroke={T.track} strokeWidth="2.2" strokeLinecap="round" strokeDasharray="3 5" />
+            )}
           </svg>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
             <strong style={{ color: "#fff", fontFamily: H, fontSize: 13 }}>

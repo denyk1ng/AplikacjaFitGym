@@ -5,7 +5,7 @@ import { T, FONT_NUM } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
-import { computeStreak, computeTotalGain, earnedBadges } from "../lib/utils.js";
+import { computeTotalGain, earnedBadges } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory } from "../lib/workoutLog.js";
 
 const U = "'Urbanist',sans-serif";
@@ -70,8 +70,9 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps })
   const now = Date.now();
   const filtered = range === 0 ? snapshots : snapshots.filter((s) => s.ts >= now - range * 24 * 3600 * 1000);
 
-  const streakSnap = computeStreak(snapshots);
-  const streak = Math.max(streakSnap, logStreak(log));
+  // jedno źródło prawdy dla serii tygodni: dziennik treningów (nie zapisy
+  // ciężarów) — ta sama definicja co na ekranie głównym
+  const streak = logStreak(log);
   const gain = computeTotalGain(snapshots);
   const sessionsCount = log.filter((e) => e.perExercise && e.perExercise.length > 0).length;
   const totalVolume = log.reduce((s, e) => s + (e.volume || 0), 0);
@@ -376,7 +377,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps })
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {[
-            { v: log.length, l: "treningów zaliczonych", c: T.accent },
+            { v: log.filter((e) => ["A", "B", "C"].includes(e.type)).length, l: "treningów zaliczonych", c: T.accent },
             { v: `${gain >= 0 ? "+" : ""}${pl(gain)} kg`, l: "łączny przyrost", c: T.ok },
             { v: snapshots.length, l: "zapisów ciężarów", c: T.orange },
             {

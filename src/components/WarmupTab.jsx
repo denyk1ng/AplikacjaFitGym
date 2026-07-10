@@ -253,10 +253,31 @@ function DayPicker({ onBack, onPick }) {
   );
 }
 
+// odhaczenia rozgrzewki trzymamy w localStorage z datą — wyjście do innej
+// zakładki (remount) nie kasuje postępu; nowy dzień zaczyna od zera
+const WARMUP_KEY = "warmup_progress";
+function loadWarmupProgress(day) {
+  try {
+    const s = JSON.parse(localStorage.getItem(WARMUP_KEY) || "null");
+    if (s && s.date === new Date().toLocaleDateString("sv-SE") && s.day === day) return s.done || {};
+  } catch (e) {}
+  return {};
+}
+function saveWarmupProgress(day, done) {
+  try {
+    localStorage.setItem(WARMUP_KEY, JSON.stringify({ date: new Date().toLocaleDateString("sv-SE"), day, done }));
+  } catch (e) {}
+}
+
 // ── PRZEBIEG ROZGRZEWKI DLA WYBRANEGO DNIA ─────────────────────────────────
 function WarmupFlow({ day, onBack }) {
-  const [done, setDone] = useState({});
-  const toggle = (key) => setDone((d) => ({ ...d, [key]: !d[key] }));
+  const [done, setDone] = useState(() => loadWarmupProgress(day));
+  const toggle = (key) =>
+    setDone((d) => {
+      const next = { ...d, [key]: !d[key] };
+      saveWarmupProgress(day, next);
+      return next;
+    });
 
   const sections = [WARMUP_DATA.BASE, WARMUP_DATA[day]];
   const totalItems = sections.reduce((s, d) => s + d.items.length, 0);
@@ -301,7 +322,14 @@ function WarmupFlow({ day, onBack }) {
 }
 
 export function WarmupTab({ onBack }) {
-  const [day, setDay] = useState(null);
+  // wróć do rozpoczętej dziś rozgrzewki zamiast znowu pytać o dzień
+  const [day, setDay] = useState(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem(WARMUP_KEY) || "null");
+      if (s && s.date === new Date().toLocaleDateString("sv-SE") && s.day) return s.day;
+    } catch (e) {}
+    return null;
+  });
   if (day) return <WarmupFlow day={day} onBack={() => setDay(null)} />;
   return <DayPicker onBack={onBack} onPick={setDay} />;
 }

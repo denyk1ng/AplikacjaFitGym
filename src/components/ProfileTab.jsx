@@ -106,6 +106,8 @@ export function ProfileTab() {
       localStorage.removeItem("workout_log");
       localStorage.removeItem("progress_snapshots");
       localStorage.removeItem("live_session");
+      localStorage.removeItem("week_summary_seen");
+      if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
     } catch (e) {}
     location.reload();
   };
@@ -113,6 +115,7 @@ export function ProfileTab() {
   const resetApp = () => {
     try {
       localStorage.clear();
+      if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
     } catch (e) {}
     location.reload();
   };
@@ -224,7 +227,7 @@ export function ProfileTab() {
       <div className="fu" style={{ animationDelay: ".05s", display: "flex", gap: 10, marginBottom: 14 }}>
         <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
           <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700, marginBottom: 6 }}>Wzrost</div>
-          <EditNum value={profile.height} unit="cm" onChange={(v) => setProfile({ ...profile, height: v })} />
+          <EditNum value={profile.height} unit="cm" min={100} max={250} onChange={(v) => setProfile({ ...profile, height: v })} />
         </div>
         <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
           <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700, marginBottom: 6 }}>Waga teraz</div>
@@ -232,7 +235,7 @@ export function ProfileTab() {
         </div>
         <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px", textAlign: "center" }}>
           <div style={{ fontSize: 9.5, color: T.sub, textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 700, marginBottom: 6 }}>Cel wagi</div>
-          <EditNum value={profile.goalWeight} unit="kg" onChange={(v) => setProfile({ ...profile, goalWeight: v })} />
+          <EditNum value={profile.goalWeight} unit="kg" min={30} max={300} onChange={(v) => setProfile({ ...profile, goalWeight: v })} />
         </div>
       </div>
 

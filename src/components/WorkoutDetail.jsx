@@ -147,7 +147,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
                 e.stopPropagation();
                 toggleFav(ex.id);
               }}
-              title="Ulubione"
+              title="Ulubione" aria-label="Ulubione"
               style={{ width: 40, height: 40, borderRadius: "50%", background: favs.includes(ex.id) ? T.accent : T.inset, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}
             >
               <Heart size={17} color={favs.includes(ex.id) ? "#000" : T.soft} fill={favs.includes(ex.id) ? "#000" : "none"} strokeWidth={2.1} />

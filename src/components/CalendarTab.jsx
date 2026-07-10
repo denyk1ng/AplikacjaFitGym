@@ -9,7 +9,7 @@ import { loadSettings } from "../lib/settings.js";
 const H = "'Urbanist',sans-serif";
 const TYPE_ICON = { A: Dumbbell, B: Footprints, C: BicepsFlexed };
 
-export function CalendarTab({ goTraining }) {
+export function CalendarTab({ goTraining, onLogChanged }) {
   const [log, setLog] = useState([]);
   const [ready, setReady] = useState(false);
 
@@ -23,6 +23,7 @@ export function CalendarTab({ goTraining }) {
   const persist = (updated) => {
     setLog(updated);
     saveWorkoutLog(updated);
+    onLogChanged && onLogChanged(); // m.in. odświeżenie badge'a na ikonie appki
   };
 
   const mark = (type) => {
