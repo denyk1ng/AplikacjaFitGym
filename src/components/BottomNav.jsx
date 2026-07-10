@@ -3,11 +3,11 @@ import { Home, Dumbbell, BarChart3, CalendarDays, Plus, Check } from "lucide-rea
 import { T } from "../theme.js";
 
 const BAR_BG = T.inset;
-const H = 62; // wysokość paska
+const H = 72; // wysokość paska
 const RADIUS = H / 2;
-const BTN = 56; // średnica centralnego przycisku
-const NOTCH_HALF = 55; // połowa szerokości wcięcia
-const NOTCH_DEPTH = 34; // głębokość wcięcia
+const BTN = 58; // średnica centralnego przycisku
+const NOTCH_HALF = 56; // połowa szerokości wcięcia
+const NOTCH_DEPTH = 35; // głębokość wcięcia
 
 // Kształt paska: pastylka z płynnym wcięciem pod centralny przycisk.
 // Wcięcie rysowane krzywymi Béziera — ramiona niecki są miękko zaokrąglone
@@ -46,7 +46,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
   ];
 
   return (
-    <div style={{ position: "fixed", bottom: "calc(14px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 652 }}>
+    <div style={{ position: "fixed", bottom: "calc(6px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 652 }}>
       <div ref={ref} style={{ position: "relative", height: H }}>
         {w > 0 && (
           <svg
@@ -70,8 +70,8 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
                 onClick={() => setTab(it.id)}
                 title={it.label}
                 style={{
-                  width: 48,
-                  height: 48,
+                  width: 54,
+                  height: 54,
                   borderRadius: "50%",
                   background: on ? "#171717" : "rgba(255,255,255,0.055)",
                   border: "none",
@@ -84,7 +84,7 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
                   transition: "all .2s",
                 }}
               >
-                <Icon size={21} color={on ? T.accent : T.soft} strokeWidth={on ? 2.2 : 1.9} />
+                <Icon size={23} color={on ? T.accent : T.soft} strokeWidth={on ? 2.2 : 1.9} />
               </button>
             );
           })}
