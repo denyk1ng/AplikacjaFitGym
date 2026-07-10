@@ -1,7 +1,16 @@
 // Service worker FORMA — appka działa offline po pierwszym wejściu.
 // Nawigacje: najpierw sieć (świeża wersja), przy braku netu — cache.
 // Zasoby (js/css/obrazy/fonty): najpierw cache, dociągane raz z sieci.
-const CACHE = "forma-v1";
+const CACHE = "forma-v2";
+const MAX_ENTRIES = 90; // stare hashowane bundle z poprzednich deployów nie mogą rosnąć bez końca
+
+async function trimCache() {
+  const c = await caches.open(CACHE);
+  const keys = await c.keys();
+  if (keys.length <= MAX_ENTRIES) return;
+  // najstarsze wpisy siedzą na początku listy — usuwamy nadmiar
+  await Promise.all(keys.slice(0, keys.length - MAX_ENTRIES).map((k) => c.delete(k)));
+}
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -48,7 +57,7 @@ self.addEventListener("fetch", (e) => {
         fetch(req).then((res) => {
           if (res.ok || res.type === "opaque") {
             const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(req, copy));
+            caches.open(CACHE).then((c) => c.put(req, copy)).then(trimCache);
           }
           return res;
         })

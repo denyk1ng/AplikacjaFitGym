@@ -30,6 +30,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # bramka jakości: build musi przejść smoke test w headless Chromium
+      # (start appki bez błędów strony, hero + nawigacja na miejscu),
+      # inaczej zepsuta wersja nie trafi na produkcję
+      - run: npm i --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/smoke.mjs
       - uses: actions/configure-pages@v5
         with:
           enablement: true

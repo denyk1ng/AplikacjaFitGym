@@ -123,21 +123,45 @@ parent gets clipped/mispositioned without the portal.
 
 ## Known dead code
 
-`src/components/DayExCard.jsx`, `RestDisplay.jsx` (only ever imported by `DayExCard.jsx`, so
-transitively dead too), `Onboarding.jsx`, `DietTab.jsx`, and `SetCounter.jsx` are not imported from
-`App.jsx` or any reachable component — they're leftovers from earlier iterations (an older
-onboarding flow, an old per-set card UI, a diet-tracking tab that was explicitly dropped from
-scope). Don't assume they're wired up; check reachability from `App.jsx` before modifying a
-component.
+The old dead-code relics (`DayExCard.jsx`, `RestDisplay.jsx`, `Onboarding.jsx`, `DietTab.jsx`,
+`SetCounter.jsx`, `BotMascot.jsx`) were deleted during the July 2026 audit cleanup — if you see
+them referenced in old commits, they're gone on purpose.
 
 `src/components/CoachTab.jsx`, `src/lib/coach.js`, and `src/lib/aiClient.js` implement a "Trener
 AI" feature (heuristic weight-progression insights + an optional Anthropic-API chat, gated behind
-a user-supplied API key). Its Dashboard entry point has gone back and forth: removed, reinstated
-as an "Asystent AI" tile, then removed again (together with a mock Apple Watch pairing tile) after
-the owner judged the tile row tacky — so `CoachTab` is currently unreachable from `App.jsx` (the
-`tab === "coach"` branch and `settings.aiApiKey` remain wired, only the entry point is gone).
-`src/components/BotMascot.jsx` (a procedural SVG droid) is likewise unused dead code left over
-from an iteration of that tile.
+a user-supplied API key). After several rounds of adding/removing its Dashboard tile, the audit
+cleanup removed even the `tab === "coach"` branch and the `CoachTab` import from `App.jsx` — the
+three files are kept as a dormant future feature but nothing references them (`settings.aiApiKey`
+also lingers with no UI).
+
+
+## Behaviors added in the July 2026 audit pass
+
+**Progress snapshots dedupe.** `saveSnapshot` in `App.jsx` skips appending when the new snapshot's
+`weights` deep-equal the previous one — "Zapisz trening"/"Zapisz ciężary" no longer spam flat
+duplicate points. Every weight edit (Statystyki, szczegóły ćwiczenia, sesja live) flows through
+`changeWeightAndSnapshot`, so a changed weight always lands on the progress chart immediately.
+
+**Live-session editing.** `LiveSession` keeps its own `exsState`; weight/reps edits update that
+local state (UI + volume) *and* propagate to the plan via `updateWeight`/`updateReps` props — edit
+only the local copy or only the plan and the two views desync (that was a real user-reported bug).
+While the RPE prompt is open, `jumpTo`/`nextExercise` are no-ops and switcher buttons are disabled;
+don't re-enable navigation there or RPE lands in the wrong exercise's bucket.
+
+**Session-start guard.** `startSession(dayKey)` in `App.jsx` is the only correct way to enter the
+`sesja` tab from UI — it shows a ConfirmSheet when a different day's unfinished session exists in
+`localStorage["live_session"]` instead of silently overwriting it.
+
+**Other invariants:** `markWorkoutDone` appends (never replaces) same-type entries within a week;
+"treningów zaliczonych" in Stats counts only A/B/C types; both Dom and Statystyki derive the weekly
+streak from `logStreak(workout_log)` (not snapshots); warmup checkmarks persist per-day under
+`localStorage["warmup_progress"]`; `EditNum` takes `min`/`max` and rejects out-of-range input,
+`EditStr` validates via a `validate` prop (default: must contain a digit, ≤14 chars).
+
+**Tech:** StatsTab/ProfileTab are `React.lazy` (Recharts lives in a separate chunk — keep new
+recharts imports inside those two components); `public/sw.js` uses cache `forma-v2` with an entry
+cap (`trimCache`); back button pops to Dom (history integration in `App.jsx`); deploy workflow
+runs `scripts/smoke.mjs` as a quality gate before publishing.
 
 ## Git / PR conventions specific to this repo
 
