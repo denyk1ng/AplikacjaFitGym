@@ -6,6 +6,7 @@ import { PHOTOS } from "./data/photos.js";
 import { storage } from "./lib/storage.js";
 import { isoWeekStart } from "./lib/utils.js";
 import { loadWorkoutLog, saveWorkoutLog, weekStatus } from "./lib/workoutLog.js";
+import { maybeTrainingReminder } from "./lib/reminder.js";
 import { DashboardTab } from "./components/DashboardTab.jsx";
 import { WarmupTab } from "./components/WarmupTab.jsx";
 import { BottomNav } from "./components/BottomNav.jsx";
@@ -56,6 +57,17 @@ export default function App() {
   const [snapshots, setSnapshots] = useState([]);
   const [showOnboard, setShowOnboard] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  // skrócony splash przy kolejnych otwarciach tego samego dnia
+  const [quickSplash] = useState(() => {
+    try {
+      const today = new Date().toLocaleDateString("sv-SE");
+      const quick = localStorage.getItem("splash_last") === today;
+      localStorage.setItem("splash_last", today);
+      return quick;
+    } catch (e) {
+      return false;
+    }
+  });
   const [exerciseId, setExerciseId] = useState(null);
   const [userName, setUserName] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
@@ -152,6 +164,7 @@ export default function App() {
       }
       setStorageReady(true);
       updateAppBadge();
+      maybeTrainingReminder(); // lokalne przypomnienie o treningu (jeśli włączone i pora minęła)
     }
     load();
   }, []);
@@ -299,7 +312,7 @@ export default function App() {
         margin: "0 auto",
       }}
     >
-      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+      {showSplash && <SplashScreen quick={quickSplash} onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
 
       {displayTab !== "dom" && displayTab !== "trening" && displayTab !== "cwiczenie" && displayTab !== "sesja" && displayTab !== "rozgrzewka" && (

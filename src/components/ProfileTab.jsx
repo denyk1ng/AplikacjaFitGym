@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler, Scale } from "lucide-react";
+import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler, Scale, Target, AlarmClock, Download, Upload } from "lucide-react";
 import { T } from "../theme.js";
 import { storage } from "../lib/storage.js";
 import { loadSettings, saveSettings } from "../lib/settings.js";
@@ -80,9 +80,86 @@ export function ProfileTab() {
   const [ready, setReady] = useState(false);
   const [input, setInput] = useState("");
   const [settings, setSettings] = useState(loadSettings);
-  const [confirm, setConfirm] = useState(null); // null | "wipe" | "reset" | "install"
+  const [confirm, setConfirm] = useState(null); // null | "wipe" | "reset" | "install" | "import"
   const [installable, setInstallable] = useState(canInstall());
+  const [monthlyGoal, setMonthlyGoal] = useState(() => {
+    const v = parseInt(localStorage.getItem("monthly_goal") || "12", 10);
+    return !isNaN(v) && v > 0 ? v : 12;
+  });
   const inputRef = useRef(null);
+  const fileRef = useRef(null);
+  const pendingImport = useRef(null); // sparowany JSON kopii czekający na potwierdzenie
+
+  const changeMonthlyGoal = (v) => {
+    setMonthlyGoal(v);
+    try {
+      localStorage.setItem("monthly_goal", String(v));
+    } catch (e) {}
+  };
+
+  // przypomnienia o treningu wymagają zgody systemowej — włączenie pyta o nią,
+  // odmowa cofa przełącznik zamiast udawać, że działa
+  const setReminder = async (v) => {
+    if (v && "Notification" in window && Notification.permission !== "granted") {
+      const p = await Notification.requestPermission();
+      if (p !== "granted") {
+        setOpt("pushReminder", false);
+        return;
+      }
+    }
+    setOpt("pushReminder", v && "Notification" in window);
+  };
+
+  // kopia zapasowa: cały localStorage do pliku JSON (dane żyją tylko na tym
+  // urządzeniu — plik to jedyna polisa przed czyszczeniem danych przeglądarki)
+  const exportData = () => {
+    try {
+      const data = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        data[k] = localStorage.getItem(k);
+      }
+      const blob = new Blob([JSON.stringify({ app: "forma", version: 1, ts: Date.now(), data }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `forma-kopia-${new Date().toLocaleDateString("sv-SE")}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    } catch (e) {}
+  };
+
+  const onImportFile = (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = ""; // ten sam plik można wybrać ponownie
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (parsed && parsed.app === "forma" && parsed.data && typeof parsed.data === "object") {
+          pendingImport.current = parsed.data;
+          setConfirm("import");
+        } else {
+          alert("To nie wygląda na plik kopii FORMY.");
+        }
+      } catch (e) {
+        alert("Nie udało się odczytać pliku kopii.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const applyImport = () => {
+    const data = pendingImport.current;
+    if (!data) return;
+    try {
+      localStorage.clear();
+      Object.entries(data).forEach(([k, v]) => {
+        if (typeof v === "string") localStorage.setItem(k, v);
+      });
+    } catch (e) {}
+    location.reload();
+  };
 
   useEffect(() => onInstallable(setInstallable), []);
 
@@ -529,6 +606,7 @@ export function ProfileTab() {
           { k: "vibrate", Icon: Vibrate, t: "Wibracje", d: "wibracja razem z sygnałem (telefon)" },
           { k: "remindPlan", Icon: CalendarClock, t: "Plan dnia na głównym", d: "karta „dziś na planie” z podpowiedzią treningu" },
           { k: "overdueAlert", Icon: BellRing, t: "Alerty zaległych treningów", d: "dzwonek i ostrzeżenia w kalendarzu" },
+          { k: "pushReminder", Icon: AlarmClock, t: "Przypomnienie o treningu", d: "powiadomienie o Twojej zwykłej porze, gdy trening dnia wisi" },
         ].map((row, i, arr) => (
           <div key={row.k} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", borderBottom: i < arr.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
             <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -538,9 +616,50 @@ export function ProfileTab() {
               <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>{row.t}</div>
               <div style={{ fontSize: 10.5, color: T.sub, marginTop: 2 }}>{row.d}</div>
             </div>
-            <Toggle on={!!settings[row.k]} onChange={(v) => setOpt(row.k, v)} />
+            <Toggle on={!!settings[row.k]} onChange={(v) => (row.k === "pushReminder" ? setReminder(v) : setOpt(row.k, v))} />
           </div>
         ))}
+      </div>
+
+      {/* CEL MIESIĄCA — liczba treningów A/B/C, pasek na ekranie głównym */}
+      <div className="fu" style={{ animationDelay: ".31s", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, marginBottom: 12 }}>
+        <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Target size={17} color={T.accent} strokeWidth={2.2} />
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Cel miesiąca</div>
+          <div style={{ fontSize: 10.5, color: T.sub, marginTop: 2 }}>liczba treningów A/B/C — pasek postępu na ekranie głównym</div>
+        </div>
+        <EditNum value={monthlyGoal} unit="tr." min={1} max={60} onChange={changeMonthlyGoal} />
+      </div>
+
+      {/* KOPIA ZAPASOWA */}
+      <div className="fu" style={{ animationDelay: ".315s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 12 }}>
+        <button
+          onClick={exportData}
+          style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: "transparent", border: "none", borderBottom: `1px solid ${T.borderSoft}`, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+        >
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Download size={17} color={T.accent} strokeWidth={2.2} />
+          </span>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Eksportuj dane (kopia zapasowa)</span>
+            <span style={{ display: "block", fontSize: 10.5, color: T.sub, marginTop: 2 }}>plik JSON z całą historią — trzymaj np. na Dysku Google</span>
+          </span>
+        </button>
+        <button
+          onClick={() => fileRef.current && fileRef.current.click()}
+          style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
+        >
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Upload size={17} color={T.accent} strokeWidth={2.2} />
+          </span>
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Przywróć z kopii</span>
+            <span style={{ display: "block", fontSize: 10.5, color: T.sub, marginTop: 2 }}>wczytuje plik kopii i zastępuje obecne dane</span>
+          </span>
+        </button>
+        <input ref={fileRef} type="file" accept="application/json,.json" onChange={onImportFile} style={{ display: "none" }} />
       </div>
 
       {/* DANE */}
@@ -602,6 +721,19 @@ export function ProfileTab() {
         desc="Usunie kalendarz treningów, zapisy ciężarów i statystyki. Twój plan i profil zostają. Tej operacji nie można cofnąć."
         confirmLabel="Wyczyść historię"
         onConfirm={wipeHistory}
+        cancelLabel="Wróć"
+      />
+      <ConfirmSheet
+        open={confirm === "import"}
+        onClose={() => {
+          pendingImport.current = null;
+          setConfirm(null);
+        }}
+        icon={Upload}
+        title="Przywrócić dane z kopii?"
+        desc="Obecne dane aplikacji (plan, historia, profil, ustawienia) zostaną zastąpione zawartością pliku kopii. Tej operacji nie można cofnąć."
+        confirmLabel="Przywróć z kopii"
+        onConfirm={applyImport}
         cancelLabel="Wróć"
       />
       <ConfirmSheet

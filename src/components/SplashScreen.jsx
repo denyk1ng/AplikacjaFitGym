@@ -2,17 +2,19 @@ import { useEffect, useState } from "react";
 import { AnimatedLogo } from "./Logo.jsx";
 
 // Splash: znak ładuje się tak jak przy budowaniu planu (logofill),
-// pod spodem dopisuje się nazwa aplikacji, potem krótki fade-out
-export function SplashScreen({ onDone }) {
+// pod spodem dopisuje się nazwa aplikacji, potem krótki fade-out.
+// `quick` = kolejne otwarcie tego samego dnia — skrócony przebieg (~0,8 s),
+// żeby częste zaglądanie do appki nie zderzało się z pełną animacją
+export function SplashScreen({ onDone, quick = false }) {
   const [leaving, setLeaving] = useState(false);
   useEffect(() => {
-    const t1 = setTimeout(() => setLeaving(true), 1700);
-    const t2 = setTimeout(onDone, 2150);
+    const t1 = setTimeout(() => setLeaving(true), quick ? 450 : 1700);
+    const t2 = setTimeout(onDone, quick ? 800 : 2150);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [onDone]);
+  }, [onDone, quick]);
   return (
     <div
       style={{

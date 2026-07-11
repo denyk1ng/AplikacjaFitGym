@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3 } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Target } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -36,9 +36,24 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   // dziennik treningów — podpowiedź dnia + postęp tygodnia
   const [log, setLog] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
+  const [summaryDismissed, setSummaryDismissed] = useState(false);
   useEffect(() => {
     loadWorkoutLog().then(setLog);
   }, []);
+
+  // cel miesiąca: liczba treningów A/B/C w bieżącym miesiącu kalendarzowym
+  // (wartość celu edytowalna w Profilu, klucz monthly_goal)
+  const monthlyGoal = (() => {
+    const v = parseInt(localStorage.getItem("monthly_goal") || "12", 10);
+    return !isNaN(v) && v > 0 ? v : 12;
+  })();
+  const now = new Date();
+  const monthDone = log.filter((e) => {
+    const d = new Date(e.ts);
+    return ["A", "B", "C"].includes(e.type) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const monthPct = Math.min(monthDone / monthlyGoal, 1);
+  const monthName = now.toLocaleDateString("pl-PL", { month: "long" });
 
   // seria tygodni z dziennika treningów — to samo źródło co w Statystykach
   // (wcześniej Dom liczył ją z zapisów ciężarów i liczby się rozjeżdżały)
@@ -202,6 +217,38 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </button>
       </div>
 
+      {/* PODSUMOWANIE MINIONEGO TYGODNIA — raz na tydzień, do zamknięcia */}
+      {!summaryDismissed && lastWeek && (lastWeek.done > 0 || lastWeekVol > 0) && summarySeenWeek !== String(weekStart) && (
+        <div className="fu" style={{ animationDelay: ".14s", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 20, padding: "13px 14px", marginBottom: 18 }}>
+          <span style={{ width: 40, height: 40, borderRadius: 13, background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <BarChart3 size={17} color={T.accent} strokeWidth={2.2} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: H }}>Twój poprzedni tydzień</div>
+            <div style={{ fontSize: 11, color: T.sub, marginTop: 2 }}>
+              {lastWeek.done}/3 treningi
+              {(() => {
+                const dd = lastWeek.done - (weekBefore?.done || 0);
+                return dd !== 0 ? ` (${dd > 0 ? "+" : ""}${dd} vs wcześniejszy)` : "";
+              })()}
+              {weekBeforeVol > 0 && lastWeekVol > 0
+                ? ` · objętość ${lastWeekVol >= weekBeforeVol ? "+" : ""}${Math.round(((lastWeekVol - weekBeforeVol) / weekBeforeVol) * 100)}%`
+                : ""}
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.setItem("week_summary_seen", String(weekStart));
+              setSummaryDismissed(true);
+            }}
+            aria-label="Zamknij podsumowanie"
+            style={{ width: 30, height: 30, borderRadius: 10, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+          >
+            <X size={14} strokeWidth={2.4} />
+          </button>
+        </div>
+      )}
+
       {/* AKTYWNOŚĆ — układ bento: duży kafelek celu tygodnia + dwa mniejsze ułożone obok */}
       <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".16s" />
       <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gridTemplateRows: "auto auto", gap: 10, marginBottom: 22 }}>
@@ -251,6 +298,25 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             </strong>{" "}
             kg łącznie
           </span>
+        </div>
+      </div>
+
+      {/* CEL MIESIĄCA — pasek postępu liczby treningów (cel edytowalny w Profilu) */}
+      <div className="fu" style={{ animationDelay: ".28s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "13px 16px", marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Target size={15} color={T.accent} strokeWidth={2.3} />
+          <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H }}>
+            Cel na {monthName}
+          </span>
+          <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 15, color: monthDone >= monthlyGoal ? T.ok : T.accent }}>
+            {monthDone}<span style={{ color: T.sub, fontSize: 12 }}>/{monthlyGoal}</span>
+          </span>
+        </div>
+        <div style={{ height: 8, borderRadius: 99, background: T.track, marginTop: 10, overflow: "hidden" }}>
+          <div style={{ width: `${monthPct * 100}%`, height: "100%", borderRadius: 99, background: monthDone >= monthlyGoal ? T.ok : T.accent, transition: "width .6s cubic-bezier(.22,1,.36,1)" }} />
+        </div>
+        <div style={{ fontSize: 9.5, color: T.faint, marginTop: 7 }}>
+          {monthDone >= monthlyGoal ? "Cel miesiąca osiągnięty — tak trzymaj!" : `jeszcze ${monthlyGoal - monthDone} ${monthlyGoal - monthDone === 1 ? "trening" : monthlyGoal - monthDone < 5 ? "treningi" : "treningów"} do celu · zmienisz cel w Profilu`}
         </div>
       </div>
 

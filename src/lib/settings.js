@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS = {
   vibrate: true, // wibracja przy sygnale
   remindPlan: true, // podpowiedź "dziś na planie" na ekranie głównym
   overdueAlert: true, // alerty zaległych treningów (dzwonek, kalendarz)
+  pushReminder: false, // systemowe przypomnienie o treningu (wymaga zgody na powiadomienia)
   aiApiKey: "", // klucz Anthropic API do czatu z trenerem AI (tylko lokalnie, nigdy w repo)
 };
 
