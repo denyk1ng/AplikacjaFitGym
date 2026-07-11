@@ -34,6 +34,7 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  if (url.searchParams.has("fresh")) return; // auto-aktualizacja pyta o wersję prosto z sieci
   const isFont = url.hostname.endsWith("gstatic.com") || url.hostname.endsWith("googleapis.com");
   if (url.origin !== location.origin && !isFont) return;
 
