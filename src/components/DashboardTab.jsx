@@ -154,15 +154,32 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
 
-  // pigułki kategorii na górze — szybkie wejścia w Rozgrzewkę / A / B / C / Cardio,
-  // aktywna (sugerowana na dziś) podświetlona limonką
+  // pigułki kategorii na górze — szybkie wejścia w Rozgrzewkę / A / B / C / Cardio.
+  // Podświetlona jest OSTATNIO KLIKNIĘTA pigułka (klucz last_cat, przeżywa
+  // powrót i restart appki); zanim cokolwiek klikniesz — sugestia na dziś.
+  const [activeCat, setActiveCat] = useState(() => {
+    try {
+      return localStorage.getItem("last_cat") || null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const pickCat = (l, go) => {
+    setActiveCat(l);
+    try {
+      localStorage.setItem("last_cat", l);
+    } catch (e) {}
+    go();
+  };
+  const defaultCat = suggestion ? `Trening ${suggestion.type}` : isCardio ? "Cardio" : null;
+  const litCat = activeCat || defaultCat;
   const cats = [
-    { photo: PHOTOS.stretch, l: "Rozgrzewka", act: false, go: () => goTo("rozgrzewka") },
-    { photo: PHOTOS.A, l: "Trening A", act: suggestion?.type === "A", go: () => goTraining("A") },
-    { photo: PHOTOS.B, l: "Trening B", act: suggestion?.type === "B", go: () => goTraining("B") },
-    { photo: PHOTOS.C, l: "Trening C", act: suggestion?.type === "C", go: () => goTraining("C") },
-    { photo: PHOTOS.cardio, l: "Cardio", act: !suggestion && isCardio, go: () => goTo("kalendarz") },
-  ];
+    { photo: PHOTOS.stretch, l: "Rozgrzewka", go: () => goTo("rozgrzewka") },
+    { photo: PHOTOS.A, l: "Trening A", go: () => goTraining("A") },
+    { photo: PHOTOS.B, l: "Trening B", go: () => goTraining("B") },
+    { photo: PHOTOS.C, l: "Trening C", go: () => goTraining("C") },
+    { photo: PHOTOS.cardio, l: "Cardio", go: () => goTo("kalendarz") },
+  ].map((c) => ({ ...c, act: c.l === litCat }));
 
   // karta hero: dzisiejszy plan → zaległości → cardio/regeneracja/komplet
   const hero = suggestion
@@ -210,7 +227,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         {cats.map(({ photo, l, act, go }) => (
           <button
             key={l}
-            onClick={go}
+            onClick={() => pickCat(l, go)}
             style={{
               display: "flex",
               alignItems: "center",
