@@ -154,6 +154,16 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
 
+  // pigułki kategorii na górze — szybkie wejścia w Rozgrzewkę / A / B / C / Cardio,
+  // aktywna (sugerowana na dziś) podświetlona limonką
+  const cats = [
+    { photo: PHOTOS.stretch, l: "Rozgrzewka", act: false, go: () => goTo("rozgrzewka") },
+    { photo: PHOTOS.A, l: "Trening A", act: suggestion?.type === "A", go: () => goTraining("A") },
+    { photo: PHOTOS.B, l: "Trening B", act: suggestion?.type === "B", go: () => goTraining("B") },
+    { photo: PHOTOS.C, l: "Trening C", act: suggestion?.type === "C", go: () => goTraining("C") },
+    { photo: PHOTOS.cardio, l: "Cardio", act: !suggestion && isCardio, go: () => goTo("kalendarz") },
+  ];
+
   // karta hero: dzisiejszy plan → zaległości → cardio/regeneracja/komplet
   const hero = suggestion
     ? {
@@ -192,6 +202,47 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <span style={{ position: "absolute", top: 9, right: 10, width: 7, height: 7, borderRadius: "50%", background: T.yellow, border: `1.5px solid ${T.card}` }} />
           )}
         </button>
+      </div>
+
+      {/* KATEGORIE — pigułki z kolorowym kółkiem ikony, aktywna podświetlona limonką */}
+      <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
+      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 22 }}>
+        {cats.map(({ photo, l, act, go }) => (
+          <button
+            key={l}
+            onClick={go}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexShrink: 0,
+              padding: "6px 16px 6px 6px",
+              borderRadius: 99,
+              border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
+              background: T.card,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              transition: "all .2s",
+            }}
+          >
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: "50%",
+                flexShrink: 0,
+                overflow: "hidden",
+                border: `1.5px solid ${act ? T.accent : "transparent"}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
+          </button>
+        ))}
       </div>
 
       {/* LIMONKOWA KARTA HERO */}
