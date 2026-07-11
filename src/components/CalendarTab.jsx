@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Check, Info, RotateCcw, Dumbbell, Footprints, BicepsFlexed, HeartPulse, Moon } from "lucide-react";
-import { T } from "../theme.js";
+import { useEffect, useMemo, useState } from "react";
+import { Check, Info, RotateCcw, Dumbbell, Footprints, BicepsFlexed, HeartPulse, Moon, ChevronDown, History } from "lucide-react";
+import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, saveWorkoutLog, weekStatus, weekEntries, weekHistory, PLAN_DOW, DOW_NAMES, dayIndex } from "../lib/workoutLog.js";
@@ -9,9 +9,20 @@ import { loadSettings } from "../lib/settings.js";
 const H = "'Urbanist',sans-serif";
 const TYPE_ICON = { A: Dumbbell, B: Footprints, C: BicepsFlexed };
 
+const fmtSesTime = (s) => (s >= 60 ? `${Math.floor(s / 60)} min` : `${s} s`);
+const fmtSesVol = (v) => (v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(Math.round(v)));
+
 export function CalendarTab({ goTraining, onLogChanged }) {
   const [log, setLog] = useState([]);
   const [ready, setReady] = useState(false);
+  const [expandedTs, setExpandedTs] = useState(null); // rozwinięty wpis historii sesji
+
+  // meta ćwiczeń po id — do rozbicia sesji na ćwiczenia w historii
+  const exMeta = useMemo(() => {
+    const m = {};
+    Object.values(EXERCISES_DATA).forEach((d) => d.exercises.forEach((e) => (m[e.id] = e)));
+    return m;
+  }, []);
 
   useEffect(() => {
     loadWorkoutLog().then((l) => {
@@ -248,6 +259,80 @@ export function CalendarTab({ goTraining, onLogChanged }) {
           ))}
         </div>
       </div>
+
+      {/* HISTORIA SESJI — każdy zapisany trening z rozbiciem na ćwiczenia */}
+      {log.length > 0 && (
+        <div className="fu" style={{ animationDelay: ".38s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, overflow: "hidden", marginTop: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "14px 16px 10px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub }}>
+            <History size={13} color={T.accent} strokeWidth={2.4} />
+            Historia sesji
+          </div>
+          {[...log]
+            .sort((a, b) => b.ts - a.ts)
+            .slice(0, 20)
+            .map((e, i, arr) => {
+              const Icon = TYPE_ICON[e.type] || HeartPulse;
+              const label = ["A", "B", "C"].includes(e.type) ? EXERCISES_DATA[e.type].label : "Cardio";
+              const d = new Date(e.ts);
+              const dateTxt = `${DOW_NAMES[d.getDay()]}, ${d.toLocaleDateString("pl-PL", { day: "numeric", month: "short" })}`;
+              const hasDetails = Array.isArray(e.perExercise) && e.perExercise.length > 0;
+              const open = expandedTs === e.ts;
+              return (
+                <div key={e.ts} style={{ borderTop: `1px solid ${T.borderSoft}` }}>
+                  <button
+                    onClick={() => hasDetails && setExpandedTs(open ? null : e.ts)}
+                    style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, padding: "11px 16px", background: "transparent", border: "none", cursor: hasDetails ? "pointer" : "default", textAlign: "left", fontFamily: "inherit" }}
+                  >
+                    <span style={{ width: 36, height: 36, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Icon size={16} color={T.accent} strokeWidth={2.1} />
+                    </span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H }}>{label}</span>
+                      <span style={{ display: "block", fontSize: 10.5, color: T.sub, marginTop: 2 }}>
+                        {dateTxt.charAt(0).toUpperCase() + dateTxt.slice(1)}
+                        {typeof e.time === "number" ? ` · ${fmtSesTime(e.time)}` : ""}
+                      </span>
+                    </span>
+                    {typeof e.volume === "number" && e.volume > 0 ? (
+                      <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 13, color: T.accent, flexShrink: 0 }}>
+                        {fmtSesVol(e.volume)} <span style={{ fontSize: 9.5, color: T.sub }}>kg</span>
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 9.5, color: T.faint, flexShrink: 0 }}>odhaczony ręcznie</span>
+                    )}
+                    {hasDetails && (
+                      <ChevronDown size={14} color={T.faint} strokeWidth={2.2} style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+                    )}
+                  </button>
+                  {open && hasDetails && (
+                    <div style={{ padding: "0 16px 12px 63px" }}>
+                      {e.perExercise.map((pe) => {
+                        const meta = exMeta[pe.id];
+                        return (
+                          <div key={pe.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0", fontSize: 11.5 }}>
+                            <span style={{ flex: 1, color: T.light, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {meta ? meta.name.split("—")[0].trim() : pe.id}
+                            </span>
+                            <span style={{ color: T.sub, flexShrink: 0 }}>
+                              {pe.weight > 0 ? `${String(pe.weight).replace(".", ",")} ${pe.unit || "kg"} · ` : ""}
+                              {pe.setsDone}/{pe.sets} serii
+                              {pe.avgRpe != null ? ` · RPE ${String(pe.avgRpe).replace(".", ",")}` : ""}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          {log.length > 20 && (
+            <div style={{ padding: "9px 16px", fontSize: 10, color: T.faint, textAlign: "center", borderTop: `1px solid ${T.borderSoft}` }}>
+              pokazuję 20 ostatnich z {log.length} sesji
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

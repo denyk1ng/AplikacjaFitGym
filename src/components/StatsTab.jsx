@@ -81,6 +81,29 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps })
   const nightOwl = log.some((e) => new Date(e.ts).getHours() >= 21);
   const badgeMap = earnedBadges({ snapCount: snapshots.length, streak, gain, sessionsCount, totalVolume, perfectMonths, nightOwl });
 
+  // rekordy życiowe: maksymalny ciężar per ćwiczenie z całej historii
+  // (zapisy ciężarów + realne sesje na żywo) wraz z datą ustanowienia
+  const records = (() => {
+    const meta = {};
+    Object.values(EXERCISES_DATA).forEach((d) => d.exercises.forEach((e) => (meta[e.id] = e)));
+    const best = {};
+    snapshots.forEach((s) =>
+      Object.entries(s.weights || {}).forEach(([id, w]) => {
+        if (!best[id] || w > best[id].w) best[id] = { w, ts: s.ts };
+      })
+    );
+    log.forEach((en) =>
+      (en.perExercise || []).forEach((pe) => {
+        if (pe.weight > 0 && (!best[pe.id] || pe.weight > best[pe.id].w)) best[pe.id] = { w: pe.weight, ts: en.ts };
+      })
+    );
+    return Object.entries(best)
+      .filter(([id]) => meta[id])
+      .map(([id, b]) => ({ id, name: meta[id].name.split("—")[0].trim(), unit: meta[id].unit || "kg", ...b }))
+      .sort((a, b) => b.w - a.w);
+  })();
+  const [showAllRecords, setShowAllRecords] = useState(false);
+
   const st = weekStatus(log);
   const doneCount = ["A", "B", "C"].filter((k) => st[k].done).length;
   const goalPct = Math.round((doneCount / 3) * 100);
@@ -397,6 +420,34 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps })
           ))}
         </div>
       </div>
+
+      {/* REKORDY ŻYCIOWE */}
+      {records.length > 0 && (
+        <div className="fu" style={{ animationDelay: ".29s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, overflow: "hidden", marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "14px 16px 10px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub }}>
+            <Medal size={13} color={T.accent} strokeWidth={2.4} />
+            Rekordy życiowe
+          </div>
+          {(showAllRecords ? records : records.slice(0, 6)).map((r, i, arr) => (
+            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", borderTop: `1px solid ${T.borderSoft}` }}>
+              <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 12, color: i < 3 ? T.accent : T.faint, width: 18, flexShrink: 0 }}>{i + 1}</span>
+              <span style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: T.light, fontFamily: U, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</span>
+              <span style={{ fontSize: 9.5, color: T.faint, flexShrink: 0 }}>{new Date(r.ts).toLocaleDateString("pl-PL", { day: "numeric", month: "short" })}</span>
+              <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 14, color: T.accent, flexShrink: 0, minWidth: 58, textAlign: "right" }}>
+                {pl(r.w)} <span style={{ fontSize: 10, color: T.sub }}>{r.unit}</span>
+              </span>
+            </div>
+          ))}
+          {records.length > 6 && (
+            <button
+              onClick={() => setShowAllRecords(!showAllRecords)}
+              style={{ width: "100%", padding: "10px 16px", background: "transparent", border: "none", borderTop: `1px solid ${T.borderSoft}`, color: T.accent, fontSize: 11.5, fontWeight: 700, cursor: "pointer", fontFamily: U }}
+            >
+              {showAllRecords ? "Zwiń" : `Pokaż wszystkie (${records.length})`}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ODZNAKI */}
       <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "14px 16px" }}>

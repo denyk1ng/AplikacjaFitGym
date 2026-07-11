@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge, Share2 } from "lucide-react";
+import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge, Share2, Pause, Play, History } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EXERCISES_DATA } from "../data/plan.js";
+import { loadWorkoutLog } from "../lib/workoutLog.js";
 import { playBeep, unlockAudio } from "../lib/sound.js";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { shareWorkoutImage } from "../lib/shareCard.js";
@@ -42,6 +43,42 @@ function avg(arr) {
   const nums = arr.filter((v) => v !== null && v !== undefined);
   if (!nums.length) return null;
   return Math.round((nums.reduce((a, b) => a + b, 0) / nums.length) * 10) / 10;
+}
+
+// konfetti przy nowym rekordzie — czysty CSS (animacja confettiFall w index.css),
+// paleta ograniczona do kolorów systemu; znika samo po opadnięciu
+function Confetti() {
+  const parts = useMemo(() => {
+    const colors = [T.accent, "#FFFFFF", "#94978F", T.ok];
+    return Array.from({ length: 36 }, (_, i) => ({
+      left: Math.random() * 100,
+      delay: Math.random() * 0.9,
+      dur: 2.2 + Math.random() * 1.4,
+      size: 6 + Math.random() * 5,
+      color: colors[i % colors.length],
+      spin: Math.random() > 0.5 ? 1 : -1,
+    }));
+  }, []);
+  return (
+    <div aria-hidden style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 1500, overflow: "hidden" }}>
+      {parts.map((p, i) => (
+        <span
+          key={i}
+          style={{
+            position: "absolute",
+            top: -14,
+            left: `${p.left}%`,
+            width: p.size,
+            height: p.size * 0.55,
+            borderRadius: 2,
+            background: p.color,
+            animation: `confettiFall ${p.dur}s ease-in ${p.delay}s forwards`,
+            transform: `rotate(${p.spin * 40}deg)`,
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
 // półkolisty zegar z kresek (wg wzorca rest-timera)
@@ -92,13 +129,31 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   const [sharing, setSharing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [rest, setRest] = useState(0);
+  const [restPaused, setRestPaused] = useState(false);
   const [stage, setStage] = useState(restored && restored.stage === "summary" ? "summary" : "live"); // live | summary
   const [confirmExit, setConfirmExit] = useState(false);
+  const [prevLog, setPrevLog] = useState([]);
   const restEnd = useRef(null);
   const startTs = useRef(restored && restored.startTs ? restored.startTs : Date.now());
   const pendingRestRef = useRef(true);
 
   const ex = exs[idx];
+
+  // historia poprzednich sesji — do linijki "ostatnio: ..." przy ćwiczeniu
+  useEffect(() => {
+    loadWorkoutLog().then(setPrevLog);
+  }, []);
+
+  // ostatni zapisany wynik bieżącego ćwiczenia z wcześniejszej sesji
+  const lastResult = useMemo(() => {
+    for (let i = prevLog.length - 1; i >= 0; i--) {
+      const entry = prevLog[i];
+      if (entry.ts >= startTs.current) continue; // pomiń wpis z tej samej sesji
+      const pe = (entry.perExercise || []).find((p) => p.id === ex.id);
+      if (pe) return { ...pe, date: new Date(entry.ts).toLocaleDateString("pl-PL", { day: "numeric", month: "short" }) };
+    }
+    return null;
+  }, [prevLog, ex.id]);
 
   // każda zmiana postępu ląduje od razu w localStorage
   useEffect(() => {
@@ -118,16 +173,31 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     return () => clearInterval(t);
   }, []);
 
-  // odliczanie przerwy
+  // odliczanie przerwy (wstrzymywalne — pauza zamraża pozostały czas)
   useEffect(() => {
-    if (rest <= 0) return;
+    if (rest <= 0 || restPaused) return;
     const t = setInterval(() => {
       const rem = Math.max(0, Math.ceil((restEnd.current - Date.now()) / 1000));
       setRest(rem);
       if (rem === 0) playBeep();
     }, 250);
     return () => clearInterval(t);
-  }, [rest > 0]);
+  }, [rest > 0, restPaused]);
+
+  const toggleRestPause = () => {
+    if (rest <= 0) return;
+    if (restPaused) {
+      restEnd.current = Date.now() + rest * 1000; // wznowienie: doliczaj od zamrożonej wartości
+      setRestPaused(false);
+    } else {
+      setRestPaused(true);
+    }
+  };
+
+  const stopRest = () => {
+    setRest(0);
+    setRestPaused(false);
+  };
 
   const totalSetsDone = setsDone.reduce((a, b) => a + b, 0);
   const volume = exs.reduce((sum, e, i) => sum + setsDone[i] * repsInt(e.reps) * (e.weight || 0), 0);
@@ -165,6 +235,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     setPendingRpe(false);
     if (pendingRestRef.current) {
       restEnd.current = Date.now() + ex.rest * 1000;
+      setRestPaused(false);
       setRest(ex.rest);
     }
   };
@@ -176,7 +247,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   // z cudzym czasem
   const nextExercise = () => {
     if (pendingRpe) return;
-    setRest(0);
+    stopRest();
     for (let step = 1; step <= exs.length; step++) {
       const j = (idx + step) % exs.length;
       if (setsDone[j] < exs[j].sets) {
@@ -189,7 +260,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
 
   const jumpTo = (i) => {
     if (pendingRpe) return;
-    setRest(0);
+    stopRest();
     setIdx(i);
   };
 
@@ -224,13 +295,18 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
 
   const hasOtherUnfinished = exs.some((e, i) => i !== idx && setsDone[i] < e.sets);
 
-  // rekordy: aktualny ciężar > poprzednie maksimum z zapisów
+  // rekordy: aktualny ciężar > maksimum z zapisów SPRZED tej sesji — edycja
+  // ciężaru w trakcie sesji sama dopisuje snapshot, więc bez odcięcia po
+  // startTs rekord porównywałby się z samym sobą i nigdy nie wypadł
   const records = useMemo(() => {
     if (stage !== "summary") return [];
     return exs
       .filter((e, i) => setsDone[i] > 0 && e.weight > 0)
       .filter((e) => {
-        const hist = snapshots.map((s) => (s.weights || {})[e.id]).filter((w) => w !== undefined);
+        const hist = snapshots
+          .filter((s) => s.ts < startTs.current)
+          .map((s) => (s.weights || {})[e.id])
+          .filter((w) => w !== undefined);
         return hist.length > 0 && e.weight > Math.max(...hist);
       });
   }, [stage]);
@@ -240,6 +316,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     const doneExs = exs.filter((_, i) => setsDone[i] > 0);
     return (
       <div style={{ margin: "-20px -18px -140px", minHeight: "100vh", padding: "22px 18px 40px", display: "flex", flexDirection: "column" }}>
+        {records.length > 0 && <Confetti />}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button onClick={exit} style={{ background: "transparent", border: "none", color: T.sub, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: U }}>
             Pomiń zapis
@@ -378,20 +455,32 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: U }}>Przerwa</span>
           {rest > 0 && (
-            <button onClick={() => setRest(0)} style={{ background: "transparent", border: "none", color: T.sub, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: U }}>
+            <button onClick={stopRest} style={{ background: "transparent", border: "none", color: T.sub, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: U }}>
               Pomiń
             </button>
           )}
         </div>
         <div style={{ position: "relative", display: "flex", justifyContent: "center", marginTop: 2 }}>
-          <TickGauge pct={rest > 0 ? restPct : 1} color={rest > 0 ? T.accent : T.ok} />
+          <TickGauge pct={rest > 0 ? restPct : 1} color={rest > 0 ? (restPaused ? T.yellow : T.accent) : T.ok} />
           <div style={{ position: "absolute", bottom: 4, left: 0, right: 0, textAlign: "center" }}>
             <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: "1.9rem", color: rest > 0 ? "#fff" : T.ok, lineHeight: 1 }}>
               {rest > 0 ? rest : <Check size={26} strokeWidth={3} style={{ verticalAlign: "-4px" }} />}
             </span>
           </div>
+          {/* pauza/wznowienie odliczania — np. gdy ktoś zagadał między seriami */}
+          {rest > 0 && (
+            <button
+              onClick={toggleRestPause}
+              aria-label={restPaused ? "Wznów przerwę" : "Wstrzymaj przerwę"}
+              style={{ position: "absolute", right: 4, bottom: 0, width: 40, height: 40, borderRadius: "50%", background: restPaused ? T.accent : T.inset, border: `1px solid ${restPaused ? T.accent : T.border}`, color: restPaused ? "#000" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              {restPaused ? <Play size={16} strokeWidth={2.4} style={{ marginLeft: 2 }} /> : <Pause size={16} strokeWidth={2.4} />}
+            </button>
+          )}
         </div>
-        <div style={{ textAlign: "center", fontSize: 10, color: T.sub, marginTop: 4 }}>{rest > 0 ? "auto między seriami" : "gotowy na serię"}</div>
+        <div style={{ textAlign: "center", fontSize: 10, color: restPaused && rest > 0 ? T.yellow : T.sub, marginTop: 4, fontWeight: restPaused && rest > 0 ? 700 : 400 }}>
+          {rest > 0 ? (restPaused ? "przerwa wstrzymana" : "auto między seriami") : "gotowy na serię"}
+        </div>
       </div>
 
       {/* kafelki na żywo */}
@@ -475,6 +564,15 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
                 "ciężar własny"
               )}
             </div>
+            {/* wynik z poprzedniej sesji — od razu wiadomo, czy atakować więcej */}
+            {lastResult && (
+              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.62)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                <History size={11} strokeWidth={2.2} />
+                Ostatnio: {lastResult.weight > 0 ? `${String(lastResult.weight).replace(".", ",")} ${lastResult.unit} × ` : ""}
+                {lastResult.setsDone}/{lastResult.sets} serii
+                {lastResult.avgRpe != null ? ` · RPE ${String(lastResult.avgRpe).replace(".", ",")}` : ""} ({lastResult.date})
+              </div>
+            )}
           </div>
           <div style={{ display: "flex", gap: 5, paddingBottom: 4 }}>
             {Array.from({ length: ex.sets }, (_, i) => (
