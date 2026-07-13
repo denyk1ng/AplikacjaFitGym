@@ -308,7 +308,7 @@ export default function App() {
         paddingLeft: "calc(18px + env(safe-area-inset-left))",
         paddingRight: "calc(18px + env(safe-area-inset-right))",
         paddingBottom: "calc(140px + env(safe-area-inset-bottom))",
-        maxWidth: 680,
+        maxWidth: 430, // format smartfona także na dużych ekranach — to appka, nie strona
         margin: "0 auto",
       }}
     >

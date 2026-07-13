@@ -7,6 +7,11 @@
 html,
 body {
   min-height: 100%;
+  /* appka, nie strona: bez pinch-zoom i zoomu podwójnym tapnięciem,
+     bez automatycznego skalowania tekstu przy obrocie ekranu */
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 ::-webkit-scrollbar {
