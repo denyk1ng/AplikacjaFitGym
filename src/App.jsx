@@ -260,6 +260,19 @@ export default function App() {
     }
   };
 
+  // edycja liczby serii — np. plan miał zamienione miejscami serie/powtórzenia
+  // (8 serii po 4 zamiast 4 serii po 8); tylko aktualizuje plan, bez wpływu
+  // na wykres progresu ciężaru
+  const changeSets = (exerciseId, v) => {
+    for (const [dk, d] of Object.entries(exercises)) {
+      const i = d.exercises.findIndex((e) => e.id === exerciseId);
+      if (i >= 0) {
+        updateEx(dk, i, { ...d.exercises[i], sets: v });
+        break;
+      }
+    }
+  };
+
   const dismissOnboard = () => {
     setShowOnboard(false);
     try {
@@ -402,7 +415,7 @@ export default function App() {
 
           {displayTab === "stats" && (
             <Suspense fallback={<div style={{ textAlign: "center", padding: 48, color: T.faint, fontSize: 13 }}>Ładowanie…</div>}>
-              <StatsTab snapshots={snapshots} exercises={exercises} onChangeWeight={changeWeightAndSnapshot} onChangeReps={changeReps} />
+              <StatsTab snapshots={snapshots} exercises={exercises} onChangeWeight={changeWeightAndSnapshot} onChangeReps={changeReps} onChangeSets={changeSets} />
             </Suspense>
           )}
           {displayTab === "rozgrzewka" && <WarmupTab onBack={() => setTab("trening")} />}

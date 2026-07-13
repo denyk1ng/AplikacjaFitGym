@@ -13,7 +13,7 @@ export const EXERCISES_DATA = {
       { id: "a2", cat: "KLATKA", catColor: T.danger, name: "Wyciskanie sztangi — ławka płaska", sets: 4, reps: "8", weight: 65, unit: "kg", rest: 180, note: "Pełny zakres · łokcie 45°", tech: "Stopy wbite w podłogę, lekki mostek w lędźwiach. Sztanga dotyka klatki na wysokości sutków. Wyciskaj po lekkim łuku w stronę twarzy." },
       { id: "a3", cat: "PLECY", catColor: T.blue, name: "Wiosłowanie sztangą leżąc (Seal Row)", sets: 4, reps: "8 +amrap", weight: 37.5, unit: "kg", rest: 90, note: "" },
       { id: "a4", cat: "PLECY", catColor: T.blue, name: "Ściąganie drążka szerokim chwytem", sets: 4, reps: "8", weight: 52, unit: "kg", rest: 90, note: "Łokcie w dół i do tyłu" },
-      { id: "a5", cat: "BARKI", catColor: T.yellow, name: "Wyciskanie hantli nad głowę siedząc", sets: 8, reps: "8", weight: 17.5, unit: "kg", rest: 90, note: "" },
+      { id: "a5", cat: "BARKI", catColor: T.yellow, name: "Wyciskanie hantli nad głowę siedząc", sets: 4, reps: "8", weight: 17.5, unit: "kg", rest: 90, note: "" },
       { id: "a6", cat: "BICEPS", catColor: T.purple, name: "Uginanie hantli stojąc", sets: 3, reps: "10", weight: 14, unit: "kg", rest: 90, note: "" },
       { id: "a7", cat: "TRICEPS", catColor: T.purple, name: "Ściąganie linki górnej (pushdown)", sets: 3, reps: "12", weight: 20, unit: "kg", rest: 90, note: "Łokcie przy ciele" },
     ],

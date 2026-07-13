@@ -57,7 +57,7 @@ function GoalRing({ pct }) {
   );
 }
 
-export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps }) {
+export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, onChangeSets }) {
   const [range, setRange] = useState(0);
   const [filterDay, setFilterDay] = useState("ALL");
   const [selectedId, setSelectedId] = useState("");
@@ -290,17 +290,21 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps })
           {liveEx && (
             <>
               <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 12px" }}>
+                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
                   <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Ciężar roboczy</div>
                   <EditNum value={liveEx.weight} unit={liveEx.unit || "kg"} onChange={(v) => onChangeWeight && onChangeWeight(ex.id, v)} />
                 </div>
-                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 12px" }}>
+                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
+                  <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Serie</div>
+                  <EditNum value={liveEx.sets} min={1} max={20} onChange={(v) => onChangeSets && onChangeSets(ex.id, v)} />
+                </div>
+                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
                   <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Powtórzenia</div>
                   <EditStr value={liveEx.reps} onChange={(v) => onChangeReps && onChangeReps(ex.id, v)} />
                 </div>
               </div>
               <p style={{ fontSize: 9.5, color: T.faint, margin: "8px 0 0" }}>
-                Zmiana ciężaru dopisuje nowy punkt do wykresu progresu poniżej.
+                Zmiana ciężaru dopisuje nowy punkt do wykresu progresu poniżej. Serie i powtórzenia zmieniają się też w sesji live.
               </p>
             </>
           )}
