@@ -8,6 +8,15 @@ export function estimate1RM(weight, reps) {
   return Math.round(weight * (1 + r / 30) * 10) / 10;
 }
 
+// realistyczny szacunek czasu treningu: serie × ~40 s pracy + przerwy między
+// seriami (rest z planu) + ~45 s na przejście między ćwiczeniami; zaokrąglone
+// do 5 min. Wcześniej wszędzie wisiało sztywne "~60 min" niezależnie od dnia.
+export function estimateWorkoutMin(exs) {
+  if (!exs || !exs.length) return 0;
+  const sec = exs.reduce((sum, e) => sum + e.sets * 40 + Math.max(0, e.sets - 1) * (e.rest || 90), 0) + (exs.length - 1) * 45;
+  return Math.max(5, Math.round(sec / 60 / 5) * 5);
+}
+
 export function formatRest(s) {
   if (s >= 120) return `${s / 60} min`;
   if (s >= 60) return "1 min";

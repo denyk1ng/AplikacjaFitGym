@@ -105,6 +105,11 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeW
       </div>
 
       <div style={{ padding: "16px 18px 0" }}>
+        {/* ścieżka nawigacji — wiadomo gdzie jesteś i dokąd cofa "wstecz" */}
+        <div className="fu" style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", color: T.faint, textTransform: "uppercase", marginBottom: 6 }}>
+          Dom <span style={{ color: T.soft }}>/</span> Trening {ex.dayKey} <span style={{ color: T.soft }}>/</span> <span style={{ color: T.sub }}>{ex.name.split("—")[0].trim()}</span>
+        </div>
+
         {/* TYTUŁ + TAGI */}
         <div className="fu" style={{ fontFamily: U, fontWeight: 700, fontSize: "1.35rem", color: "#fff", lineHeight: 1.2 }}>{ex.name}</div>
         <div className="fu" style={{ animationDelay: ".05s", display: "flex", gap: 7, flexWrap: "wrap", margin: "12px 0 16px" }}>

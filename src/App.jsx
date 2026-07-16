@@ -23,6 +23,7 @@ import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
 import { LiveSession, loadLiveState, clearLiveState } from "./components/LiveSession.jsx";
 import { QuickAddSheet } from "./components/QuickAddSheet.jsx";
 import { ConfirmSheet } from "./components/ConfirmSheet.jsx";
+import { WelcomeTour } from "./components/WelcomeTour.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("dom");
@@ -56,6 +57,7 @@ export default function App() {
   const [saveAnim, setSaveAnim] = useState(false);
   const [snapshots, setSnapshots] = useState([]);
   const [showOnboard, setShowOnboard] = useState(false);
+  const [showTour, setShowTour] = useState(false); // przewodnik po pierwszym onboardingu
   const [showSplash, setShowSplash] = useState(true);
   // skrócony splash przy kolejnych otwarciach tego samego dnia
   const [quickSplash] = useState(() => {
@@ -278,6 +280,19 @@ export default function App() {
     try {
       storage.set("forma_onboarded", "1");
     } catch (e) {}
+    // świeży użytkownik: krótki przewodnik "gdzie co jest" — raz, zaraz po kreatorze
+    try {
+      if (!localStorage.getItem("walkthrough_done")) setShowTour(true);
+    } catch (e) {
+      setShowTour(true);
+    }
+  };
+
+  const dismissTour = () => {
+    setShowTour(false);
+    try {
+      localStorage.setItem("walkthrough_done", "1");
+    } catch (e) {}
   };
 
   const goTraining = (dayKey) => {
@@ -327,6 +342,7 @@ export default function App() {
     >
       {showSplash && <SplashScreen quick={quickSplash} onDone={() => setShowSplash(false)} />}
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
+      {showTour && !showOnboard && !showSplash && <WelcomeTour onDone={dismissTour} />}
 
       {displayTab !== "dom" && displayTab !== "trening" && displayTab !== "cwiczenie" && displayTab !== "sesja" && displayTab !== "rozgrzewka" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>

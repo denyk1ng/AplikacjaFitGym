@@ -4,6 +4,7 @@ import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
+import { estimateWorkoutMin } from "../lib/utils.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 
 const U = "'Urbanist',sans-serif";
@@ -54,7 +55,8 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
   // ulubione (serduszko) pływają na górę listy — inaczej ten przycisk nic nie robi
   const sortedExs = [...exs].sort((a, b) => (favs.includes(b.id) ? 1 : 0) - (favs.includes(a.id) ? 1 : 0));
   const totalSets = exs.reduce((s, e) => s + e.sets, 0);
-  const estMin = Math.round((totalSets * 2.5) / 5) * 5;
+  // czas z realnych przerw z planu, nie ze sztywnego mnożnika — patrz utils.js
+  const estMin = estimateWorkoutMin(exs);
   const pad2 = (n) => String(n).padStart(2, "0");
 
   return (
@@ -94,6 +96,11 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
               {k} · {EXERCISES_DATA[k].day.slice(0, 3)}
             </button>
           ))}
+        </div>
+
+        {/* ścieżka nawigacji — wiadomo gdzie jesteś i dokąd cofa "wstecz" */}
+        <div className="fu" style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", color: T.faint, textTransform: "uppercase", marginBottom: 6 }}>
+          Dom <span style={{ color: T.soft }}>/</span> <span style={{ color: T.sub }}>Trening {dayKey}</span>
         </div>
 
         {/* tytuł */}
