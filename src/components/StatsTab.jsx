@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
-import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star } from "lucide-react";
+import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star, Share2 } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
 import { computeTotalGain, earnedBadges } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory } from "../lib/workoutLog.js";
+import { shareProgressImage } from "../lib/shareCard.js";
 
 const U = "'Urbanist',sans-serif";
 const fmtVol = (v) => (v >= 10000 ? `${Math.round(v / 1000)}k` : v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(v));
@@ -62,6 +63,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
   const [filterDay, setFilterDay] = useState("ALL");
   const [selectedId, setSelectedId] = useState("");
   const [log, setLog] = useState([]);
+  const [sharingProg, setSharingProg] = useState(false);
 
   useEffect(() => {
     loadWorkoutLog().then(setLog);
@@ -365,6 +367,24 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
                   <Line type="monotone" dataKey="kg" stroke={ex.dayColor} strokeWidth={2.5} dot={{ fill: ex.dayColor, r: 4 }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
+              {/* pochwal się progresem — obrazek z wykresem przez Web Share */}
+              <button
+                onClick={async () => {
+                  if (sharingProg) return;
+                  setSharingProg(true);
+                  try {
+                    await shareProgressImage({ name: ex.name.split("—")[0].trim(), unit: ex.unit || "kg", history });
+                  } catch (e) {
+                    if (e.name !== "AbortError") console.error(e);
+                  } finally {
+                    setSharingProg(false);
+                  }
+                }}
+                style={{ width: "100%", marginTop: 12, background: "transparent", color: T.light, border: `1.5px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 13, padding: "12px 18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              >
+                <Share2 size={15} strokeWidth={2.2} />
+                {sharingProg ? "Generuję…" : "Udostępnij progres"}
+              </button>
             </div>
           )}
 

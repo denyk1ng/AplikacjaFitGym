@@ -123,13 +123,13 @@ function drawCard({ label, desc, time, sets, volume, record }) {
   return canvas;
 }
 
-export async function shareWorkoutImage(data) {
-  const canvas = drawCard(data);
+// wspólny finał: canvas -> plik -> Web Share albo pobranie
+async function shareCanvas(canvas, filename, text) {
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
   if (!blob) throw new Error("Nie udało się wygenerować obrazka.");
 
-  const file = new File([blob], `forma-${data.label.toLowerCase().replace(/\s+/g, "-")}.png`, { type: "image/png" });
-  const shareData = { files: [file], title: "FORMA", text: `Zrobiłem ${data.label} — ${data.sets} serii, ${data.volume} kg objętości` };
+  const file = new File([blob], filename, { type: "image/png" });
+  const shareData = { files: [file], title: "FORMA", text };
 
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     await navigator.share(shareData);
@@ -146,4 +146,154 @@ export async function shareWorkoutImage(data) {
   a.remove();
   URL.revokeObjectURL(url);
   return "downloaded";
+}
+
+export async function shareWorkoutImage(data) {
+  const canvas = drawCard(data);
+  return shareCanvas(canvas, `forma-${data.label.toLowerCase().replace(/\s+/g, "-")}.png`, `Zrobiłem ${data.label} — ${data.sets} serii, ${data.volume} kg objętości`);
+}
+
+// Obrazek progresu ciężaru jednego ćwiczenia (wykres liniowy + start/teraz/
+// przyrost) — udostępniany z zakładki Statystyki
+function drawProgressCard({ name, unit, history }) {
+  const W = 1080;
+  const H = 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#171717";
+  ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W / 2, 60, 40, W / 2, 60, 900);
+  glow.addColorStop(0, "rgba(188,255,49,0.16)");
+  glow.addColorStop(1, "rgba(188,255,49,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  // wordmark FORMA
+  ctx.font = "800 34px -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillStyle = "#94978f";
+  ctx.textBaseline = "top";
+  ctx.fillText("FOR", 80, 90);
+  const forWidth = ctx.measureText("FOR").width;
+  ctx.fillStyle = "#bcff31";
+  ctx.fillText("MA", 80 + forWidth, 90);
+
+  // tytuł + nazwa ćwiczenia
+  ctx.textAlign = "center";
+  ctx.font = "800 54px -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("Mój progres", W / 2, 210);
+  ctx.font = "600 32px -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillStyle = "#94978f";
+  ctx.fillText(name, W / 2, 286);
+  ctx.textAlign = "left";
+
+  // wykres liniowy
+  const chartX = 110;
+  const chartY = 400;
+  const chartW = W - 2 * chartX;
+  const chartH = 420;
+  const ws = history.map((h) => h.weight);
+  const minW = Math.min(...ws);
+  const maxW = Math.max(...ws);
+  const span = maxW - minW || 1;
+  const px = (i) => chartX + (history.length === 1 ? chartW / 2 : (i / (history.length - 1)) * chartW);
+  const py = (w) => chartY + chartH - ((w - minW) / span) * (chartH - 60) - 30;
+
+  // tło wykresu
+  ctx.fillStyle = "#1b1c19";
+  roundRect(ctx, chartX - 40, chartY - 40, chartW + 80, chartH + 80, 28);
+  ctx.fill();
+  ctx.strokeStyle = "#2f302e";
+  ctx.lineWidth = 2;
+  roundRect(ctx, chartX - 40, chartY - 40, chartW + 80, chartH + 80, 28);
+  ctx.stroke();
+
+  // wypełnienie pod linią
+  ctx.beginPath();
+  history.forEach((h, i) => (i === 0 ? ctx.moveTo(px(i), py(h.weight)) : ctx.lineTo(px(i), py(h.weight))));
+  ctx.lineTo(px(history.length - 1), chartY + chartH);
+  ctx.lineTo(px(0), chartY + chartH);
+  ctx.closePath();
+  const fillGrad = ctx.createLinearGradient(0, chartY, 0, chartY + chartH);
+  fillGrad.addColorStop(0, "rgba(188,255,49,0.28)");
+  fillGrad.addColorStop(1, "rgba(188,255,49,0)");
+  ctx.fillStyle = fillGrad;
+  ctx.fill();
+
+  // linia
+  ctx.beginPath();
+  history.forEach((h, i) => (i === 0 ? ctx.moveTo(px(i), py(h.weight)) : ctx.lineTo(px(i), py(h.weight))));
+  ctx.strokeStyle = "#bcff31";
+  ctx.lineWidth = 6;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.stroke();
+
+  // punkty + etykiety skrajne
+  history.forEach((h, i) => {
+    ctx.beginPath();
+    ctx.arc(px(i), py(h.weight), i === history.length - 1 ? 12 : 7, 0, Math.PI * 2);
+    ctx.fillStyle = "#bcff31";
+    ctx.fill();
+  });
+  ctx.font = "700 26px -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillStyle = "#94978f";
+  ctx.textAlign = "left";
+  ctx.fillText(history[0].dateShort, chartX - 10, chartY + chartH + 6);
+  ctx.textAlign = "right";
+  ctx.fillText(history[history.length - 1].dateShort, chartX + chartW + 10, chartY + chartH + 6);
+  ctx.textAlign = "left";
+
+  // kafelki: start / teraz / przyrost
+  const start = history[0].weight;
+  const now = history[history.length - 1].weight;
+  const gain = Math.round((now - start) * 100) / 100;
+  const fmt = (v) => `${String(v).replace(".", ",")} ${unit}`;
+  const stats = [
+    { v: fmt(start), l: "start" },
+    { v: fmt(now), l: "teraz" },
+    { v: `${gain >= 0 ? "+" : ""}${String(gain).replace(".", ",")} ${unit}`, l: "przyrost" },
+  ];
+  const tileW = 300;
+  const tileH = 170;
+  const gap = 24;
+  const totalW = tileW * 3 + gap * 2;
+  const startX = (W - totalW) / 2;
+  const tileY = 960;
+  stats.forEach((s, i) => {
+    const x = startX + i * (tileW + gap);
+    ctx.fillStyle = "#1b1c19";
+    roundRect(ctx, x, tileY, tileW, tileH, 24);
+    ctx.fill();
+    ctx.strokeStyle = "#2f302e";
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, tileY, tileW, tileH, 24);
+    ctx.stroke();
+    ctx.textAlign = "center";
+    ctx.font = "800 44px -apple-system, Segoe UI, Roboto, sans-serif";
+    ctx.fillStyle = i === 2 ? "#bcff31" : "#ffffff";
+    ctx.fillText(s.v, x + tileW / 2, tileY + 44);
+    ctx.font = "700 24px -apple-system, Segoe UI, Roboto, sans-serif";
+    ctx.fillStyle = "#94978f";
+    ctx.fillText(s.l, x + tileW / 2, tileY + 110);
+    ctx.textAlign = "left";
+  });
+
+  const dateStr = new Date().toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
+  ctx.font = "600 26px -apple-system, Segoe UI, Roboto, sans-serif";
+  ctx.fillStyle = "#4d4f49";
+  ctx.textAlign = "center";
+  ctx.fillText(dateStr, W / 2, H - 90);
+  ctx.textAlign = "left";
+
+  return canvas;
+}
+
+export async function shareProgressImage({ name, unit, history }) {
+  const canvas = drawProgressCard({ name, unit, history });
+  const gain = Math.round((history[history.length - 1].weight - history[0].weight) * 100) / 100;
+  return shareCanvas(canvas, "forma-progres.png", `Mój progres w ${name}: ${gain >= 0 ? "+" : ""}${gain} ${unit}`);
 }
