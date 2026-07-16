@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Target } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Target, Quote, Trophy, Flame } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
-import { computeTotalGain, isoWeekStart } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, suggestToday, logStreak, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, typicalHour } from "../lib/workoutLog.js";
+import { computeTotalGain, isoWeekStart, estimateWorkoutMin } from "../lib/utils.js";
+import { loadWorkoutLog, weekStatus, suggestToday, logStreak, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, weekEntries, typicalHour } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
+import { dailyQuote } from "../lib/quotes.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
 
@@ -84,7 +85,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
     notifs.push({
       Icon: Dumbbell,
       t: nearUsualTime ? `Zwykle trenujesz teraz — ${EXERCISES_DATA[suggestion.type].label}` : `Dziś na planie: ${EXERCISES_DATA[suggestion.type].label}`,
-      d: `${exercises[suggestion.type].exercises.length} ćwiczeń · ~60 min`,
+      d: `${exercises[suggestion.type].exercises.length} ćwiczeń · ~${estimateWorkoutMin(exercises[suggestion.type].exercises)} min`,
       go: () => goTraining(suggestion.type),
     });
 
@@ -153,6 +154,48 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   })();
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
+
+  // cytat dnia — deterministyczny, zmienia się o północy (src/lib/quotes.js)
+  const quote = dailyQuote();
+
+  // wyzwanie tygodnia — rotacja 3 typów po numerze tygodnia; postęp liczony
+  // z dziennika, więc aktualizuje się sam po każdej zapisanej sesji
+  const WEEK_MS = 7 * 24 * 3600 * 1000;
+  const fmtV = (v) => (v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(Math.round(v)));
+  const wkEntries = weekEntries(log);
+  const curWeekVol = vols3[vols3.length - 1]?.vol || 0;
+  const chType = Math.floor(weekStart / WEEK_MS) % 3;
+  const challenge =
+    chType === 1
+      ? { label: "Zalicz 60 serii w tym tygodniu", cur: wkEntries.reduce((s, e) => s + (e.sets || 0), 0), target: 60, fmt: (v) => String(v) }
+      : chType === 2 && lastWeekVol > 0
+        ? { label: "Pobij objętość zeszłego tygodnia", cur: curWeekVol, target: lastWeekVol, fmt: fmtV, beat: true }
+        : { label: "Zrób komplet: A + B + C", cur: doneCount, target: 3, fmt: (v) => String(v) };
+  const chDone = challenge.beat ? challenge.cur > challenge.target : challenge.cur >= challenge.target;
+  const chPct = Math.min(challenge.cur / Math.max(challenge.target, 1), 1);
+
+  // łańcuch passy — 8 ostatnich tygodni jako ogniwa (tydzień z ≥1 treningiem
+  // podtrzymuje passę); wizualne "nie przerwij łańcucha"
+  const chain = weekHistory(log, 8);
+
+  // sugestia deloadu: 5+ tygodni treningu bez przerwy — organizm początkującego
+  // potrzebuje lżejszego tygodnia (te same ćwiczenia, ok. 60% ciężarów);
+  // przypomnienie raz na tydzień, do zamknięcia
+  const [deloadDismissed, setDeloadDismissed] = useState(false);
+  const deloadSeen = (() => {
+    try {
+      return localStorage.getItem("deload_seen");
+    } catch (e) {
+      return null;
+    }
+  })();
+  const showDeload = streak >= 5 && !deloadDismissed && deloadSeen !== String(weekStart);
+  const dismissDeload = () => {
+    try {
+      localStorage.setItem("deload_seen", String(weekStart));
+    } catch (e) {}
+    setDeloadDismissed(true);
+  };
 
   // pigułki kategorii na górze — szybkie wejścia w Rozgrzewkę / A / B / C / Cardio.
   // Podświetlona jest OSTATNIO KLIKNIĘTA pigułka (klucz last_cat, przeżywa
@@ -317,6 +360,24 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
       )}
 
+      {/* SUGESTIA DELOADU — po 5+ tygodniach bez przerwy, raz na tydzień */}
+      {showDeload && (
+        <div className="fu" style={{ animationDelay: ".15s", display: "flex", alignItems: "flex-start", gap: 12, background: T.card, border: `1px solid rgba(251,191,36,0.35)`, borderRadius: 20, padding: "13px 14px", marginBottom: 18 }}>
+          <span style={{ width: 40, height: 40, borderRadius: 13, background: "rgba(251,191,36,0.13)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Moon size={17} color={T.yellow} strokeWidth={2.2} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: H }}>{streak} tygodni bez przerwy — czas na deload</div>
+            <div style={{ fontSize: 11, color: T.sub, marginTop: 2, lineHeight: 1.5 }}>
+              Zrób w tym tygodniu te same treningi na ok. 60% ciężarów. Lżejszy tydzień to regeneracja stawów i nowa siła — wrócisz mocniejszy.
+            </div>
+          </div>
+          <button onClick={dismissDeload} aria-label="Zamknij sugestię deloadu" style={{ width: 30, height: 30, borderRadius: 10, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <X size={14} strokeWidth={2.4} />
+          </button>
+        </div>
+      )}
+
       {/* AKTYWNOŚĆ — układ bento: duży kafelek celu tygodnia + dwa mniejsze ułożone obok */}
       <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".16s" />
       <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gridTemplateRows: "auto auto", gap: 10, marginBottom: 22 }}>
@@ -388,6 +449,75 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
       </div>
 
+      {/* WYZWANIE TYGODNIA — rotuje co tydzień, postęp z dziennika */}
+      <div className="fu" style={{ animationDelay: ".29s", background: T.card, border: `1px solid ${chDone ? "rgba(52,211,153,0.35)" : T.borderSoft}`, borderRadius: 20, padding: "13px 16px", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Trophy size={15} color={chDone ? T.ok : T.accent} strokeWidth={2.3} />
+          <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H }}>Wyzwanie tygodnia</span>
+          <span style={{ fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 15, color: chDone ? T.ok : T.accent }}>
+            {challenge.fmt(challenge.cur)}
+            <span style={{ color: T.sub, fontSize: 12 }}>/{challenge.fmt(challenge.target)}</span>
+          </span>
+        </div>
+        <div style={{ fontSize: 11.5, color: T.light, marginTop: 6 }}>{challenge.label}</div>
+        <div style={{ height: 7, borderRadius: 99, background: T.track, marginTop: 8, overflow: "hidden" }}>
+          <div style={{ width: `${chPct * 100}%`, height: "100%", borderRadius: 99, background: chDone ? T.ok : T.accent, transition: "width .6s cubic-bezier(.22,1,.36,1)" }} />
+        </div>
+        {chDone && <div style={{ fontSize: 10, color: T.ok, fontWeight: 700, marginTop: 6 }}>Wyzwanie zaliczone — brawo!</div>}
+      </div>
+
+      {/* ŁAŃCUCH PASSY — nie przerwij! 8 ostatnich tygodni jako ogniwa */}
+      <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "13px 16px", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <Flame size={15} color={T.accent} strokeWidth={2.3} />
+          <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H }}>Łańcuch passy</span>
+          <span style={{ fontSize: 10.5, color: T.sub }}>
+            <strong style={{ color: "#fff", fontFamily: "'Doto',sans-serif", fontWeight: 800, fontSize: 14 }}>{streak}</strong> tyg. z rzędu
+          </span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {chain.map((w, i) => {
+            const on = w.done > 0;
+            return (
+              <div key={w.label} style={{ display: "flex", alignItems: "center", flex: i < chain.length - 1 ? 1 : "0 0 auto" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <span
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: on ? (w.done === 3 ? T.accent : T.accentSoftBg) : T.track,
+                      border: `1.5px solid ${w.isCurrent ? T.accent : on ? T.accentSoftBorder : "transparent"}`,
+                      color: on ? (w.done === 3 ? "#000" : T.accent) : T.faint,
+                      fontFamily: "'Doto',sans-serif",
+                      fontWeight: 800,
+                      fontSize: 12,
+                    }}
+                  >
+                    {on ? w.done : "·"}
+                  </span>
+                  <span style={{ fontSize: 7.5, fontWeight: 700, color: w.isCurrent ? T.accent : T.faint, fontFamily: "'Doto',sans-serif" }}>{w.isCurrent ? "TERAZ" : w.label}</span>
+                </div>
+                {i < chain.length - 1 && <span style={{ flex: 1, height: 2, margin: "0 3px 12px", borderRadius: 2, background: on && chain[i + 1].done > 0 ? T.accentSoftBorder : T.track }} />}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: 9.5, color: T.faint, marginTop: 8 }}>liczba w ogniwie = treningi A/B/C w danym tygodniu · min. 1 podtrzymuje passę</div>
+      </div>
+
+      {/* CYTAT DNIA */}
+      <div className="fu" style={{ animationDelay: ".31s", display: "flex", gap: 12, background: T.card2, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 16px", marginBottom: 22 }}>
+        <Quote size={16} color={T.accent} strokeWidth={2.2} style={{ flexShrink: 0, marginTop: 2 }} />
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 12.5, color: T.light, lineHeight: 1.55, fontStyle: "italic" }}>{quote.t}</div>
+          {quote.a && <div style={{ fontSize: 10, color: T.faint, marginTop: 5, fontWeight: 600 }}>— {quote.a}</div>}
+        </div>
+      </div>
+
       {/* TWOJE TRENINGI */}
       <SectionHead title="Twoje treningi" onSee={() => goTo("trening")} delay=".3s" />
       <div className="hscroll" style={{ marginBottom: 8 }}>
@@ -410,7 +540,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 {st[k].done ? "ZROBIONY" : EXERCISES_DATA[k].day}
               </span>
               <div style={{ fontFamily: H, fontWeight: 700, fontSize: "1.02rem", color: "#fff", lineHeight: 1.1 }}>{EXERCISES_DATA[k].label}</div>
-              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>{EXERCISES_DATA[k].exercises.length} ćwiczeń · ~60 min</div>
+              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>
+                {EXERCISES_DATA[k].exercises.length} ćwiczeń · ~{estimateWorkoutMin(exercises[k] ? exercises[k].exercises : EXERCISES_DATA[k].exercises)} min
+              </div>
             </div>
           </div>
         ))}
