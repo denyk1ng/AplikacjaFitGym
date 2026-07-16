@@ -169,6 +169,56 @@ button {
   border-radius: 4px;
 }
 
+/* przejścia między ćwiczeniami w sesji live — wjazd karty z boku,
+   kierunek zgodny z ruchem (następne z prawej, poprzednie z lewej) */
+@keyframes cardInR {
+  from {
+    opacity: 0;
+    transform: translateX(46px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cardInL {
+  from {
+    opacity: 0;
+    transform: translateX(-46px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.card-in-r {
+  animation: cardInR 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.card-in-l {
+  animation: cardInL 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* appka jest projektowana na pion — na telefonie w poziomie pokazujemy
+   nakładkę zamiast połamanego layoutu. Tylko ekrany dotykowe (telefony);
+   desktop i tablet w poziomie działają normalnie. */
+@media screen and (orientation: landscape) and (max-height: 520px) and (pointer: coarse) {
+  body::after {
+    content: "Obróć telefon pionowo";
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #171717;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Urbanist", sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+}
+
 /* konfetti przy nowym rekordzie (podsumowanie sesji) */
 @keyframes confettiFall {
   0% {

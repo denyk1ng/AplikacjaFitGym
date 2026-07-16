@@ -46,6 +46,37 @@ export const EXERCISES_DATA = {
   },
 };
 
+// Dodatkowe zamienniki ćwiczeń (spoza planu A/B/C) — na wypadek zajętego
+// sprzętu. Klucz = id ćwiczenia z planu; każdy wpis to realny ruch na tę samą
+// partię, dostępny na typowej siłowni. Ciężar dobiera się na miejscu (weight
+// nie jest przenoszony z oryginału — to inny ruch). Konsumowane przez arkusz
+// "Zamień ćwiczenie" w LiveSession.jsx obok zamienników z samego planu.
+export const EXTRA_ALTS = {
+  a1: [{ name: "Wyciskanie hantli — ławka skośna", reps: "8" }, { name: "Wyciskanie na maszynie — skos", reps: "10" }],
+  a2: [{ name: "Pompki na poręczach (dipy)", reps: "8" }, { name: "Wyciskanie na maszynie — płasko", reps: "10" }],
+  a3: [{ name: "Wiosłowanie hantlą jednorącz", reps: "10" }, { name: "Wiosłowanie sztangą w opadzie", reps: "8" }],
+  a4: [{ name: "Podciąganie szerokim chwytem", reps: "max" }, { name: "Ściąganie na maszynie (lat)", reps: "10" }],
+  a5: [{ name: "Wyciskanie na maszynie — barki", reps: "10" }, { name: "Arnoldki siedząc", reps: "10" }],
+  a6: [{ name: "Uginanie sztangi prostej", reps: "10" }, { name: "Uginanie linki dolnej", reps: "12" }],
+  a7: [{ name: "Wyciskanie francuskie hantlem oburącz", reps: "12" }, { name: "Prostowanie linki zza głowy", reps: "12" }],
+  b1: [{ name: "Rozpiętki hantlami — ławka płaska", reps: "12" }, { name: "Krzyżowanie linek (crossover)", reps: "12" }],
+  b2: [{ name: "Wyciskanie na maszynie — płasko", reps: "12" }],
+  b3: [{ name: "Wiosłowanie linką siedząc", reps: "10" }, { name: "Wiosłowanie hantlą jednorącz", reps: "10" }],
+  b4: [{ name: "Odwrotne rozpiętki na maszynie", reps: "12" }, { name: "Unoszenie hantli w opadzie tułowia", reps: "12" }],
+  b5: [{ name: "Przysiad na suwnicy Smitha", reps: "8" }, { name: "Wypychanie na suwnicy (leg press)", reps: "10" }],
+  b6: [{ name: "Wykroki chodzone z hantlami", reps: "8" }, { name: "Wypychanie jednonóż na suwnicy", reps: "10" }],
+  b7: [{ name: "Uginanie nóg siedząc", reps: "10" }, { name: "Martwy ciąg rumuński z hantlami", reps: "10" }],
+  b8: [{ name: "Plank (deska)", reps: "45s" }, { name: "Allahy (linka górna)", reps: "12" }],
+  b9: [{ name: "Skakanka", reps: "45s" }, { name: "Burpees", reps: "10" }],
+  c1: [{ name: "Rozpiętki hantlami — ławka płaska", reps: "12" }, { name: "Krzyżowanie linek (crossover)", reps: "12" }],
+  c2: [{ name: "Martwy ciąg rumuński", reps: "8" }, { name: "Rack pull (z podwyższenia)", reps: "6" }],
+  c3: [{ name: "Podciąganie chwytem neutralnym", reps: "max" }, { name: "Narciarz (straight-arm pulldown)", reps: "12" }],
+  c4: [{ name: "Wyciskanie hantli stojąc", reps: "8" }, { name: "Landmine press", reps: "10" }],
+  c5: [{ name: "Unoszenie linki bokiem", reps: "12" }, { name: "Unoszenie hantli bokiem siedząc", reps: "12" }],
+  c6: [{ name: "Uginanie hantli na modlitewniku", reps: "10" }, { name: "Uginanie młotkowe", reps: "10" }],
+  c7: [{ name: "Wyciskanie francuskie hantlem oburącz", reps: "12" }, { name: "Prostowanie linki zza głowy", reps: "12" }],
+};
+
 export const WARMUP_DATA = {
   BASE: {
     label: "Zawsze na początku", iconKey: "zap", sublabel: "Baza — każdy trening A, B i C (4–5 min)", color: T.accent,

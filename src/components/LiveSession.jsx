@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge, Share2, Pause, Play, History } from "lucide-react";
+import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge, Share2, Pause, Play, History, Info, ArrowUp, ArrowDown, Flame } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
-import { EXERCISES_DATA } from "../data/plan.js";
+import { EX_IMG } from "../data/exerciseImages.js";
+import { EXERCISES_DATA, EXTRA_ALTS, CAT_LABEL } from "../data/plan.js";
 import { loadWorkoutLog } from "../lib/workoutLog.js";
 import { playBeep, unlockAudio } from "../lib/sound.js";
+import { buzzTap, buzzRestEnd, buzzRecord } from "../lib/haptics.js";
+import { warmupSetsFor } from "../lib/warmupSets.js";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { shareWorkoutImage } from "../lib/shareCard.js";
 
@@ -126,6 +129,9 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   );
   const [pendingRpe, setPendingRpe] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
+  const [showInfo, setShowInfo] = useState(false); // technika ćwiczenia bez wychodzenia z sesji
+  const [slideDir, setSlideDir] = useState("r"); // kierunek wjazdu karty ćwiczenia (animacja)
+  const touchStart = useRef(null); // start gestu swipe na karcie ćwiczenia
   const [sharing, setSharing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [rest, setRest] = useState(0);
@@ -179,7 +185,10 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     const t = setInterval(() => {
       const rem = Math.max(0, Math.ceil((restEnd.current - Date.now()) / 1000));
       setRest(rem);
-      if (rem === 0) playBeep();
+      if (rem === 0) {
+        playBeep();
+        buzzRestEnd();
+      }
     }, 250);
     return () => clearInterval(t);
   }, [rest > 0, restPaused]);
@@ -207,6 +216,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   const doneSet = () => {
     if (setsDone[idx] >= ex.sets) return;
     unlockAudio(); // gest użytkownika — odblokuj Web Audio dla beeta końca przerwy (iOS)
+    buzzTap();
     const next = [...setsDone];
     next[idx] += 1;
     setSetsDone(next);
@@ -251,6 +261,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     for (let step = 1; step <= exs.length; step++) {
       const j = (idx + step) % exs.length;
       if (setsDone[j] < exs[j].sets) {
+        setSlideDir("r");
         setIdx(j);
         return;
       }
@@ -258,14 +269,45 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     setStage("summary");
   };
 
+  // poprzednie niedokończone (dla swipe'a w prawo) — lustrzane do nextExercise
+  const prevExercise = () => {
+    if (pendingRpe) return;
+    stopRest();
+    for (let step = 1; step <= exs.length; step++) {
+      const j = (idx - step + exs.length) % exs.length;
+      if (setsDone[j] < exs[j].sets) {
+        setSlideDir("l");
+        setIdx(j);
+        return;
+      }
+    }
+  };
+
   const jumpTo = (i) => {
     if (pendingRpe) return;
     stopRest();
+    setSlideDir(i >= idx ? "r" : "l");
     setIdx(i);
   };
 
-  // alternatywy dla bieżącego ćwiczenia: ta sama partia (cat), z całego
-  // planu, bez powtórzeń nazw i bez ćwiczeń już będących w dzisiejszej sesji
+  // swipe w lewo/prawo na karcie ćwiczenia = następne/poprzednie niedokończone
+  // (naturalny gest na telefonie zamiast celowania w numerki na górze)
+  const onCardTouchStart = (e) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+  const onCardTouchEnd = (e) => {
+    if (!touchStart.current) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.6) return; // za krótki albo pionowy gest
+    if (dx < 0) nextExercise();
+    else prevExercise();
+  };
+
+  // alternatywy dla bieżącego ćwiczenia: ta sama partia (cat) z całego planu
+  // + dodatkowe zamienniki spoza planu (EXTRA_ALTS — sprzęt zajęty itp.),
+  // bez powtórzeń nazw i bez ćwiczeń już będących w dzisiejszej sesji
   const alternatives = useMemo(() => {
     const seen = new Set(exs.map((e) => e.name));
     const out = [];
@@ -276,6 +318,13 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
           out.push(cand);
         }
       });
+    });
+    (EXTRA_ALTS[ex.id] || []).forEach((a, i) => {
+      if (seen.has(a.name)) return;
+      seen.add(a.name);
+      // ciężar 0 = dobierany na miejscu — to inny ruch, przenoszenie ciężaru
+      // z oryginału podpowiadałoby niebezpieczne obciążenie
+      out.push({ id: `xalt-${ex.id}-${i}`, name: a.name, reps: a.reps, weight: 0, unit: "kg", cat: ex.cat, catColor: ex.catColor, extra: true });
     });
     return out;
   }, [ex.id, ex.cat]);
@@ -310,6 +359,11 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
         return hist.length > 0 && e.weight > Math.max(...hist);
       });
   }, [stage]);
+
+  // wibracja przy nowym rekordzie — razem z konfetti na podsumowaniu
+  useEffect(() => {
+    if (stage === "summary" && records.length > 0) buzzRecord();
+  }, [stage, records.length]);
 
   // ── PODSUMOWANIE ──────────────────────────────────────────────────────────
   if (stage === "summary") {
@@ -431,6 +485,16 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   // ── SESJA NA ŻYWO ─────────────────────────────────────────────────────────
   const allSetsDone = setsDone[idx] >= ex.sets;
   const restPct = ex.rest > 0 ? 1 - rest / ex.rest : 1;
+  // serie rozgrzewkowe — tylko zanim poleci pierwsza seria robocza
+  const warmups = setsDone[idx] === 0 ? warmupSetsFor(ex.weight, ex.unit) : [];
+  // porównanie ciężaru z poprzednią sesją: strzałka góra/dół obok ciężaru
+  const weightDelta = lastResult && lastResult.weight > 0 && ex.weight > 0 ? Math.round((ex.weight - lastResult.weight) * 100) / 100 : null;
+  // po zamianie na ćwiczenie spoza planu nie ma miniatury — zostaje zdjęcie
+  // oryginalnego ćwiczenia z tego slotu (ta sama partia mięśniowa)
+  const cardThumb = EX_THUMB[ex.id] || EX_THUMB[baseExs[idx] && baseExs[idx].id];
+  const infoSteps = ex.tech ? ex.tech.split(". ").map((s) => s.trim().replace(/\.$/, "")).filter(Boolean) : [];
+  const infoImgA = EX_IMG[ex.id];
+  const infoImgB = EX_IMG[`${ex.id}-2`];
 
   return (
     <div style={{ margin: "-20px -18px -140px", minHeight: "100vh", padding: "18px 18px 30px", display: "flex", flexDirection: "column" }}>
@@ -537,21 +601,45 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
         maszyna zajęta? stuknij numer, aby przeskoczyć — wrócisz później
       </p>
 
-      {/* bieżące ćwiczenie: duża karta ze zdjęciem, serią i ciężarem */}
-      <div key={ex.id} className="fu" style={{ position: "relative", flex: 1, minHeight: 210, borderRadius: 24, overflow: "hidden", marginTop: 14, border: `1px solid ${T.borderSoft}` }}>
-        <img src={EX_THUMB[ex.id]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      {/* bieżące ćwiczenie: duża karta ze zdjęciem, serią i ciężarem;
+          swipe w lewo/prawo przełącza ćwiczenia, wjazd karty animowany
+          zgodnie z kierunkiem ruchu */}
+      <div
+        key={ex.id}
+        className={slideDir === "l" ? "card-in-l" : "card-in-r"}
+        onTouchStart={onCardTouchStart}
+        onTouchEnd={onCardTouchEnd}
+        style={{ position: "relative", flex: 1, minHeight: 210, borderRadius: 24, overflow: "hidden", marginTop: 14, border: `1px solid ${T.borderSoft}` }}
+      >
+        {cardThumb && <img src={cardThumb} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.12) 0%, rgba(23,23,23,0.35) 52%, rgba(23,23,23,0.94) 100%)" }} />
+        {/* technika/notatki bez wychodzenia z sesji */}
+        <button
+          onClick={() => setShowInfo(true)}
+          title="Technika ćwiczenia"
+          aria-label="Technika ćwiczenia"
+          style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <Info size={15} strokeWidth={2.2} />
+        </button>
         {setsDone[idx] === 0 && (
           <button
             onClick={() => setShowSwap(true)}
             title="Zamień ćwiczenie"
-            style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ position: "absolute", top: 12, right: 54, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             <Repeat size={15} strokeWidth={2.2} />
           </button>
         )}
         <div style={{ position: "absolute", left: 16, right: 16, bottom: 14, display: "flex", alignItems: "flex-end", gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
+            {/* serie rozgrzewkowe z ciężaru roboczego — znikają po 1. serii */}
+            {warmups.length > 0 && (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(23,23,23,0.62)", backdropFilter: "blur(4px)", border: `1px solid ${T.borderSoft}`, borderRadius: 99, padding: "4px 10px", marginBottom: 7, fontSize: 10.5, color: T.light }}>
+                <Flame size={11} color={T.accent} strokeWidth={2.4} />
+                Rozgrzewka: {warmups.map((w) => `${String(w.w).replace(".", ",")}×${w.reps}`).join(" · ")}
+              </div>
+            )}
             <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: U, display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
               Seria {Math.min(setsDone[idx] + 1, ex.sets)} / {ex.sets} · <EditStr value={String(ex.reps)} onChange={editReps} /> powt.
             </div>
@@ -559,6 +647,19 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
               {ex.weight > 0 ? (
                 <>
                   ciężar: <EditNum value={ex.weight} unit={ex.unit} min={0.5} max={500} onChange={editWeight} />
+                  {/* strzałka vs poprzednia sesja — więcej/mniej/tyle samo */}
+                  {weightDelta !== null &&
+                    (weightDelta > 0 ? (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 2, color: T.ok, fontSize: 10.5, fontWeight: 800 }}>
+                        <ArrowUp size={11} strokeWidth={3} />+{String(weightDelta).replace(".", ",")}
+                      </span>
+                    ) : weightDelta < 0 ? (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 2, color: T.danger, fontSize: 10.5, fontWeight: 800 }}>
+                        <ArrowDown size={11} strokeWidth={3} />{String(weightDelta).replace(".", ",")}
+                      </span>
+                    ) : (
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 10.5, fontWeight: 800 }}>=</span>
+                    ))}
                 </>
               ) : (
                 "ciężar własny"
@@ -672,15 +773,65 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
                   onClick={() => swapExercise(alt)}
                   style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: 10, marginBottom: 8, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
                 >
-                  <img src={EX_THUMB[alt.id]} alt="" style={{ width: 46, height: 46, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
+                  {EX_THUMB[alt.id] ? (
+                    <img src={EX_THUMB[alt.id]} alt="" style={{ width: 46, height: 46, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
+                  ) : (
+                    <span style={{ width: 46, height: 46, borderRadius: 12, flexShrink: 0, background: T.inset, border: `1px solid ${T.borderSoft}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, color: T.soft, fontFamily: U }}>
+                      {(CAT_LABEL[alt.cat] || alt.cat || "").slice(0, 3).toUpperCase()}
+                    </span>
+                  )}
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: U }}>{alt.name}</span>
                     <span style={{ display: "block", fontSize: 11, color: T.sub, marginTop: 2 }}>
-                      {ex.sets} serie · {alt.reps} powt.{alt.weight > 0 ? ` · ${String(alt.weight).replace(".", ",")} ${alt.unit}` : ""}
+                      {ex.sets} serie · {alt.reps} powt.{alt.weight > 0 ? ` · ${String(alt.weight).replace(".", ",")} ${alt.unit}` : alt.extra ? " · dobierz ciężar na miejscu" : ""}
                     </span>
                   </span>
                 </button>
               ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* arkusz techniki — szczegóły ćwiczenia bez wychodzenia z sesji */}
+      {showInfo && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
+          <div onClick={() => setShowInfo(false)} style={{ position: "absolute", inset: 0, background: "rgba(23,23,23,0.7)", backdropFilter: "blur(3px)" }} />
+          <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "82vh", overflowY: "auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <span style={{ fontFamily: U, fontWeight: 700, fontSize: "1.1rem", color: "#fff" }}>{ex.name.split("—")[0].trim()}</span>
+              <button onClick={() => setShowInfo(false)} aria-label="Zamknij" style={{ width: 32, height: 32, borderRadius: 10, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <X size={15} strokeWidth={2.4} />
+              </button>
+            </div>
+            <p style={{ fontSize: 11, color: T.sub, marginBottom: 12 }}>{CAT_LABEL[ex.cat] || ex.cat} · {ex.sets} serie × {ex.reps} powt.</p>
+            {/* pokaz ruchu start ↔ koniec, jak w szczegółach ćwiczenia */}
+            {infoImgA && (
+              <div style={{ position: "relative", height: 190, borderRadius: 18, overflow: "hidden", background: T.card, border: `1px solid ${T.borderSoft}`, marginBottom: 14 }}>
+                <img src={infoImgA} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
+                {infoImgB && (
+                  <img src={infoImgB} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", animation: "abfade 1.5s ease-in-out infinite alternate" }} />
+                )}
+              </div>
+            )}
+            {infoSteps.length > 0 ? (
+              infoSteps.map((s, i) => (
+                <div key={i} style={{ display: "flex", gap: 12, marginBottom: 10 }}>
+                  <span style={{ width: 22, height: 22, borderRadius: "50%", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10.5, fontWeight: 800, fontFamily: FONT_NUM, flexShrink: 0, marginTop: 1 }}>
+                    {i + 1}
+                  </span>
+                  <p style={{ fontSize: 12.5, color: T.light, lineHeight: 1.55, margin: 0 }}>{s}.</p>
+                </div>
+              ))
+            ) : (
+              <p style={{ fontSize: 12.5, color: T.soft, lineHeight: 1.6, margin: 0 }}>
+                Kontrola w całym zakresie ruchu — 2 s faza opuszczania, bez szarpania. Pełen zakres, stabilna pozycja, wydech przy wysiłku.
+              </p>
+            )}
+            {ex.note && (
+              <div style={{ marginTop: 10, padding: "10px 13px", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 14, fontSize: 12, color: T.light, lineHeight: 1.5 }}>
+                {ex.note}
+              </div>
             )}
           </div>
         </div>
