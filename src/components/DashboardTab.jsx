@@ -84,7 +84,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   if (settings.remindPlan && suggestion && !suggestion.overdue)
     notifs.push({
       Icon: Dumbbell,
-      info: true, // informacyjne = niebieski akcent (limonka zostaje dla osiągnięć)
       t: nearUsualTime ? `Zwykle trenujesz teraz — ${EXERCISES_DATA[suggestion.type].label}` : `Dziś na planie: ${EXERCISES_DATA[suggestion.type].label}`,
       d: `${exercises[suggestion.type].exercises.length} ćwiczeń · ~${estimateWorkoutMin(exercises[suggestion.type].exercises)} min`,
       go: () => goTraining(suggestion.type),
@@ -105,7 +104,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
     const volDelta = weekBeforeVol > 0 ? Math.round(((lastWeekVol - weekBeforeVol) / weekBeforeVol) * 100) : null;
     notifs.push({
       Icon: BarChart3,
-      info: true,
       t: "Podsumowanie tygodnia",
       d: `${lastWeek.done}/3 treningi (${doneDelta > 0 ? "+" : ""}${doneDelta} vs poprzedni)${volDelta !== null ? ` · objętość ${volDelta > 0 ? "+" : ""}${volDelta}%` : ""}`,
       go: () => {
@@ -268,7 +266,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
       {/* KATEGORIE — pigułki z kolorowym kółkiem ikony, aktywna podświetlona limonką */}
       <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
-      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 24 }}>
+      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 22 }}>
         {cats.map(({ photo, l, act, go }) => (
           <button
             key={l}
@@ -308,7 +306,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       </div>
 
       {/* LIMONKOWA KARTA HERO */}
-      <div className="fu" style={{ animationDelay: ".12s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 24, boxShadow: "0 18px 44px rgba(188,255,49,0.18)" }}>
+      <div className="fu" style={{ animationDelay: ".12s", background: T.accent, borderRadius: 26, padding: "18px 18px 16px", marginBottom: 22, boxShadow: "0 18px 44px rgba(188,255,49,0.18)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".08em", padding: "5px 11px", borderRadius: 99, marginBottom: 12, ...hero.chipStyle }}>
@@ -332,9 +330,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
       {/* PODSUMOWANIE MINIONEGO TYGODNIA — raz na tydzień, do zamknięcia */}
       {!summaryDismissed && lastWeek && (lastWeek.done > 0 || lastWeekVol > 0) && summarySeenWeek !== String(weekStart) && (
-        <div className="fu" style={{ animationDelay: ".14s", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.blueSoftBorder}`, borderRadius: 20, padding: "12px 16px", marginBottom: 16 }}>
-          <span style={{ width: 40, height: 40, borderRadius: 13, background: T.blueSoftBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <BarChart3 size={17} color={T.blue} strokeWidth={2.2} />
+        <div className="fu" style={{ animationDelay: ".14s", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 20, padding: "13px 14px", marginBottom: 18 }}>
+          <span style={{ width: 40, height: 40, borderRadius: 13, background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <BarChart3 size={17} color={T.accent} strokeWidth={2.2} />
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: H }}>Twój poprzedni tydzień</div>
@@ -382,7 +380,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
       {/* AKTYWNOŚĆ — układ bento: duży kafelek celu tygodnia + dwa mniejsze ułożone obok */}
       <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".16s" />
-      <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gridTemplateRows: "auto auto", gap: 12, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gridTemplateRows: "auto auto", gap: 10, marginBottom: 22 }}>
         <div
           className="fu"
           style={{ animationDelay: ".18s", gridRow: "1 / 3", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 24, padding: "16px 14px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}
@@ -402,9 +400,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 600 }}>Seria</span>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 34 }}>
-            {/* para akcentów: przeszłe tygodnie niebieskie (kontekst), bieżący limonka (teraz) */}
             {weekBars.map((v, i) => (
-              <div key={i} style={{ width: 7, height: `${Math.max(v * 100, 12)}%`, borderRadius: 4, background: i === weekBars.length - 1 ? T.accent : T.blueSoft }} />
+              <div key={i} style={{ width: 7, height: `${Math.max(v * 100, 12)}%`, borderRadius: 4, background: i === weekBars.length - 1 ? T.accent : `${T.accent}55` }} />
             ))}
           </div>
           <span style={{ fontSize: 9.5, color: T.sub, fontWeight: 600 }}>
@@ -433,9 +430,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         </div>
       </div>
 
-      {/* CEL MIESIĄCA — pasek postępu liczby treningów (cel edytowalny w Profilu);
-          razem z wyzwaniem i łańcuchem tworzy grupę "cele" (odstępy 12) */}
-      <div className="fu" style={{ animationDelay: ".28s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "13px 16px", marginBottom: 12 }}>
+      {/* CEL MIESIĄCA — pasek postępu liczby treningów (cel edytowalny w Profilu) */}
+      <div className="fu" style={{ animationDelay: ".28s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "13px 16px", marginBottom: 22 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Target size={15} color={T.accent} strokeWidth={2.3} />
           <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H }}>
@@ -513,9 +509,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         <div style={{ fontSize: 9.5, color: T.faint, marginTop: 8 }}>liczba w ogniwie = treningi A/B/C w danym tygodniu · min. 1 podtrzymuje passę</div>
       </div>
 
-      {/* CYTAT DNIA — informacyjny, więc niebieski akcent */}
-      <div className="fu" style={{ animationDelay: ".31s", display: "flex", gap: 12, background: T.card2, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "16px", marginBottom: 24 }}>
-        <Quote size={16} color={T.blue} strokeWidth={2.2} style={{ flexShrink: 0, marginTop: 2 }} />
+      {/* CYTAT DNIA */}
+      <div className="fu" style={{ animationDelay: ".31s", display: "flex", gap: 12, background: T.card2, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 16px", marginBottom: 22 }}>
+        <Quote size={16} color={T.accent} strokeWidth={2.2} style={{ flexShrink: 0, marginTop: 2 }} />
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 12.5, color: T.light, lineHeight: 1.55, fontStyle: "italic" }}>{quote.t}</div>
           {quote.a && <div style={{ fontSize: 10, color: T.faint, marginTop: 5, fontWeight: 600 }}>— {quote.a}</div>}
@@ -583,8 +579,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                     }}
                     style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 4px", background: "transparent", border: "none", borderBottom: i < notifs.length - 1 ? `1px solid ${T.borderSoft}` : "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
                   >
-                    <span style={{ width: 40, height: 40, borderRadius: 13, background: n.warn ? "rgba(251,191,36,0.13)" : n.info ? T.blueSoftBg : T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <n.Icon size={17} color={n.warn ? T.yellow : n.info ? T.blue : T.accent} strokeWidth={2.2} />
+                    <span style={{ width: 40, height: 40, borderRadius: 13, background: n.warn ? "rgba(251,191,36,0.13)" : T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <n.Icon size={17} color={n.warn ? T.yellow : T.accent} strokeWidth={2.2} />
                     </span>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H }}>{n.t}</span>

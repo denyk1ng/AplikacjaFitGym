@@ -123,7 +123,7 @@ export function CalendarTab({ goTraining, onLogChanged }) {
       {overdueList.length > 0 ? (
         <div className="fu" style={{ animationDelay: ".08s", display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(251,191,36,0.09)", border: "1px solid rgba(251,191,36,0.3)", borderRadius: 18, padding: "12px 14px", marginBottom: 16 }}>
           <Info size={17} color={T.yellow} strokeWidth={2.3} style={{ flexShrink: 0, marginTop: 1 }} />
-          <div style={{ fontSize: 12.5, color: T.light, lineHeight: 1.55 }}>
+          <div style={{ fontSize: 12.5, color: "#fde68a", lineHeight: 1.55 }}>
             <strong style={{ color: T.yellow }}>
               Nie {overdueList.length > 1 ? "zrobiłeś treningów" : "zrobiłeś treningu"} {overdueList.join(" i ")}
             </strong>{" "}
@@ -135,7 +135,7 @@ export function CalendarTab({ goTraining, onLogChanged }) {
           <span style={{ width: 26, height: 26, borderRadius: "50%", background: T.ok, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <Check size={15} color="#000" strokeWidth={3} />
           </span>
-          <div style={{ fontSize: 12.5, color: T.light, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12.5, color: "#8fe5c2", lineHeight: 1.5 }}>
             <strong style={{ color: T.ok }}>Komplet!</strong> Wszystkie trzy treningi w tym tygodniu zrobione. Reszta tygodnia to cardio i regeneracja.
           </div>
         </div>

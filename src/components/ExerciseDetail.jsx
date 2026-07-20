@@ -157,8 +157,8 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
         {/* SZACOWANE 1RM — wzór Epley, na bazie ciężaru roboczego i docelowych powtórzeń */}
         {oneRM !== null && (
           <div className="fu" style={{ animationDelay: ".075s", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 16 }}>
-            <span style={{ width: 40, height: 40, borderRadius: 13, background: T.blueSoftBg, border: `1px solid ${T.blueSoftBorder}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <TrendingUp size={18} color={T.blue} strokeWidth={2.2} />
+            <span style={{ width: 40, height: 40, borderRadius: 13, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <TrendingUp size={18} color={T.soft} strokeWidth={2.2} />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Szacowane 1RM</div>

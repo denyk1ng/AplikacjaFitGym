@@ -191,12 +191,11 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
         <div style={{ display: "flex", gap: 10, alignItems: "flex-end", height: 118 }}>
           {vols.map((v) => (
             <div key={v.label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%" }}>
-              <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 10, color: v.isCurrent ? T.accent : v.vol > 0 ? T.blue : "transparent", lineHeight: 1 }}>
+              <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 10, color: v.isCurrent ? T.accent : v.vol > 0 ? T.sub : "transparent", lineHeight: 1 }}>
                 {v.vol > 0 ? fmtVol(v.vol) : "0"}
               </span>
               <div style={{ flex: 1, width: "100%", maxWidth: 26, display: "flex", alignItems: "flex-end" }}>
-                {/* przeszłe tygodnie niebieskie (kontekst), bieżący limonkowy (teraz) */}
-                <div style={{ width: "100%", height: `${Math.max((v.vol / maxVol) * 100, 4)}%`, borderRadius: 7, background: v.isCurrent ? T.accent : v.vol > 0 ? T.blueSoft : T.card2, border: v.vol === 0 ? `1px dashed ${T.borderSoft}` : "none", transition: "height .5s cubic-bezier(.22,1,.36,1)" }} />
+                <div style={{ width: "100%", height: `${Math.max((v.vol / maxVol) * 100, 4)}%`, borderRadius: 7, background: v.isCurrent ? T.accent : v.vol > 0 ? T.track : T.card2, border: v.vol === 0 ? `1px dashed ${T.borderSoft}` : "none", transition: "height .5s cubic-bezier(.22,1,.36,1)" }} />
               </div>
               <span style={{ fontSize: 8.5, fontWeight: 700, fontFamily: FONT_NUM, color: v.isCurrent ? T.accent : T.faint }}>{v.isCurrent ? "TERAZ" : v.label}</span>
             </div>
@@ -381,9 +380,9 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
                     setSharingProg(false);
                   }
                 }}
-                style={{ width: "100%", marginTop: 12, background: T.blueSoftBg, color: "#fff", border: `1px solid ${T.blueSoftBorder}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 13, padding: "12px 18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                style={{ width: "100%", marginTop: 12, background: "transparent", color: T.light, border: `1.5px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 13, padding: "12px 18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
               >
-                <Share2 size={15} color={T.blue} strokeWidth={2.2} />
+                <Share2 size={15} strokeWidth={2.2} />
                 {sharingProg ? "Generuję…" : "Udostępnij progres"}
               </button>
             </div>
@@ -424,11 +423,10 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
           Szczegółowe statystyki
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          {/* dwuakcentowo zamiast tęczy: limonka = efekty wysiłku, niebieski = dane */}
           {[
             { v: log.filter((e) => ["A", "B", "C"].includes(e.type)).length, l: "treningów zaliczonych", c: T.accent },
-            { v: `${gain >= 0 ? "+" : ""}${pl(gain)} kg`, l: "łączny przyrost", c: T.accent },
-            { v: snapshots.length, l: "zapisów ciężarów", c: T.blue },
+            { v: `${gain >= 0 ? "+" : ""}${pl(gain)} kg`, l: "łączny przyrost", c: T.ok },
+            { v: snapshots.length, l: "zapisów ciężarów", c: T.orange },
             {
               v: pl(
                 snapshots.length
@@ -436,7 +434,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
                   : 0
               ),
               l: "średnio / tydzień",
-              c: T.blue,
+              c: T.purple,
             },
           ].map((s, i) => (
             <div key={i} style={{ background: T.card2, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "13px 12px" }}>

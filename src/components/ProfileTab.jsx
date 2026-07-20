@@ -639,8 +639,8 @@ export function ProfileTab() {
           onClick={exportData}
           style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: "transparent", border: "none", borderBottom: `1px solid ${T.borderSoft}`, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
         >
-          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.blueSoftBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Download size={17} color={T.blue} strokeWidth={2.2} />
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Download size={17} color={T.accent} strokeWidth={2.2} />
           </span>
           <span style={{ flex: 1 }}>
             <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Eksportuj dane (kopia zapasowa)</span>
@@ -651,8 +651,8 @@ export function ProfileTab() {
           onClick={() => fileRef.current && fileRef.current.click()}
           style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "13px 16px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}
         >
-          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.blueSoftBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Upload size={17} color={T.blue} strokeWidth={2.2} />
+          <span style={{ width: 38, height: 38, borderRadius: 12, background: T.inset, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Upload size={17} color={T.accent} strokeWidth={2.2} />
           </span>
           <span style={{ flex: 1 }}>
             <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "'Urbanist',sans-serif" }}>Przywróć z kopii</span>
