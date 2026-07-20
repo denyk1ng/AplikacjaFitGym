@@ -5,6 +5,7 @@ import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
 import { EditNum } from "./Editable.jsx";
 import { EmptyState } from "./EmptyState.jsx";
+import { MuscleHighlight } from "./MuscleMap.jsx";
 import { estimate1RM } from "../lib/utils.js";
 
 const U = "'Urbanist',sans-serif";
@@ -127,6 +128,18 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
               {l}
             </span>
           ))}
+        </div>
+
+        {/* TRENOWANA PARTIA — sylwetka z podświetlonym mięśniem tego ćwiczenia */}
+        <div className="fu" style={{ animationDelay: ".06s", display: "flex", alignItems: "center", gap: 16, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 16 }}>
+          <MuscleHighlight cat={ex.cat} width={72} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft }}>Trenowana partia</div>
+            <div style={{ fontFamily: U, fontWeight: 700, fontSize: "1.25rem", color: T.accent, marginTop: 4 }}>{CAT_LABEL[ex.cat] || ex.cat}</div>
+            <div style={{ fontSize: 11, color: T.sub, marginTop: 4, lineHeight: 1.5 }}>
+              Główny mięsień pracujący w tym ruchu — podświetlony na sylwetce.
+            </div>
+          </div>
         </div>
 
         {/* CIĘŻAR ROBOCZY — edycja z auto-zapisem */}

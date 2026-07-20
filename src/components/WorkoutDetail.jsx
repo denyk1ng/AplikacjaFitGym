@@ -5,11 +5,23 @@ import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
 import { estimateWorkoutMin } from "../lib/utils.js";
+import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EditNum, EditStr } from "./Editable.jsx";
-import { MuscleMap, MuscleThumb } from "./MuscleMap.jsx";
+import { MuscleMap } from "./MuscleMap.jsx";
 import { loadWorkoutLog } from "../lib/workoutLog.js";
 
 const U = "'Urbanist',sans-serif";
+
+// miniatury ćwiczeń wg partii mięśniowej (do czasu własnych zdjęć per ćwiczenie)
+const THUMB = {
+  KLATKA: PHOTOS.hero,
+  PLECY: PHOTOS.A,
+  BARKI: PHOTOS.C,
+  BICEPS: PHOTOS.A,
+  TRICEPS: PHOTOS.A,
+  NOGI: PHOTOS.B,
+  BRZUCH: PHOTOS.stretch,
+};
 
 // oryginalne wartości ćwiczenia z planu bazowego — do wykrywania zmian
 // (chip "ZMIENIONE") i przywracania domyślnych w trybie edycji
@@ -258,10 +270,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
                 transition: "border-color .2s",
               }}
             >
-              {/* kółko z sylwetką i podświetloną partią — jak w apkach typu Fitbod */}
-              <span style={{ alignSelf: "flex-start" }}>
-                <MuscleThumb cat={ex.cat} size={54} />
-              </span>
+              <img src={EX_THUMB[ex.id] || THUMB[ex.cat] || PHOTOS.hero} alt="" style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", flexShrink: 0, alignSelf: "flex-start" }} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 {editMode ? (
                   <>

@@ -131,11 +131,11 @@ export function MuscleMap({ setsByCat }) {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "center", gap: 18 }}>
-        <MuscleFigure side="front" fillFor={fillFor} width={124} label="PRZÓD" />
-        <MuscleFigure side="back" fillFor={fillFor} width={124} label="TYŁ" />
+      <div style={{ display: "flex", justifyContent: "center", gap: 14 }}>
+        <MuscleFigure side="front" fillFor={fillFor} width={86} label="PRZÓD" />
+        <MuscleFigure side="back" fillFor={fillFor} width={86} label="TYŁ" />
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", marginTop: 12 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", marginTop: 10 }}>
         {trained.map(([cat, s]) => (
           <span key={cat} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 99, padding: "4px 10px", fontSize: 10.5, fontWeight: 700, color: T.light, fontFamily: "'Urbanist',sans-serif" }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: lime((0.4 + 0.6 * Math.min(s / maxSets, 1)).toFixed(2)) }} />
@@ -149,33 +149,10 @@ export function MuscleMap({ setsByCat }) {
 
 // partie widoczne tylko od tyłu pokazujemy na tylnej figurze
 const BACK_ONLY = { PLECY: true, TRICEPS: true };
-// kadr miniatury: górne partie = tors, nogi = dół sylwetki
-const THUMB_VIEW = {
-  NOGI: "40 150 120 178",
-  BRZUCH: "44 44 112 124",
-  DEFAULT: "40 26 120 132",
-};
 
-// małe kółko z sylwetką i JEDNĄ podświetloną partią — lista ćwiczeń
-export function MuscleThumb({ cat, size = 54 }) {
+// pojedyncza figura z JEDNĄ podświetloną partią — ekran szczegółów ćwiczenia
+export function MuscleHighlight({ cat, width = 84 }) {
   const side = BACK_ONLY[cat] ? "back" : "front";
-  const muscles = side === "front" ? FRONT_MUSCLES : BACK_MUSCLES;
   const fillFor = (c) => (c === cat ? lime(0.95) : MUSCLE_OFF);
-  const vb = THUMB_VIEW[cat] || THUMB_VIEW.DEFAULT;
-  return (
-    <span
-      style={{ width: size, height: size, borderRadius: "50%", background: T.card2, border: `1px solid ${T.borderSoft}`, display: "inline-flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}
-      aria-hidden
-    >
-      <svg width={size - 8} height={size - 8} viewBox={vb}>
-        <BodyBase />
-        {muscles.map((m, i) => (
-          <g key={i}>
-            <path d={m.d} fill={fillFor(m.cat)} stroke={SEP} strokeWidth="1.2" />
-            {m.mirror && <path d={m.d} fill={fillFor(m.cat)} stroke={SEP} strokeWidth="1.2" transform="translate(200,0) scale(-1,1)" />}
-          </g>
-        ))}
-      </svg>
-    </span>
-  );
+  return <MuscleFigure side={side} fillFor={fillFor} width={width} label={side === "back" ? "WIDOK OD TYŁU" : "WIDOK OD PRZODU"} />;
 }
