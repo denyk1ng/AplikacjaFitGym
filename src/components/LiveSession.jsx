@@ -452,9 +452,9 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
             }
           }}
           className="fu"
-          style={{ animationDelay: ".42s", marginTop: 22, width: "100%", background: "transparent", color: T.light, border: `1.5px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          style={{ animationDelay: ".42s", marginTop: 22, width: "100%", background: T.blueSoftBg, color: "#fff", border: `1px solid ${T.blueSoftBorder}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "14px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
         >
-          <Share2 size={16} strokeWidth={2.2} />
+          <Share2 size={16} color={T.blue} strokeWidth={2.2} />
           {sharing ? "Generuję…" : "Udostępnij trening"}
         </button>
 

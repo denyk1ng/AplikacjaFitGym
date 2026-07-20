@@ -32,8 +32,17 @@ export const T = {
   // kolory funkcyjne
   ok: "#34d399",
   danger: "#f43f5e",
-  blue: "#2563eb",
+  blue: "#3b82f6",
   orange: "#ff8a4d",
   purple: "#a78bfa",
   yellow: "#fbbf24",
+
+  // niebieski jako DRUGI akcent systemu (obok limonki), świadoma para:
+  //   limonka  = akcja główna, wysiłek, postęp, sukces (CTA, wykresy progresu)
+  //   niebieski = informacja, kontekst danych, akcje drugorzędne
+  // (rozjaśniony z #2563eb do #3b82f6 — lepszy kontrast na ciemnym tle
+  // i czystsze zestawienie z limonką; to nadal kolor Treningu A)
+  blueSoftBg: "rgba(59,130,246,0.12)",
+  blueSoftBorder: "rgba(59,130,246,0.35)",
+  blueSoft: "rgba(59,130,246,0.55)",
 };
