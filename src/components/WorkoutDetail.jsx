@@ -5,22 +5,11 @@ import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
 import { estimateWorkoutMin } from "../lib/utils.js";
-import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EditNum, EditStr } from "./Editable.jsx";
-import { MuscleMap } from "./MuscleMap.jsx";
+import { MuscleMap, MuscleThumb } from "./MuscleMap.jsx";
+import { loadWorkoutLog } from "../lib/workoutLog.js";
 
 const U = "'Urbanist',sans-serif";
-
-// miniatury ćwiczeń wg partii mięśniowej (do czasu własnych zdjęć per ćwiczenie)
-const THUMB = {
-  KLATKA: PHOTOS.hero,
-  PLECY: PHOTOS.A,
-  BARKI: PHOTOS.C,
-  BICEPS: PHOTOS.A,
-  TRICEPS: PHOTOS.A,
-  NOGI: PHOTOS.B,
-  BRZUCH: PHOTOS.stretch,
-};
 
 // oryginalne wartości ćwiczenia z planu bazowego — do wykrywania zmian
 // (chip "ZMIENIONE") i przywracania domyślnych w trybie edycji
@@ -32,8 +21,10 @@ function origOf(id) {
   return null;
 }
 
-// trudność dnia: serie ważone długością przerwy (dłuższa przerwa = cięższy
-// bój wielostawowy). Skala 5 stopni, niebieski = łatwy, czerwony = trudny.
+// Skala trudności 5 stopni, niebieski = łatwy, czerwony = trudny.
+// Priorytet mają PRAWDZIWE odczucia użytkownika: RPE zaznaczane po seriach
+// w sesji live (perExercise.avgRpe w workout_log). Gdy danych RPE brak
+// (świeży plan), trudność liczona z planu: serie ważone długością przerwy.
 const DIFF_LEVELS = [
   { label: "Łatwy", color: T.blue },
   { label: "Umiarkowany", color: T.ok },
@@ -41,10 +32,22 @@ const DIFF_LEVELS = [
   { label: "Wymagający", color: T.orange },
   { label: "Trudny", color: T.danger },
 ];
-function difficultyOf(exs) {
+const rpeLevel = (rpe) => Math.min(Math.max(Math.round(rpe) - 6, 0), 4); // RPE 6→0 … 10→4
+function difficultyOf(exs, rpeMap) {
+  const rpes = exs.map((e) => rpeMap[e.id]?.rpe).filter((r) => r != null);
+  if (rpes.length >= 3) {
+    const avg = rpes.reduce((a, b) => a + b, 0) / rpes.length;
+    return { level: rpeLevel(avg), ...DIFF_LEVELS[rpeLevel(avg)], src: "z Twoich RPE" };
+  }
   const pts = exs.reduce((s, e) => s + e.sets * (1 + (e.rest || 90) / 180), 0);
   const level = pts < 32 ? 0 : pts < 40 ? 1 : pts < 48 ? 2 : pts < 56 ? 3 : 4;
-  return { level, ...DIFF_LEVELS[level] };
+  return { level, ...DIFF_LEVELS[level], src: "z planu" };
+}
+
+// "dziś" / "wczoraj" / "5 dni temu" — podpis przy pasku RPE ćwiczenia
+function agoLabel(ts) {
+  const d = Math.round((Date.now() - ts) / 86400000);
+  return d <= 0 ? "dziś" : d === 1 ? "wczoraj" : d < 14 ? `${d} dni temu` : `${Math.round(d / 7)} tyg. temu`;
 }
 
 function StatCell({ Icon, label, value, unit, sub, divider }) {
@@ -66,6 +69,21 @@ function StatCell({ Icon, label, value, unit, sub, divider }) {
 export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onStart, onExercise, onChangeWeight, onChangeReps, onChangeSets, onChangeName, onChangeRest, onReset }) {
   const [favs, setFavs] = useState([]);
   const [editMode, setEditMode] = useState(false); // panel edycji ćwiczeń (ołówek w hero)
+
+  // ostatnie RPE per ćwiczenie z dziennika sesji — zasila pasek trudności
+  // ćwiczenia ("jak ciężko było ostatnio") i trudność całego dnia
+  const [rpeMap, setRpeMap] = useState({});
+  useEffect(() => {
+    loadWorkoutLog().then((log) => {
+      const m = {};
+      for (let i = log.length - 1; i >= 0; i--) {
+        (log[i].perExercise || []).forEach((pe) => {
+          if (pe.avgRpe != null && !m[pe.id]) m[pe.id] = { rpe: pe.avgRpe, ts: log[i].ts };
+        });
+      }
+      setRpeMap(m);
+    });
+  }, []);
   useEffect(() => {
     storage.get("fav_exercises").then((r) => {
       try {
@@ -95,7 +113,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
   // atomowy reset w App.jsx — pojedyncze wywołania change* nadpisywałyby się
   const restoreDefaults = (ex) => onReset && onReset(ex.id);
 
-  const diff = difficultyOf(exs);
+  const diff = difficultyOf(exs, rpeMap);
   const setsByCat = exs.reduce((m, e) => {
     m[e.cat] = (m[e.cat] || 0) + e.sets;
     return m;
@@ -186,6 +204,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 8.5, color: T.faint, marginTop: 5, fontWeight: 600 }}>
             <span>łatwy</span>
+            <span>{diff.src}</span>
             <span>trudny</span>
           </div>
         </div>
@@ -239,7 +258,10 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
                 transition: "border-color .2s",
               }}
             >
-              <img src={EX_THUMB[ex.id] || THUMB[ex.cat] || PHOTOS.hero} alt="" style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", flexShrink: 0, alignSelf: "flex-start" }} />
+              {/* kółko z sylwetką i podświetloną partią — jak w apkach typu Fitbod */}
+              <span style={{ alignSelf: "flex-start" }}>
+                <MuscleThumb cat={ex.cat} size={54} />
+              </span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 {editMode ? (
                   <>
@@ -277,6 +299,23 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
                         </span>
                       )}
                     </div>
+                    {/* trudność ćwiczenia z OSTATNIEGO wykonania — RPE zaznaczone
+                        w sesji live (np. tydzień temu); brak danych = brak paska */}
+                    {rpeMap[ex.id] && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 7 }}>
+                        <span style={{ display: "flex", gap: 3 }}>
+                          {DIFF_LEVELS.map((l, j) => (
+                            <span
+                              key={j}
+                              style={{ width: 15, height: 5, borderRadius: 99, background: j <= rpeLevel(rpeMap[ex.id].rpe) ? DIFF_LEVELS[rpeLevel(rpeMap[ex.id].rpe)].color : T.track }}
+                            />
+                          ))}
+                        </span>
+                        <span style={{ fontSize: 9, color: T.faint, fontWeight: 600 }}>
+                          RPE {String(rpeMap[ex.id].rpe).replace(".", ",")} · {agoLabel(rpeMap[ex.id].ts)}
+                        </span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
