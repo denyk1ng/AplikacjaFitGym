@@ -32,11 +32,15 @@ function equipmentOf(name) {
   return "Ciężar własny";
 }
 
-export function ExerciseDetail({ exerciseId, snapshots, currentWeight, onChangeWeight, onBack }) {
+export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentName, onChangeWeight, onBack }) {
   const [tab, setTab] = useState("howto");
   const [playing, setPlaying] = useState(true);
 
-  const ex = useMemo(() => findExercise(exerciseId), [exerciseId]);
+  // nazwa z żywego planu (użytkownik mógł ją zmienić w panelu edycji dnia)
+  const ex = useMemo(() => {
+    const base = findExercise(exerciseId);
+    return base && currentName ? { ...base, name: currentName } : base;
+  }, [exerciseId, currentName]);
   if (!ex) return null;
 
   const imgA = EX_IMG[ex.id];

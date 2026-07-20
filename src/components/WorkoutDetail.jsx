@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Flame, Heart, Play, Dumbbell, Layers, Clock } from "lucide-react";
+import { ArrowLeft, Flame, Heart, Play, Dumbbell, Layers, Clock, Pencil, Check, RotateCcw, Gauge, PersonStanding } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
 import { estimateWorkoutMin } from "../lib/utils.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
+import { EditNum, EditStr } from "./Editable.jsx";
+import { MuscleMap } from "./MuscleMap.jsx";
 
 const U = "'Urbanist',sans-serif";
 
@@ -19,6 +21,31 @@ const THUMB = {
   NOGI: PHOTOS.B,
   BRZUCH: PHOTOS.stretch,
 };
+
+// oryginalne wartości ćwiczenia z planu bazowego — do wykrywania zmian
+// (chip "ZMIENIONE") i przywracania domyślnych w trybie edycji
+function origOf(id) {
+  for (const day of Object.values(EXERCISES_DATA)) {
+    const e = day.exercises.find((x) => x.id === id);
+    if (e) return e;
+  }
+  return null;
+}
+
+// trudność dnia: serie ważone długością przerwy (dłuższa przerwa = cięższy
+// bój wielostawowy). Skala 5 stopni, niebieski = łatwy, czerwony = trudny.
+const DIFF_LEVELS = [
+  { label: "Łatwy", color: T.blue },
+  { label: "Umiarkowany", color: T.ok },
+  { label: "Średni", color: T.yellow },
+  { label: "Wymagający", color: T.orange },
+  { label: "Trudny", color: T.danger },
+];
+function difficultyOf(exs) {
+  const pts = exs.reduce((s, e) => s + e.sets * (1 + (e.rest || 90) / 180), 0);
+  const level = pts < 32 ? 0 : pts < 40 ? 1 : pts < 48 ? 2 : pts < 56 ? 3 : 4;
+  return { level, ...DIFF_LEVELS[level] };
+}
 
 function StatCell({ Icon, label, value, unit, sub, divider }) {
   return (
@@ -36,8 +63,9 @@ function StatCell({ Icon, label, value, unit, sub, divider }) {
   );
 }
 
-export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onStart, onExercise }) {
+export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onStart, onExercise, onChangeWeight, onChangeReps, onChangeSets, onChangeName, onChangeRest, onReset }) {
   const [favs, setFavs] = useState([]);
+  const [editMode, setEditMode] = useState(false); // panel edycji ćwiczeń (ołówek w hero)
   useEffect(() => {
     storage.get("fav_exercises").then((r) => {
       try {
@@ -59,6 +87,21 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
   const estMin = estimateWorkoutMin(exs);
   const pad2 = (n) => String(n).padStart(2, "0");
 
+  // które ćwiczenie odbiega od planu bazowego (edytowane przez użytkownika)
+  const isModified = (ex) => {
+    const o = origOf(ex.id);
+    return !!o && (o.name !== ex.name || o.sets !== ex.sets || String(o.reps) !== String(ex.reps) || o.weight !== ex.weight || o.rest !== ex.rest);
+  };
+  // atomowy reset w App.jsx — pojedyncze wywołania change* nadpisywałyby się
+  const restoreDefaults = (ex) => onReset && onReset(ex.id);
+
+  const diff = difficultyOf(exs);
+  const setsByCat = exs.reduce((m, e) => {
+    m[e.cat] = (m[e.cat] || 0) + e.sets;
+    return m;
+  }, {});
+  const nameValidate = (v) => v.trim().length >= 3 && v.trim().length <= 48;
+
   return (
     <div style={{ margin: "-20px -18px 0", paddingBottom: 178 }}>
       {/* HERO */}
@@ -77,6 +120,15 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
           style={{ position: "absolute", top: 18, right: 18, width: 40, height: 40, borderRadius: 13, background: "rgba(23,23,23,0.65)", backdropFilter: "blur(8px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           <Flame size={18} color={T.accent} strokeWidth={2.2} />
+        </button>
+        {/* tryb edycji planu dnia — ołówek; aktywny zmienia się w "gotowe" */}
+        <button
+          onClick={() => setEditMode(!editMode)}
+          title={editMode ? "Zakończ edycję" : "Edytuj ćwiczenia"}
+          aria-label={editMode ? "Zakończ edycję" : "Edytuj ćwiczenia"}
+          style={{ position: "absolute", top: 18, right: 66, width: 40, height: 40, borderRadius: 13, background: editMode ? T.accent : "rgba(23,23,23,0.65)", backdropFilter: "blur(8px)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background .2s" }}
+        >
+          {editMode ? <Check size={18} color="#000" strokeWidth={2.6} /> : <Pencil size={17} color="#fff" strokeWidth={2.2} />}
         </button>
       </div>
 
@@ -118,49 +170,144 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
           <StatCell Icon={Clock} label="Czas" value={estMin} unit="min" sub="szacunkowo" divider />
         </div>
 
+        {/* POZIOM TRUDNOŚCI — 5 segmentów, niebieski = łatwy → czerwony = trudny */}
+        <div className="fu" style={{ animationDelay: ".11s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <Gauge size={14} color={diff.color} strokeWidth={2.4} />
+            <span style={{ flex: 1, fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Poziom trudności</span>
+            <span style={{ fontSize: 11, fontWeight: 800, color: diff.color, background: `${diff.color}1f`, border: `1px solid ${diff.color}55`, borderRadius: 99, padding: "3px 10px" }}>
+              {diff.label}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 5 }}>
+            {DIFF_LEVELS.map((l, i) => (
+              <div key={l.label} style={{ flex: 1, height: 8, borderRadius: 99, background: i <= diff.level ? l.color : T.track, opacity: i <= diff.level ? 1 : 0.7, transition: "background .3s" }} />
+            ))}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 8.5, color: T.faint, marginTop: 5, fontWeight: 600 }}>
+            <span>łatwy</span>
+            <span>trudny</span>
+          </div>
+        </div>
+
+        {/* TRENOWANE PARTIE — sylwetka przód/tył z podświetleniem wg serii */}
+        <div className="fu" style={{ animationDelay: ".12s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px 14px", marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <PersonStanding size={15} color={T.accent} strokeWidth={2.4} />
+            <span style={{ flex: 1, fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Trenowane partie</span>
+            <span style={{ fontSize: 9.5, color: T.faint }}>jaśniej = więcej serii</span>
+          </div>
+          <MuscleMap setsByCat={setsByCat} />
+        </div>
+
         {/* LISTA ĆWICZEŃ */}
         <div className="fu" style={{ animationDelay: ".14s", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: T.soft }}>Ćwiczenia</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: editMode ? T.accent : T.soft }}>
+            {editMode ? "Edycja ćwiczeń" : "Ćwiczenia"}
+          </span>
           <span style={{ fontSize: 11, color: T.sub }}>{exs.length} łącznie</span>
         </div>
 
-        {sortedExs.map((ex, i) => (
-          <div
-            key={ex.id}
-            className="fu"
-            onClick={() => onExercise && onExercise(ex.id)}
-            style={{
-              animationDelay: `${0.16 + i * 0.04}s`,
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              background: T.card,
-              border: `1px solid ${T.borderSoft}`,
-              borderRadius: 18,
-              padding: 10,
-              marginBottom: 10,
-              cursor: onExercise ? "pointer" : "default",
-            }}
-          >
-            <img src={EX_THUMB[ex.id] || THUMB[ex.cat] || PHOTOS.hero} alt="" style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", flexShrink: 0 }} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", fontFamily: U, lineHeight: 1.25 }}>{ex.name}</div>
-              <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".08em", color: T.sub, marginTop: 4, textTransform: "uppercase" }}>
-                {ex.sets} SERIE · {ex.reps} POWT.{ex.weight > 0 ? ` · ${String(ex.weight).replace(".", ",")} ${ex.unit.toUpperCase()}` : ""}
-              </div>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFav(ex.id);
-              }}
-              title="Ulubione" aria-label="Ulubione"
-              style={{ width: 40, height: 40, borderRadius: "50%", background: favs.includes(ex.id) ? T.accent : T.inset, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}
-            >
-              <Heart size={17} color={favs.includes(ex.id) ? "#000" : T.soft} fill={favs.includes(ex.id) ? "#000" : "none"} strokeWidth={2.1} />
-            </button>
+        {/* podpowiedź trybu edycji */}
+        {editMode && (
+          <div className="fu" style={{ display: "flex", gap: 10, alignItems: "flex-start", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 14, padding: "10px 13px", marginBottom: 12 }}>
+            <Pencil size={13} color={T.accent} strokeWidth={2.4} style={{ flexShrink: 0, marginTop: 2 }} />
+            <span style={{ fontSize: 11, color: T.light, lineHeight: 1.5 }}>
+              Kliknij wartość, aby ją zmienić — zapis jest automatyczny, a zmiana ciężaru od razu dopisuje punkt do wykresu progresu. Edytowane ćwiczenia dostają znacznik <strong style={{ color: T.accent }}>ZMIENIONE</strong>; strzałka przywraca wartości z planu.
+            </span>
           </div>
-        ))}
+        )}
+
+        {sortedExs.map((ex, i) => {
+          const mod = isModified(ex);
+          return (
+            <div
+              key={ex.id}
+              className="fu"
+              onClick={() => !editMode && onExercise && onExercise(ex.id)}
+              style={{
+                animationDelay: `${0.16 + i * 0.04}s`,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                background: T.card,
+                border: `1px solid ${editMode ? T.accentSoftBorder : T.borderSoft}`,
+                borderRadius: 18,
+                padding: 10,
+                marginBottom: 10,
+                cursor: !editMode && onExercise ? "pointer" : "default",
+                transition: "border-color .2s",
+              }}
+            >
+              <img src={EX_THUMB[ex.id] || THUMB[ex.cat] || PHOTOS.hero} alt="" style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", flexShrink: 0, alignSelf: "flex-start" }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {editMode ? (
+                  <>
+                    {/* nazwa — edytowalna (np. inna maszyna na Twojej siłowni) */}
+                    <div style={{ fontSize: 13.5, fontWeight: 700, fontFamily: U, lineHeight: 1.3 }}>
+                      <EditStr value={ex.name} onChange={(v) => onChangeName && onChangeName(ex.id, v)} validate={nameValidate} width={190} align="left" />
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", marginTop: 7, fontSize: 11, color: T.sub }}>
+                      <span>
+                        serie: <EditNum value={ex.sets} min={1} max={20} onChange={(v) => onChangeSets && onChangeSets(ex.id, v)} />
+                      </span>
+                      <span>
+                        powt.: <EditStr value={String(ex.reps)} onChange={(v) => onChangeReps && onChangeReps(ex.id, v)} />
+                      </span>
+                      {ex.weight > 0 && (
+                        <span>
+                          ciężar: <EditNum value={ex.weight} unit={ex.unit} min={0.5} max={500} onChange={(v) => onChangeWeight && onChangeWeight(ex.id, v)} />
+                        </span>
+                      )}
+                      <span>
+                        przerwa: <EditNum value={ex.rest} unit="s" min={15} max={600} onChange={(v) => onChangeRest && onChangeRest(ex.id, v)} />
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", fontFamily: U, lineHeight: 1.25 }}>{ex.name}</div>
+                    <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".08em", color: T.sub, marginTop: 4, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                      <span>
+                        {ex.sets} SERIE · {ex.reps} POWT.{ex.weight > 0 ? ` · ${String(ex.weight).replace(".", ",")} ${ex.unit.toUpperCase()}` : ""}
+                      </span>
+                      {mod && (
+                        <span style={{ background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, color: T.accent, borderRadius: 99, padding: "1px 7px", fontSize: 8, letterSpacing: ".1em" }}>
+                          ZMIENIONE
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+              {editMode ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    restoreDefaults(ex);
+                  }}
+                  disabled={!mod}
+                  title="Przywróć wartości z planu"
+                  aria-label="Przywróć wartości z planu"
+                  style={{ width: 40, height: 40, borderRadius: "50%", background: T.inset, border: "none", cursor: mod ? "pointer" : "default", opacity: mod ? 1 : 0.3, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, alignSelf: "flex-start" }}
+                >
+                  <RotateCcw size={16} color={mod ? T.accent : T.soft} strokeWidth={2.2} />
+                </button>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFav(ex.id);
+                  }}
+                  title="Ulubione" aria-label="Ulubione"
+                  style={{ width: 40, height: 40, borderRadius: "50%", background: favs.includes(ex.id) ? T.accent : T.inset, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}
+                >
+                  <Heart size={17} color={favs.includes(ex.id) ? "#000" : T.soft} fill={favs.includes(ex.id) ? "#000" : "none"} strokeWidth={2.1} />
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* PRZYKLEJONY CTA */}

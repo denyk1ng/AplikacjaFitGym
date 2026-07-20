@@ -71,7 +71,7 @@ export function EditNum({ value, unit, onChange, min = 0, max = 999 }) {
 // (przyjmie "8", "8-10", "8 +AMRAP", "30s"; odrzuci pusty tekst i "banan")
 const defaultValidate = (v) => /\d/.test(v) && v.trim().length > 0 && v.trim().length <= 14;
 
-export function EditStr({ value, onChange, validate = defaultValidate }) {
+export function EditStr({ value, onChange, validate = defaultValidate, width = 70, align = "center" }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
   const ref = useRef(null);
@@ -100,7 +100,7 @@ export function EditStr({ value, onChange, validate = defaultValidate }) {
             setVal(value);
           }
         }}
-        style={{ ...inputStyle, width: 70 }}
+        style={{ ...inputStyle, width, textAlign: align }}
       />
     );
   return (

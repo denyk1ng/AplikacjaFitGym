@@ -145,7 +145,7 @@ export default function App() {
               ...dayData,
               exercises: dayData.exercises.map((ex) => {
                 const s = saved[ex.id];
-                return s ? { ...ex, weight: s.weight ?? ex.weight, sets: s.sets ?? ex.sets, reps: s.reps ?? ex.reps, rest: s.rest ?? ex.rest } : ex;
+                return s ? { ...ex, weight: s.weight ?? ex.weight, sets: s.sets ?? ex.sets, reps: s.reps ?? ex.reps, rest: s.rest ?? ex.rest, name: s.name ?? ex.name } : ex;
               }),
             };
           });
@@ -180,7 +180,7 @@ export default function App() {
       const data = {};
       Object.values(exState).forEach((day) => {
         day.exercises.forEach((ex) => {
-          data[ex.id] = { weight: ex.weight, sets: ex.sets, reps: ex.reps, rest: ex.rest };
+          data[ex.id] = { weight: ex.weight, sets: ex.sets, reps: ex.reps, rest: ex.rest, name: ex.name };
         });
       });
       await storage.set("plan_custom", JSON.stringify(data));
@@ -273,6 +273,56 @@ export default function App() {
         break;
       }
     }
+  };
+
+  // edycja nazwy i przerwy — panel edycji w widoku dnia (WorkoutDetail);
+  // nazwa nadpisuje planową (np. inna maszyna na Twojej siłowni), historia
+  // progresu zostaje przy tym samym id ćwiczenia
+  const changeName = (exerciseId, v) => {
+    for (const [dk, d] of Object.entries(exercises)) {
+      const i = d.exercises.findIndex((e) => e.id === exerciseId);
+      if (i >= 0) {
+        updateEx(dk, i, { ...d.exercises[i], name: v });
+        break;
+      }
+    }
+  };
+  const changeRest = (exerciseId, v) => {
+    for (const [dk, d] of Object.entries(exercises)) {
+      const i = d.exercises.findIndex((e) => e.id === exerciseId);
+      if (i >= 0) {
+        updateEx(dk, i, { ...d.exercises[i], rest: v });
+        break;
+      }
+    }
+  };
+
+  // przywrócenie ćwiczenia do wartości z planu bazowego — JEDNA atomowa
+  // aktualizacja wszystkich pól (sekwencja pojedynczych change* nadpisywałaby
+  // się nawzajem przez nieaktualne domknięcie na `exercises`); zmiana ciężaru
+  // dopisuje punkt progresu jak każda inna edycja ciężaru
+  const resetExercise = async (exerciseId) => {
+    let orig = null;
+    Object.values(EXERCISES_DATA).forEach((d) => {
+      const e = d.exercises.find((x) => x.id === exerciseId);
+      if (e) orig = e;
+    });
+    if (!orig) return;
+    let weightChanged = false;
+    const next = {};
+    Object.entries(exercises).forEach(([dk, d]) => {
+      next[dk] = {
+        ...d,
+        exercises: d.exercises.map((e) => {
+          if (e.id !== exerciseId) return e;
+          if (e.weight !== orig.weight) weightChanged = true;
+          return { ...e, name: orig.name, sets: orig.sets, reps: orig.reps, weight: orig.weight, rest: orig.rest };
+        }),
+      };
+    });
+    setExercises(next);
+    await persist(next);
+    if (weightChanged) saveSnapshot(buildSnapshot(next));
   };
 
   const dismissOnboard = () => {
@@ -393,6 +443,12 @@ export default function App() {
                 setExerciseId(id);
                 setTab("cwiczenie");
               }}
+              onChangeWeight={changeWeightAndSnapshot}
+              onChangeReps={changeReps}
+              onChangeSets={changeSets}
+              onChangeName={changeName}
+              onChangeRest={changeRest}
+              onReset={resetExercise}
             />
           )}
 
@@ -404,6 +460,13 @@ export default function App() {
                 for (const d of Object.values(exercises)) {
                   const e = d.exercises.find((x) => x.id === exerciseId);
                   if (e) return e.weight;
+                }
+                return null;
+              })()}
+              currentName={(() => {
+                for (const d of Object.values(exercises)) {
+                  const e = d.exercises.find((x) => x.id === exerciseId);
+                  if (e) return e.name;
                 }
                 return null;
               })()}
