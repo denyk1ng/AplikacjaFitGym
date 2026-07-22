@@ -321,35 +321,62 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           animationDelay: ".12s",
           position: "relative",
           overflow: "hidden",
-          background: "radial-gradient(130% 170% at 10% 0%, #d9ff6b 0%, #bcff31 46%, #a9ea27 78%, #93d31c 100%)",
+          background: "radial-gradient(135% 175% at 8% -5%, #e4ff85 0%, #cdff4d 24%, #bcff31 50%, #a3e522 76%, #86be13 100%)",
           borderRadius: 28,
           padding: "20px 18px 18px",
           marginBottom: 24,
           boxShadow: "0 20px 48px rgba(188,255,49,0.16)",
         }}
       >
-        {/* warstwa dekoracyjna: ukośne promienie + faliste smugi + kropki półtonowe */}
+        {/* warstwa dekoracyjna wg konceptu: szerokie promienie u góry z prawej,
+            gęsta wiązka falistych włókien światła przez środek, raster przy
+            lewej krawędzi, iskry i winieta w ciemniejszym prawym dolnym rogu */}
         <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, transparent 38%, rgba(255,255,255,0.18) 45%, transparent 52%, transparent 58%, rgba(255,255,255,0.10) 65%, transparent 71%)" }} />
           <div
             style={{
               position: "absolute",
               inset: 0,
               backgroundImage: "radial-gradient(rgba(0,0,0,0.13) 1.2px, transparent 1.2px)",
               backgroundSize: "11px 11px",
-              WebkitMaskImage: "radial-gradient(64% 58% at 6% 82%, #000 0%, transparent 72%)",
-              maskImage: "radial-gradient(64% 58% at 6% 82%, #000 0%, transparent 72%)",
+              WebkitMaskImage: "radial-gradient(58% 66% at 0% 58%, #000 0%, transparent 72%)",
+              maskImage: "radial-gradient(58% 66% at 0% 58%, #000 0%, transparent 72%)",
             }}
           />
-          <svg viewBox="0 0 394 196" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+          <svg viewBox="0 0 394 200" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+            <defs>
+              <filter id="heroBlurSoft" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="5" />
+              </filter>
+              <filter id="heroBlurFine" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="2" />
+              </filter>
+            </defs>
+            <g filter="url(#heroBlurSoft)" stroke="#ffffff" strokeLinecap="round">
+              <line x1="200" y1="-30" x2="424" y2="108" strokeWidth="20" opacity="0.20" />
+              <line x1="256" y1="-42" x2="434" y2="72" strokeWidth="10" opacity="0.16" />
+              <line x1="148" y1="-44" x2="362" y2="92" strokeWidth="6" opacity="0.12" />
+            </g>
+            <path d="M-10,124 C70,80 150,152 235,116 C315,82 362,118 404,94" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="7" strokeLinecap="round" filter="url(#heroBlurFine)" />
             <g fill="none" strokeLinecap="round">
-              <path d="M-10,120 C80,88 180,152 250,122 C320,92 360,112 404,98" stroke="rgba(255,255,255,0.38)" strokeWidth="1.6" />
-              <path d="M-10,134 C90,102 190,166 260,136 C330,106 370,126 404,112" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-              <path d="M-10,150 C100,120 200,182 270,152 C340,122 380,142 404,128" stroke="rgba(23,23,23,0.10)" strokeWidth="1.2" />
-              <path d="M-10,166 C110,138 210,196 280,168 C350,140 386,156 404,146" stroke="rgba(255,255,255,0.14)" strokeWidth="1.1" />
+              <path d="M-10,102 C55,62 135,126 218,96 C298,68 350,98 404,78" stroke="rgba(255,255,255,0.36)" strokeWidth="1.6" />
+              <path d="M-10,112 C65,72 145,138 228,106 C308,76 356,108 404,86" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+              <path d="M-10,124 C70,80 150,152 235,116 C315,82 362,118 404,94" stroke="rgba(255,255,255,0.52)" strokeWidth="2.2" />
+              <path d="M-10,133 C78,92 158,160 242,124 C318,92 366,126 404,102" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
+              <path d="M-10,144 C85,106 168,170 250,136 C324,106 370,138 404,114" stroke="rgba(23,23,23,0.11)" strokeWidth="1.2" />
+              <path d="M-10,154 C92,120 175,180 256,148 C328,120 374,148 404,128" stroke="rgba(255,255,255,0.30)" strokeWidth="1.4" />
+              <path d="M-10,164 C98,132 182,190 262,160 C332,134 378,158 404,140" stroke="rgba(255,255,255,0.13)" strokeWidth="1" />
+              <path d="M-10,176 C108,148 192,200 272,172 C340,148 382,168 404,152" stroke="rgba(23,23,23,0.08)" strokeWidth="1" />
+            </g>
+            <g fill="#ffffff">
+              <circle cx="300" cy="178" r="1.2" opacity="0.30" />
+              <circle cx="330" cy="160" r="1" opacity="0.35" />
+              <circle cx="352" cy="150" r="1.4" opacity="0.30" />
+              <circle cx="368" cy="172" r="1" opacity="0.25" />
+              <circle cx="385" cy="140" r="1" opacity="0.20" />
+              <circle cx="342" cy="184" r="1" opacity="0.25" />
             </g>
           </svg>
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 60% at 100% 105%, rgba(23,23,23,0.16), transparent 62%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(72% 62% at 100% 105%, rgba(23,23,23,0.20), transparent 62%)" }} />
         </div>
 
         <div style={{ position: "relative" }}>
@@ -368,31 +395,61 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
               </Ring>
             </div>
           </div>
-          <button
-            onClick={hero.go}
-            style={{
-              marginTop: 18,
-              width: "100%",
-              background: "#171717",
-              color: "#fff",
-              border: "none",
-              borderRadius: 99,
-              fontFamily: H,
-              fontWeight: 800,
-              fontStyle: "italic",
-              fontSize: 14.5,
-              padding: "16px 20px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 9,
-              boxShadow: "0 0 0 1.5px rgba(222,255,122,0.9), 0 0 20px rgba(255,255,255,0.4), 0 8px 24px rgba(23,23,23,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
-            }}
-          >
-            <Play size={16} color={T.accent} fill={T.accent} strokeWidth={0} />
-            {hero.cta}
-          </button>
+          <div style={{ position: "relative", marginTop: 18 }}>
+            {/* trailsy światła "przelatujące" za przyciskiem — wystają nad i pod pastylką */}
+            <svg aria-hidden viewBox="0 0 380 84" preserveAspectRatio="none" style={{ position: "absolute", inset: "-15px -8px", width: "calc(100% + 16px)", height: "calc(100% + 30px)", pointerEvents: "none" }}>
+              <g stroke="#ffffff" strokeLinecap="round">
+                <line x1="0" y1="14" x2="380" y2="10" strokeWidth="1.4" opacity="0.45" />
+                <line x1="14" y1="22" x2="366" y2="19" strokeWidth="1" opacity="0.25" />
+                <line x1="0" y1="66" x2="380" y2="70" strokeWidth="1.4" opacity="0.40" />
+                <line x1="20" y1="74" x2="360" y2="77" strokeWidth="1" opacity="0.22" />
+              </g>
+              <g stroke="#ecffb0" strokeLinecap="round">
+                <line x1="0" y1="42" x2="52" y2="42" strokeWidth="2.2" opacity="0.85" />
+                <line x1="328" y1="42" x2="380" y2="42" strokeWidth="2.2" opacity="0.85" />
+              </g>
+            </svg>
+            <button
+              onClick={hero.go}
+              style={{
+                position: "relative",
+                overflow: "hidden",
+                width: "100%",
+                background: "#171717",
+                color: "#fff",
+                border: "none",
+                borderRadius: 99,
+                fontFamily: H,
+                fontWeight: 800,
+                fontStyle: "italic",
+                fontSize: 14.5,
+                padding: "16px 20px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 9,
+                boxShadow: "0 0 0 1.5px rgba(222,255,122,0.9), 0 0 20px rgba(255,255,255,0.4), 0 8px 24px rgba(23,23,23,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
+              }}
+            >
+              {/* połysk cyklicznie przelatujący po przycisku (keyframes ctaSheen w index.css) */}
+              <span
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  width: "40%",
+                  background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.45) 40%, rgba(188,255,49,0.5) 60%, transparent 100%)",
+                  transform: "translateX(-150%) skewX(-16deg)",
+                  animation: "ctaSheen 3s cubic-bezier(.4,0,.2,1) 1.2s infinite",
+                }}
+              />
+              <Play size={16} color={T.accent} fill={T.accent} strokeWidth={0} />
+              {hero.cta}
+            </button>
+          </div>
         </div>
       </div>
 

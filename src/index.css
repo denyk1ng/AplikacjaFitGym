@@ -219,6 +219,18 @@ button {
   }
 }
 
+/* połysk przelatujący cyklicznie po przycisku CTA karty hero (Dom) —
+   sam transform, więc animacja idzie na kompozytorze bez przemalowań */
+@keyframes ctaSheen {
+  0% {
+    transform: translateX(-150%) skewX(-16deg);
+  }
+  55%,
+  100% {
+    transform: translateX(420%) skewX(-16deg);
+  }
+}
+
 /* konfetti przy nowym rekordzie (podsumowanie sesji) */
 @keyframes confettiFall {
   0% {
