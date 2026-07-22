@@ -18,10 +18,10 @@ const DOW_SHORT = ["PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"];
 
 function SectionHead({ title, onSee, delay }) {
   return (
-    <div className="fu" style={{ animationDelay: delay || "0s", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-      <span style={{ fontFamily: H, fontWeight: 700, fontSize: "1.05rem", color: "#fff" }}>{title}</span>
+    <div className="fu" style={{ animationDelay: delay || "0s", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+      <span style={{ fontFamily: H, fontWeight: 700, fontSize: "0.98rem", color: "#fff" }}>{title}</span>
       {onSee && (
-        <button onClick={onSee} style={{ background: "transparent", border: "none", color: T.accent, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", padding: 0 }}>
+        <button onClick={onSee} style={{ background: "transparent", border: "none", color: T.accent, fontSize: 11.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", padding: 0 }}>
           Zobacz wszystkie
         </button>
       )}
@@ -244,28 +244,28 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
   return (
     <div>
-      {/* HEADER — avatar z limonkową obwódką, powitanie + data pod spodem, dzwonek po prawej */}
-      <div className="fu" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-        <button onClick={() => goTo("profil")} title="Profil" style={{ width: 52, height: 52, borderRadius: "50%", padding: 2, border: `2px solid ${T.accent}`, overflow: "hidden", cursor: "pointer", flexShrink: 0, background: T.bg }}>
+      {/* HEADER — kompaktowy: avatar z cienką limonkową obwódką, data pod powitaniem */}
+      <div className="fu" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+        <button onClick={() => goTo("profil")} title="Profil" style={{ width: 44, height: 44, borderRadius: "50%", padding: 2, border: `1.5px solid ${T.accent}`, overflow: "hidden", cursor: "pointer", flexShrink: 0, background: T.bg }}>
           <img src={PHOTOS.hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1.35rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1.15rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             Cześć{userName ? `, ${userName}` : ""} 👋
           </div>
-          <div style={{ fontSize: 12, color: T.sub, marginTop: 3 }}>{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</div>
+          <div style={{ fontSize: 11, color: T.sub, marginTop: 2 }}>{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</div>
         </div>
-        <button onClick={() => setShowNotif(true)} title="Powiadomienia" style={{ position: "relative", width: 46, height: 46, borderRadius: 16, background: T.card, border: `1px solid ${T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Bell size={19} color="#fff" strokeWidth={2} />
+        <button onClick={() => setShowNotif(true)} title="Powiadomienia" style={{ position: "relative", width: 40, height: 40, borderRadius: 14, background: T.card, border: `1px solid ${T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Bell size={17} color="#fff" strokeWidth={2} />
           {hasAlert && (
-            <span style={{ position: "absolute", top: 8, right: 9, width: 8, height: 8, borderRadius: "50%", background: T.accent, border: `1.5px solid ${T.card}` }} />
+            <span style={{ position: "absolute", top: 7, right: 8, width: 7, height: 7, borderRadius: "50%", background: T.accent, border: `1.5px solid ${T.card}` }} />
           )}
         </button>
       </div>
 
       {/* KATEGORIE — pigułki ze zdjęciem, aktywna z limonkowym obrysem i tekstem */}
       <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
-      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 24 }}>
+      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 20 }}>
         {cats.map(({ photo, l, act, go }) => (
           <button
             key={l}
@@ -273,9 +273,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 7,
               flexShrink: 0,
-              padding: "6px 16px 6px 6px",
+              padding: "5px 13px 5px 5px",
               borderRadius: 99,
               border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
               background: T.card,
@@ -286,8 +286,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           >
             <span
               style={{
-                width: 30,
-                height: 30,
+                width: 27,
+                height: 27,
                 borderRadius: "50%",
                 flexShrink: 0,
                 overflow: "hidden",
@@ -299,7 +299,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             >
               <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </span>
-            <span style={{ fontSize: 12.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
           </button>
         ))}
       </div>
@@ -313,9 +313,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           position: "relative",
           overflow: "hidden",
           background: "radial-gradient(135% 175% at 8% -5%, #e4ff85 0%, #cdff4d 24%, #bcff31 50%, #a3e522 76%, #86be13 100%)",
-          borderRadius: 28,
-          padding: "20px 18px 18px",
-          marginBottom: 24,
+          borderRadius: 24,
+          padding: "16px 16px 14px",
+          marginBottom: 20,
           boxShadow: "0 20px 48px rgba(188,255,49,0.16)",
         }}
       >
@@ -373,20 +373,20 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         <div style={{ position: "relative" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 9.5, fontWeight: 800, letterSpacing: ".12em", padding: "5px 11px", borderRadius: 99, marginBottom: 14, ...hero.chipStyle }}>
-                <Zap size={11} color={hero.chipStyle.color} fill={hero.chipStyle.color} strokeWidth={0} />
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 9, fontWeight: 800, letterSpacing: ".1em", padding: "4px 10px", borderRadius: 99, marginBottom: 10, ...hero.chipStyle }}>
+                <Zap size={10} color={hero.chipStyle.color} fill={hero.chipStyle.color} strokeWidth={0} />
                 {hero.chip}
               </span>
-              <div style={{ fontFamily: H, fontWeight: 800, fontStyle: "italic", fontSize: "1.85rem", letterSpacing: "-0.02em", color: "#000", lineHeight: 1, paddingRight: 6 }}>{hero.title}</div>
-              <div style={{ fontSize: 12.5, color: "rgba(0,0,0,0.62)", marginTop: 6, fontWeight: 600, fontStyle: "italic" }}>{hero.sub}</div>
+              <div style={{ fontFamily: H, fontWeight: 800, fontStyle: "italic", fontSize: "1.6rem", letterSpacing: "-0.02em", color: "#000", lineHeight: 1, paddingRight: 6 }}>{hero.title}</div>
+              <div style={{ fontSize: 11.5, color: "rgba(0,0,0,0.62)", marginTop: 5, fontWeight: 600, fontStyle: "italic" }}>{hero.sub}</div>
             </div>
-            <div style={{ flexShrink: 0, borderRadius: "50%", boxShadow: "0 0 0 2.5px rgba(255,255,255,0.55), 0 0 20px rgba(255,255,255,0.35)" }}>
-              <Ring pct={doneCount / 3} size={68} stroke={7} color="#000" track="rgba(0,0,0,0.14)">
-                <span style={{ fontFamily: D, fontWeight: 800, fontSize: 14, color: "#000" }}>{doneCount}/3</span>
+            <div style={{ flexShrink: 0, borderRadius: "50%", boxShadow: "0 0 0 2px rgba(255,255,255,0.55), 0 0 16px rgba(255,255,255,0.35)" }}>
+              <Ring pct={doneCount / 3} size={60} stroke={6.5} color="#000" track="rgba(0,0,0,0.14)">
+                <span style={{ fontFamily: D, fontWeight: 800, fontSize: 13, color: "#000" }}>{doneCount}/3</span>
               </Ring>
             </div>
           </div>
-          <div style={{ position: "relative", marginTop: 18 }}>
+          <div style={{ position: "relative", marginTop: 14 }}>
             {/* trailsy światła "przelatujące" za przyciskiem — wystają nad i pod pastylką */}
             <svg aria-hidden viewBox="0 0 380 84" preserveAspectRatio="none" style={{ position: "absolute", inset: "-15px -8px", width: "calc(100% + 16px)", height: "calc(100% + 30px)", pointerEvents: "none" }}>
               <g stroke="#ffffff" strokeLinecap="round">
@@ -413,8 +413,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 fontFamily: H,
                 fontWeight: 800,
                 fontStyle: "italic",
-                fontSize: 14.5,
-                padding: "16px 20px",
+                fontSize: 13.5,
+                padding: "13px 18px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -453,14 +453,14 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             ? ` · objętość ${lastWeekVol >= weekBeforeVol ? "+" : ""}${Math.round(((lastWeekVol - weekBeforeVol) / weekBeforeVol) * 100)}%`
             : "";
         return (
-          <div style={{ display: "grid", gridTemplateColumns: showSummary && showDeload ? "1fr 1fr" : "1fr", gap: 10, marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: showSummary && showDeload ? "1fr 1fr" : "1fr", gap: 8, marginBottom: 20 }}>
             {showSummary && (
-              <div className="fu" style={{ animationDelay: ".14s", display: "flex", flexDirection: "column", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 14 }}>
-                <span style={{ width: 38, height: 38, borderRadius: 12, background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
-                  <BarChart3 size={16} color={T.accent} strokeWidth={2.2} />
+              <div className="fu" style={{ animationDelay: ".14s", display: "flex", flexDirection: "column", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 12 }}>
+                <span style={{ width: 34, height: 34, borderRadius: 11, background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+                  <BarChart3 size={15} color={T.accent} strokeWidth={2.2} />
                 </span>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H }}>Twój poprzedni tydzień</div>
-                <div style={{ fontSize: 11, color: T.sub, marginTop: 3, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H }}>Twój poprzedni tydzień</div>
+                <div style={{ fontSize: 10, color: T.sub, marginTop: 2, lineHeight: 1.5 }}>
                   {lastWeek.done}/3 treningi{volTxt}
                 </div>
                 <button
@@ -470,23 +470,23 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                     goTo("kalendarz");
                   }}
                   aria-label="Zobacz szczegóły tygodnia"
-                  style={{ alignSelf: "flex-end", marginTop: "auto", width: 30, height: 30, borderRadius: 10, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ alignSelf: "flex-start", marginTop: "auto", width: 28, height: 28, borderRadius: 10, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
                 >
-                  <ChevronRight size={15} strokeWidth={2.4} />
+                  <ChevronRight size={14} strokeWidth={2.4} />
                 </button>
               </div>
             )}
             {showDeload && (
-              <div className="fu" style={{ animationDelay: ".15s", position: "relative", display: "flex", flexDirection: "column", background: T.card, border: `1px solid rgba(251,191,36,0.35)`, borderRadius: 20, padding: 14 }}>
-                <span style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(251,191,36,0.13)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
-                  <Moon size={16} color={T.yellow} strokeWidth={2.2} />
+              <div className="fu" style={{ animationDelay: ".15s", position: "relative", display: "flex", flexDirection: "column", background: T.card, border: `1px solid rgba(251,191,36,0.35)`, borderRadius: 18, padding: 12 }}>
+                <span style={{ width: 34, height: 34, borderRadius: 11, background: "rgba(251,191,36,0.13)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+                  <Moon size={15} color={T.yellow} strokeWidth={2.2} />
                 </span>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H, lineHeight: 1.3, paddingRight: 24 }}>{streak} tygodni bez przerwy — czas na deload</div>
-                <div style={{ fontSize: 11, color: T.sub, marginTop: 3, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H, lineHeight: 1.3, paddingRight: 22 }}>{streak} tygodni bez przerwy — czas na deload</div>
+                <div style={{ fontSize: 10, color: T.sub, marginTop: 2, lineHeight: 1.5 }}>
                   Zrób w tym tygodniu te same treningi na ok. 60% ciężarów. Lżejszy tydzień to regeneracja stawów i nowa siła.
                 </div>
-                <button onClick={dismissDeload} aria-label="Zamknij sugestię deloadu" style={{ position: "absolute", top: 12, right: 12, width: 26, height: 26, borderRadius: 9, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <X size={13} strokeWidth={2.4} />
+                <button onClick={dismissDeload} aria-label="Zamknij sugestię deloadu" style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: 8, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <X size={12} strokeWidth={2.4} />
                 </button>
               </div>
             )}
@@ -496,15 +496,15 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
 
       {/* AKTYWNOŚĆ — trzy kolumny wg projektu: pierścień+seria | słupki progresu | cel+łańcuch dni */}
       <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".16s" />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 0.95fr 1.45fr", gap: 10, marginBottom: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 0.95fr 1.45fr", gap: 8, marginBottom: 8 }}>
         {/* Treningi (pierścień) + Seria */}
-        <div className="fu" style={{ animationDelay: ".18s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="fu" style={{ animationDelay: ".18s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 10, display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Check size={12} color={T.accent} strokeWidth={2.6} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 700 }}>Treningi</span>
           </div>
           <div style={{ alignSelf: "center" }}>
-            <Ring pct={doneCount / 3} size={76} stroke={7} color={T.accent}>
+            <Ring pct={doneCount / 3} size={72} stroke={7} color={T.accent}>
               <span style={{ fontFamily: D, fontWeight: 800, fontSize: 16, color: "#fff" }}>{doneCount}/3</span>
             </Ring>
           </div>
@@ -519,7 +519,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           </div>
         </div>
         {/* Progres — słupki tygodni jak korektor */}
-        <div className="fu" style={{ animationDelay: ".21s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="fu" style={{ animationDelay: ".21s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 10, display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <TrendingUp size={12} color={T.accent} strokeWidth={2.4} />
             <span style={{ fontSize: 10, color: T.soft, fontWeight: 700 }}>Progres</span>
@@ -541,8 +541,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           </div>
         </div>
         {/* Cel miesiąca + łańcuch dni tygodnia (kolumna dwóch kart) */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div className="fu" style={{ animationDelay: ".24s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: 12, flex: 1 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="fu" style={{ animationDelay: ".24s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 10, flex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Target size={13} color={T.accent} strokeWidth={2.3} />
               <span style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: H, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cel na {monthName}</span>
@@ -560,7 +560,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 : `Jeszcze ${monthlyGoal - monthDone} ${monthlyGoal - monthDone === 1 ? "trening" : monthlyGoal - monthDone < 5 ? "treningi" : "treningów"} do celu — zmienisz cel w Profilu`}
             </div>
           </div>
-          <div className="fu" style={{ animationDelay: ".27s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 22, padding: 12 }}>
+          <div className="fu" style={{ animationDelay: ".27s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Flame size={13} color={T.accent} strokeWidth={2.3} />
               <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: H }}>Łańcuch passy</span>
@@ -596,7 +596,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       </div>
 
       {/* WYZWANIE TYGODNIA — pozioma karta: opis po lewej, licznik i pasek po prawej */}
-      <div className="fu" style={{ animationDelay: ".29s", display: "flex", alignItems: "center", gap: 12, background: T.card, border: `1px solid ${chDone ? "rgba(52,211,153,0.35)" : T.borderSoft}`, borderRadius: 20, padding: "14px 16px", marginBottom: 12 }}>
+      <div className="fu" style={{ animationDelay: ".29s", display: "flex", alignItems: "center", gap: 11, background: T.card, border: `1px solid ${chDone ? "rgba(52,211,153,0.35)" : T.borderSoft}`, borderRadius: 18, padding: "12px 14px", marginBottom: 8 }}>
         <Trophy size={17} color={chDone ? T.ok : T.accent} strokeWidth={2.2} style={{ flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: H }}>Wyzwanie tygodnia</div>
@@ -614,10 +614,10 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       </div>
 
       {/* CYTAT DNIA — karta z dużym limonkowym cudzysłowem */}
-      <div className="fu" style={{ animationDelay: ".3s", display: "flex", gap: 14, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "16px 18px", marginBottom: 24 }}>
-        <Quote size={22} color={T.accent} fill={T.accent} strokeWidth={0} style={{ flexShrink: 0, transform: "rotate(180deg)", marginTop: 1 }} />
+      <div className="fu" style={{ animationDelay: ".3s", display: "flex", gap: 12, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 20 }}>
+        <Quote size={19} color={T.accent} fill={T.accent} strokeWidth={0} style={{ flexShrink: 0, transform: "rotate(180deg)", marginTop: 1 }} />
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 13, color: T.light, lineHeight: 1.6, fontStyle: "italic" }}>{quote.t}</div>
+          <div style={{ fontSize: 12.5, color: T.light, lineHeight: 1.6, fontStyle: "italic" }}>{quote.t}</div>
           {quote.a && <div style={{ fontSize: 10, color: T.faint, marginTop: 6, fontWeight: 600 }}>— {quote.a}</div>}
         </div>
       </div>
@@ -630,7 +630,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
             key={k}
             className="fu"
             onClick={() => goTraining(k)}
-            style={{ animationDelay: `${0.32 + i * 0.05}s`, position: "relative", width: 156, height: 200, borderRadius: 24, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
+            style={{ animationDelay: `${0.32 + i * 0.05}s`, position: "relative", width: 150, height: 190, borderRadius: 18, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
           >
             <img src={PHOTOS[k]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0) 32%, rgba(23,23,23,0.96) 100%)" }} />
@@ -639,12 +639,12 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
                 <Check size={15} color="#000" strokeWidth={3} />
               </span>
             )}
-            <div style={{ position: "absolute", inset: 0, padding: 14, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+            <div style={{ position: "absolute", inset: 0, padding: 12, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
               <span style={{ alignSelf: "flex-start", background: st[k].done ? T.ok : T.accent, color: "#000", fontSize: 9.5, fontWeight: 800, letterSpacing: ".02em", padding: "4px 10px", borderRadius: 99, marginBottom: 8 }}>
                 {st[k].done ? "ZROBIONY" : EXERCISES_DATA[k].day}
               </span>
-              <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1.08rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.1 }}>{EXERCISES_DATA[k].label}</div>
-              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", marginTop: 4 }}>
+              <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.1 }}>{EXERCISES_DATA[k].label}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>
                 {EXERCISES_DATA[k].exercises.length} ćwiczeń · ~{estimateWorkoutMin(exercises[k] ? exercises[k].exercises : EXERCISES_DATA[k].exercises)} min
               </div>
             </div>
