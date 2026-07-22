@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
-import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star, Share2 } from "lucide-react";
+import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star, Share2, Check } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
 import { EditNum, EditStr } from "./Editable.jsx";
@@ -31,30 +31,31 @@ const BADGE_ICON = {
   nightOwl: Moon,
 };
 
-// pierścień celu tygodnia
-function GoalRing({ pct }) {
-  const R = 33;
+// pierścień celu tygodnia — pokazuje ułamek (np. "1/3"), gdy podany, inaczej %
+function GoalRing({ pct, size = 86, fraction }) {
+  const S = size;
+  const R = (S - 12) / 2;
   const C = 2 * Math.PI * R;
   const p = Math.min(Math.max(pct, 0), 100);
   return (
-    <div style={{ position: "relative", width: 86, height: 86 }}>
-      <svg width="86" height="86" viewBox="0 0 86 86">
-        <circle cx="43" cy="43" r={R} fill="none" stroke={T.track} strokeWidth="8" />
+    <div style={{ position: "relative", width: S, height: S }}>
+      <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`}>
+        <circle cx={S / 2} cy={S / 2} r={R} fill="none" stroke={T.track} strokeWidth="8" />
         <circle
-          cx="43"
-          cy="43"
+          cx={S / 2}
+          cy={S / 2}
           r={R}
           fill="none"
           stroke={T.accent}
           strokeWidth="8"
           strokeLinecap="round"
           strokeDasharray={`${(p / 100) * C} ${C}`}
-          transform="rotate(-90 43 43)"
+          transform={`rotate(-90 ${S / 2} ${S / 2})`}
           style={{ transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1)" }}
         />
       </svg>
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT_NUM, fontWeight: 800, fontSize: 19, color: "#fff" }}>
-        {p}%
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT_NUM, fontWeight: 800, fontSize: fraction ? Math.round(S * 0.19) : 19, color: "#fff" }}>
+        {fraction || `${p}%`}
       </div>
     </div>
   );
@@ -151,6 +152,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
     return c;
   })();
   const todayIdx = (today.getDay() + 6) % 7;
+  const weekBars = weekHistory(log, 5).map((w) => w.done / 3);
   const maxVol = Math.max(...vols.map((v) => v.vol), 1);
   const catTotals = volumeByCategory(log, EXERCISES_DATA);
   const catData = Object.keys(CAT_LABEL).map((cat) => ({ cat: CAT_LABEL[cat], vol: Math.round(catTotals[cat] || 0) }));
@@ -206,78 +208,92 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
 
   return (
     <div>
-      {/* HERO: SERIA TYGODNI + CEL TYGODNIA */}
-      <div className="fu" style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-        <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "16px 16px 14px" }}>
-          <span style={{ width: 36, height: 36, borderRadius: 12, background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <Flame size={17} color={T.accent} strokeWidth={2.2} />
-          </span>
-          <div style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: "2rem", color: "#fff", lineHeight: 1, marginTop: 12 }}>{streak}</div>
-          <div style={{ fontSize: 11, color: T.sub, fontWeight: 600, marginTop: 5 }}>{streak === 1 ? "tydzień z rzędu" : "tygodni z rzędu"}</div>
-          <div style={{ fontSize: 9.5, color: T.faint, marginTop: 2 }}>min. 1 trening / tydzień</div>
+      {/* AKTYWNOŚĆ — trzy przejrzyste kafelki: Treningi (pierścień) / Progres (słupki) / Cel miesiąca */}
+      <div className="fu" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
+        <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "12px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, alignSelf: "flex-start" }}>
+            <Check size={12} color={T.accent} strokeWidth={2.6} />
+            <span style={{ fontSize: 10, color: T.soft, fontWeight: 700 }}>Treningi</span>
+          </div>
+          <GoalRing pct={goalPct} size={72} fraction={`${doneCount}/3`} />
+          <div style={{ textAlign: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "center" }}>
+              <Flame size={10} color={T.accent} strokeWidth={2.4} />
+              <span style={{ fontSize: 9.5, color: T.soft, fontWeight: 700 }}>Seria</span>
+            </div>
+            <div style={{ fontSize: 9.5, color: T.sub, marginTop: 2 }}>{streak} tyg. z rzędu</div>
+          </div>
         </div>
-        <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px 12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <GoalRing pct={goalPct} />
-          <div style={{ fontSize: 11, color: T.sub, fontWeight: 600, marginTop: 6 }}>cel tygodnia</div>
-          <div style={{ fontSize: 9.5, color: T.faint, marginTop: 2 }}>{doneCount}/3 treningi A·B·C</div>
-        </div>
-      </div>
 
-      {/* CEL MIESIĄCA + ŁAŃCUCH DNI — przeniesione z ekranu Dom */}
-      <div className="fu" style={{ animationDelay: ".02s", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-        <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Target size={13} color={T.accent} strokeWidth={2.3} />
-            <span style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: U, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cel na {monthName}</span>
-            <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 13, color: monthDone >= monthlyGoal ? T.ok : T.accent }}>
-              {monthDone}
-              <span style={{ color: T.sub, fontSize: 10 }}>/{monthlyGoal}</span>
-            </span>
+        <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <TrendingUp size={12} color={T.accent} strokeWidth={2.4} />
+            <span style={{ fontSize: 10, color: T.soft, fontWeight: 700 }}>Progres</span>
+          </div>
+          <div style={{ flex: 1, display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 5, minHeight: 56 }}>
+            {weekBars.map((v, i) => (
+              <div key={i} style={{ width: 8, height: `${Math.max(v * 100, 10)}%`, borderRadius: 99, background: i === weekBars.length - 1 ? T.accent : "rgba(188,255,49,0.30)" }} />
+            ))}
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 9.5, color: T.sub }}>{streak} tyg. z rzędu</div>
+            <div style={{ fontSize: 9, color: T.faint, marginTop: 1 }}>{streak > 0 ? "Świetna robota!" : "Zacznij ten tydzień"}</div>
+          </div>
+        </div>
+
+        <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 12, display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Target size={12} color={T.accent} strokeWidth={2.4} />
+            <span style={{ flex: 1, minWidth: 0, fontSize: 10, color: T.soft, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cel na {monthName}</span>
+          </div>
+          <div style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15, color: monthDone >= monthlyGoal ? T.ok : T.accent, marginTop: 8 }}>
+            {monthDone}
+            <span style={{ color: T.sub, fontSize: 11 }}>/{monthlyGoal}</span>
           </div>
           <div style={{ height: 6, borderRadius: 99, background: T.track, marginTop: 8, overflow: "hidden" }}>
             <div style={{ width: `${monthPct * 100}%`, height: "100%", borderRadius: 99, background: monthDone >= monthlyGoal ? T.ok : T.accent, transition: "width .6s cubic-bezier(.22,1,.36,1)" }} />
           </div>
-          <div style={{ fontSize: 9, color: T.faint, marginTop: 6, lineHeight: 1.45 }}>
-            {monthDone >= monthlyGoal
-              ? "Cel osiągnięty — tak trzymaj!"
-              : `Jeszcze ${monthlyGoal - monthDone} ${monthlyGoal - monthDone === 1 ? "trening" : monthlyGoal - monthDone < 5 ? "treningi" : "treningów"} do celu — zmienisz cel w Profilu`}
-          </div>
-        </div>
-        <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Flame size={13} color={T.accent} strokeWidth={2.3} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: U }}>Łańcuch passy</span>
-          </div>
-          <div style={{ fontSize: 9, color: T.sub, marginTop: 2 }}>{streak} tyg. z rzędu</div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-            {dayCounts.map((c, i) => (
-              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <span
-                  style={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: c > 0 ? T.accent : T.track,
-                    border: `1.5px solid ${i === todayIdx ? T.accent : "transparent"}`,
-                    color: c > 0 ? "#000" : T.faint,
-                    fontFamily: FONT_NUM,
-                    fontWeight: 800,
-                    fontSize: 9,
-                  }}
-                >
-                  {c > 0 ? c : "·"}
-                </span>
-                <span style={{ fontSize: 6.5, fontWeight: 700, color: i === todayIdx ? T.accent : T.faint, fontFamily: FONT_NUM }}>{DOW_SHORT[i]}</span>
-              </div>
-            ))}
+          <div style={{ fontSize: 8.5, color: T.faint, marginTop: 8, lineHeight: 1.4 }}>
+            {monthDone >= monthlyGoal ? "Cel osiągnięty!" : `Jeszcze ${monthlyGoal - monthDone} do celu`}
           </div>
         </div>
       </div>
 
-      {/* WYZWANIE TYGODNIA — przeniesione z ekranu Dom */}
+      {/* ŁAŃCUCH PASSY — dni bieżącego tygodnia, dziś z obwódką */}
+      <div className="fu" style={{ animationDelay: ".02s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 12, marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Flame size={13} color={T.accent} strokeWidth={2.3} />
+          <span style={{ flex: 1, fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: U }}>Łańcuch passy</span>
+          <span style={{ fontSize: 10, color: T.sub }}>{streak} tyg. z rzędu</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
+          {dayCounts.map((c, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+              <span
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: c > 0 ? T.accent : T.track,
+                  border: `1.5px solid ${i === todayIdx ? T.accent : "transparent"}`,
+                  color: c > 0 ? "#000" : T.faint,
+                  fontFamily: FONT_NUM,
+                  fontWeight: 800,
+                  fontSize: 9,
+                }}
+              >
+                {c > 0 ? c : "·"}
+              </span>
+              <span style={{ fontSize: 6.5, fontWeight: 700, color: i === todayIdx ? T.accent : T.faint, fontFamily: FONT_NUM }}>{DOW_SHORT[i]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* WYZWANIE TYGODNIA */}
       <div className="fu" style={{ animationDelay: ".03s", display: "flex", alignItems: "center", gap: 11, background: T.card, border: `1px solid ${chDone ? "rgba(52,211,153,0.35)" : T.borderSoft}`, borderRadius: 20, padding: "12px 14px", marginBottom: 12 }}>
         <Trophy size={17} color={chDone ? T.ok : T.accent} strokeWidth={2.2} style={{ flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: 0 }}>

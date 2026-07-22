@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Flame, Heart, Play, Dumbbell, Layers, Clock, Pencil, Check, RotateCcw, Gauge, PersonStanding } from "lucide-react";
+import { ArrowLeft, Flame, Heart, Play, Dumbbell, Layers, Clock, Pencil, Check, RotateCcw } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -7,7 +7,6 @@ import { storage } from "../lib/storage.js";
 import { estimateWorkoutMin } from "../lib/utils.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EditNum, EditStr } from "./Editable.jsx";
-import { MuscleMap } from "./MuscleMap.jsx";
 import { loadWorkoutLog } from "../lib/workoutLog.js";
 
 const U = "'Urbanist',sans-serif";
@@ -45,16 +44,6 @@ const DIFF_LEVELS = [
   { label: "Trudny", color: T.danger },
 ];
 const rpeLevel = (rpe) => Math.min(Math.max(Math.round(rpe) - 6, 0), 4); // RPE 6→0 … 10→4
-function difficultyOf(exs, rpeMap) {
-  const rpes = exs.map((e) => rpeMap[e.id]?.rpe).filter((r) => r != null);
-  if (rpes.length >= 3) {
-    const avg = rpes.reduce((a, b) => a + b, 0) / rpes.length;
-    return { level: rpeLevel(avg), ...DIFF_LEVELS[rpeLevel(avg)], src: "z Twoich RPE" };
-  }
-  const pts = exs.reduce((s, e) => s + e.sets * (1 + (e.rest || 90) / 180), 0);
-  const level = pts < 32 ? 0 : pts < 40 ? 1 : pts < 48 ? 2 : pts < 56 ? 3 : 4;
-  return { level, ...DIFF_LEVELS[level], src: "z planu" };
-}
 
 // "dziś" / "wczoraj" / "5 dni temu" — podpis przy pasku RPE ćwiczenia
 function agoLabel(ts) {
@@ -125,11 +114,6 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
   // atomowy reset w App.jsx — pojedyncze wywołania change* nadpisywałyby się
   const restoreDefaults = (ex) => onReset && onReset(ex.id);
 
-  const diff = difficultyOf(exs, rpeMap);
-  const setsByCat = exs.reduce((m, e) => {
-    m[e.cat] = (m[e.cat] || 0) + e.sets;
-    return m;
-  }, {});
   const nameValidate = (v) => v.trim().length >= 3 && v.trim().length <= 48;
 
   return (
@@ -198,37 +182,6 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
           <StatCell Icon={Dumbbell} label="Ćwiczenia" value={pad2(exs.length)} sub="w planie" />
           <StatCell Icon={Layers} label="Serie" value={pad2(totalSets)} sub="łącznie" divider />
           <StatCell Icon={Clock} label="Czas" value={estMin} unit="min" sub="szacunkowo" divider />
-        </div>
-
-        {/* POZIOM TRUDNOŚCI — 5 segmentów, niebieski = łatwy → czerwony = trudny */}
-        <div className="fu" style={{ animationDelay: ".11s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <Gauge size={14} color={diff.color} strokeWidth={2.4} />
-            <span style={{ flex: 1, fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Poziom trudności</span>
-            <span style={{ fontSize: 11, fontWeight: 800, color: diff.color, background: `${diff.color}1f`, border: `1px solid ${diff.color}55`, borderRadius: 99, padding: "3px 10px" }}>
-              {diff.label}
-            </span>
-          </div>
-          <div style={{ display: "flex", gap: 5 }}>
-            {DIFF_LEVELS.map((l, i) => (
-              <div key={l.label} style={{ flex: 1, height: 8, borderRadius: 99, background: i <= diff.level ? l.color : T.track, opacity: i <= diff.level ? 1 : 0.7, transition: "background .3s" }} />
-            ))}
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 8.5, color: T.faint, marginTop: 5, fontWeight: 600 }}>
-            <span>łatwy</span>
-            <span>{diff.src}</span>
-            <span>trudny</span>
-          </div>
-        </div>
-
-        {/* TRENOWANE PARTIE — sylwetka przód/tył z podświetleniem wg serii */}
-        <div className="fu" style={{ animationDelay: ".12s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px 14px", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            <PersonStanding size={15} color={T.accent} strokeWidth={2.4} />
-            <span style={{ flex: 1, fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Trenowane partie</span>
-            <span style={{ fontSize: 9.5, color: T.faint }}>jaśniej = więcej serii</span>
-          </div>
-          <MuscleMap setsByCat={setsByCat} />
         </div>
 
         {/* LISTA ĆWICZEŃ */}
