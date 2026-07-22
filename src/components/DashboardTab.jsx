@@ -187,7 +187,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
           marginBottom: 20,
           marginLeft: "calc(-18px - env(safe-area-inset-left))",
           position: "relative",
-          height: "calc(336px + env(safe-area-inset-top))",
+          height: "calc(230px + env(safe-area-inset-top))",
           overflow: "hidden",
         }}
       >
@@ -196,11 +196,14 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
         <div
           style={{
             position: "relative",
-            padding: "calc(20px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 0 calc(18px + env(safe-area-inset-left))",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            padding: "calc(20px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 14px calc(18px + env(safe-area-inset-left))",
           }}
         >
           {/* HEADER — kompaktowy: avatar z cienką limonkową obwódką, data pod powitaniem */}
-          <div className="fu" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+          <div className="fu" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button onClick={() => goTo("profil")} title="Profil" style={{ width: 44, height: 44, borderRadius: "50%", padding: 2, border: `1.5px solid ${T.accent}`, overflow: "hidden", cursor: "pointer", flexShrink: 0, background: T.bg }}>
               <img src={PHOTOS.hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
             </button>
@@ -221,45 +224,51 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
             </button>
           </div>
 
+          {/* odstęp elastyczny — trzyma pigułki Kategorii przy ciemniejszym dole
+              pasma tła (fade), żeby nie zasłaniały świątyni pośrodku obrazu */}
+          <div style={{ flex: 1 }} />
+
           {/* KATEGORIE — pigułki ze zdjęciem, aktywna z limonkowym obrysem i tekstem */}
-          <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
-          <div className="fu hscroll" style={{ animationDelay: ".08s" }}>
-            {cats.map(({ photo, l, act, go }) => (
-              <button
-                key={l}
-                onClick={() => pickCat(l, go)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 7,
-                  flexShrink: 0,
-                  padding: "5px 13px 5px 5px",
-                  borderRadius: 99,
-                  border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
-                  background: T.card,
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                  transition: "all .2s",
-                }}
-              >
-                <span
+          <div>
+            <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
+            <div className="fu hscroll" style={{ animationDelay: ".08s" }}>
+              {cats.map(({ photo, l, act, go }) => (
+                <button
+                  key={l}
+                  onClick={() => pickCat(l, go)}
                   style={{
-                    width: 27,
-                    height: 27,
-                    borderRadius: "50%",
-                    flexShrink: 0,
-                    overflow: "hidden",
-                    border: `1.5px solid ${act ? T.accent : "transparent"}`,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    gap: 7,
+                    flexShrink: 0,
+                    padding: "5px 13px 5px 5px",
+                    borderRadius: 99,
+                    border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
+                    background: T.card,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    transition: "all .2s",
                   }}
                 >
-                  <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </span>
-                <span style={{ fontSize: 11.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
-              </button>
-            ))}
+                  <span
+                    style={{
+                      width: 27,
+                      height: 27,
+                      borderRadius: "50%",
+                      flexShrink: 0,
+                      overflow: "hidden",
+                      border: `1.5px solid ${act ? T.accent : "transparent"}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </span>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
