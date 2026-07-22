@@ -24,6 +24,7 @@ const APP_KEYS = [
   "monthly_goal",
   "live_session",
   "last_cat",
+  "fav_quotes",
   "reminder_last",
   "walkthrough_done",
 ];

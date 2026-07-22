@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Play, Dumbbell, Check, Medal, X, ChevronRight, Target, Quote, Trophy, Flame, Zap, TrendingUp } from "lucide-react";
+import { Bell, BellRing, Play, Dumbbell, Check, Medal, X, ChevronRight, Target, Trophy, Flame, Zap, TrendingUp } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { computeTotalGain, isoWeekStart, estimateWorkoutMin } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, suggestToday, logStreak, PLAN_DOW, DOW_NAMES, weekHistory, weekVolumes, weekEntries, typicalHour } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
-import { dailyQuote } from "../lib/quotes.js";
 import { useCountUp } from "../hooks/useCountUp.js";
 import { Ring } from "./Ring.jsx";
 
@@ -124,9 +123,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   const weekBars = weekHistory(log, 5).map((w) => w.done / 3);
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
-
-  // cytat dnia — deterministyczny, zmienia się o północy (src/lib/quotes.js)
-  const quote = dailyQuote();
 
   // wyzwanie tygodnia — rotacja 3 typów po numerze tygodnia; postęp liczony
   // z dziennika, więc aktualizuje się sam po każdej zapisanej sesji
@@ -520,15 +516,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           <div style={{ height: 6, borderRadius: 99, background: T.track, marginTop: 5, overflow: "hidden" }}>
             <div style={{ width: `${chPct * 100}%`, height: "100%", borderRadius: 99, background: chDone ? T.ok : T.accent, transition: "width .6s cubic-bezier(.22,1,.36,1)" }} />
           </div>
-        </div>
-      </div>
-
-      {/* CYTAT DNIA — karta z dużym limonkowym cudzysłowem */}
-      <div className="fu" style={{ animationDelay: ".3s", display: "flex", gap: 12, alignItems: "flex-start", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "13px 16px", marginBottom: 20 }}>
-        <Quote size={19} color={T.accent} fill={T.accent} strokeWidth={0} style={{ flexShrink: 0, transform: "rotate(180deg)", marginTop: 1 }} />
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 12.5, color: T.light, lineHeight: 1.6, fontStyle: "italic" }}>{quote.t}</div>
-          {quote.a && <div style={{ fontSize: 10, color: T.faint, marginTop: 6, fontWeight: 600 }}>— {quote.a}</div>}
         </div>
       </div>
 

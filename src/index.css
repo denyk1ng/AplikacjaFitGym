@@ -219,6 +219,17 @@ button {
   }
 }
 
+/* kursor "maszyny do pisania" na ekranie cytatu przed sesją */
+@keyframes caretBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 /* połysk przelatujący cyklicznie po przycisku CTA karty hero (Dom) —
    sam transform, więc animacja idzie na kompozytorze bez przemalowań */
 @keyframes ctaSheen {

@@ -23,6 +23,7 @@ import { ExerciseDetail } from "./components/ExerciseDetail.jsx";
 import { LiveSession, loadLiveState, clearLiveState } from "./components/LiveSession.jsx";
 import { QuickAddSheet } from "./components/QuickAddSheet.jsx";
 import { ConfirmSheet } from "./components/ConfirmSheet.jsx";
+import { QuoteIntro } from "./components/QuoteIntro.jsx";
 import { WelcomeTour } from "./components/WelcomeTour.jsx";
 
 export default function App() {
@@ -75,6 +76,7 @@ export default function App() {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [logRefresh, setLogRefresh] = useState(0); // odświeża dom/kalendarz po szybkiej akcji
   const [pendingStart, setPendingStart] = useState(null); // dzień, którego start koliduje z trwającą sesją
+  const [quoteIntro, setQuoteIntro] = useState(null); // dzień czekający na intro z cytatem przed sesją
   const [toast, setToast] = useState(null); // krótki komunikat sukcesu (np. po zapisie treningu)
 
   const showToast = (msg) => {
@@ -90,8 +92,13 @@ export default function App() {
       setPendingStart(dayKey);
       return;
     }
-    setSelectedDay(dayKey);
-    setTab("sesja");
+    if (saved && saved.dayKey === dayKey) {
+      // wznowienie przerwanej sesji — prosto do treningu, bez intra z cytatem
+      setSelectedDay(dayKey);
+      setTab("sesja");
+      return;
+    }
+    setQuoteIntro(dayKey); // świeży start: najpierw cytat dnia, potem sesja
   };
 
   // appka nie ma routera, więc przeglądarka nie scrolluje sama do góry przy
@@ -546,10 +553,21 @@ export default function App() {
           clearLiveState();
           const target = pendingStart;
           setPendingStart(null);
-          setSelectedDay(target);
-          setTab("sesja");
+          setQuoteIntro(target); // porzucamy starą sesję — nowy start też dostaje cytat
         }}
       />
+
+      {/* intro z cytatem dnia przed świeżą sesją */}
+      {quoteIntro && (
+        <QuoteIntro
+          onDone={() => {
+            const target = quoteIntro;
+            setQuoteIntro(null);
+            setSelectedDay(target);
+            setTab("sesja");
+          }}
+        />
+      )}
 
       {/* toast sukcesu (np. po zapisie treningu) */}
       {toast && (

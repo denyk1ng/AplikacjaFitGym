@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler, Scale, Target, AlarmClock, Download, Upload } from "lucide-react";
+import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler, Scale, Target, AlarmClock, Download, Upload, Quote } from "lucide-react";
 import { T } from "../theme.js";
 import { storage } from "../lib/storage.js";
 import { loadSettings, saveSettings } from "../lib/settings.js";
@@ -81,6 +81,21 @@ export function ProfileTab() {
   const [input, setInput] = useState("");
   const [settings, setSettings] = useState(loadSettings);
   const [confirm, setConfirm] = useState(null); // null | "wipe" | "reset" | "install" | "import"
+  // cytaty zapisane z ekranu intro przed sesją (QuoteIntro.jsx)
+  const [favQuotes, setFavQuotes] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("fav_quotes") || "[]");
+    } catch (e) {
+      return [];
+    }
+  });
+  const removeFavQuote = (t) => {
+    const next = favQuotes.filter((q) => q.t !== t);
+    setFavQuotes(next);
+    try {
+      localStorage.setItem("fav_quotes", JSON.stringify(next));
+    } catch (e) {}
+  };
   const [installable, setInstallable] = useState(canInstall());
   const [monthlyGoal, setMonthlyGoal] = useState(() => {
     const v = parseInt(localStorage.getItem("monthly_goal") || "12", 10);
@@ -562,6 +577,30 @@ export function ProfileTab() {
         </div>
       ) : (
         <EmptyState nested icon={Ruler} desc="Brak pomiarów. Dodaj pierwszy powyżej — zobaczysz tu historię zmian." />
+      )}
+
+      {/* ZAPISANE CYTATY — odłożone z ekranu cytatu przed sesją */}
+      {favQuotes.length > 0 && (
+        <div className="fu" style={{ animationDelay: ".3s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 14 }}>
+          <div style={{ padding: "10px 14px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, borderBottom: `1px solid ${T.borderSoft}` }}>
+            Zapisane cytaty
+          </div>
+          {favQuotes.map((q, i) => (
+            <div key={q.ts || i} style={{ padding: "11px 14px", display: "flex", gap: 10, alignItems: "flex-start", borderBottom: i < favQuotes.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
+              <Quote size={13} color={T.accent} fill={T.accent} strokeWidth={0} style={{ flexShrink: 0, transform: "rotate(180deg)", marginTop: 2 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, color: T.light, fontStyle: "italic", lineHeight: 1.5 }}>{q.t}</div>
+                <div style={{ fontSize: 10, color: T.faint, marginTop: 3 }}>
+                  ~ {q.a || "autor nieznany"}
+                  {q.y ? `, ${q.y}` : ""}
+                </div>
+              </div>
+              <button onClick={() => removeFavQuote(q.t)} title="Usuń cytat" style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4, display: "flex", flexShrink: 0 }}>
+                <Trash2 size={14} color={T.faint} strokeWidth={2.2} />
+              </button>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* USTAWIENIA */}
