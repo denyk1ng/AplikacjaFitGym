@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Play, Plus, Dumbbell, Check, Medal, X, ChevronRight, Zap } from "lucide-react";
+import { Bell, BellRing, Play, Plus, Dumbbell, Check, Medal, X, ChevronRight, Zap, Target, Trophy } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
-import { estimateWorkoutMin } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, typicalHour } from "../lib/workoutLog.js";
+import { QUICK_WORKOUTS } from "../data/quickWorkouts.js";
+import { estimateWorkoutMin, isoWeekStart } from "../lib/utils.js";
+import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, typicalHour, weekVolumes, weekEntries } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
 import { Ring } from "./Ring.jsx";
 
@@ -31,6 +32,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
   // dziennik treningów — podpowiedź dnia + postęp tygodnia
   const [log, setLog] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
+  const [quickSheet, setQuickSheet] = useState(null); // otwarty przykładowy mini-trening
   useEffect(() => {
     loadWorkoutLog().then(setLog);
   }, []);
@@ -88,6 +90,34 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
       go: () => goTo("kalendarz"),
     });
   const hasAlert = notifs.some((n) => n.warn);
+
+  // paski progresu: cel miesiąca i wyzwanie tygodnia (pełen widok w Statystykach)
+  const monthlyGoal = (() => {
+    const v = parseInt(localStorage.getItem("monthly_goal") || "12", 10);
+    return !isNaN(v) && v > 0 ? v : 12;
+  })();
+  const today = new Date();
+  const monthDone = log.filter((e) => {
+    const d = new Date(e.ts);
+    return ["A", "B", "C"].includes(e.type) && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  }).length;
+  const monthPct = Math.min(monthDone / monthlyGoal, 1);
+  const monthName = today.toLocaleDateString("pl-PL", { month: "long" });
+  const WEEK_MS = 7 * 24 * 3600 * 1000;
+  const fmtV = (v) => (v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(Math.round(v)));
+  const vols = weekVolumes(log, EXERCISES_DATA, 3);
+  const lastWeekVol = vols[vols.length - 2]?.vol || 0;
+  const curWeekVol = vols[vols.length - 1]?.vol || 0;
+  const wkEntries = weekEntries(log);
+  const chType = Math.floor(isoWeekStart(Date.now()) / WEEK_MS) % 3;
+  const challenge =
+    chType === 1
+      ? { label: "Zalicz 60 serii w tym tygodniu", cur: wkEntries.reduce((a, e) => a + (e.sets || 0), 0), target: 60, fmt: (v) => String(v) }
+      : chType === 2 && lastWeekVol > 0
+        ? { label: "Pobij objętość zeszłego tygodnia", cur: curWeekVol, target: lastWeekVol, fmt: fmtV, beat: true }
+        : { label: "Zrób komplet: A + B + C", cur: doneCount, target: 3, fmt: (v) => String(v) };
+  const chDone = challenge.beat ? challenge.cur > challenge.target : challenge.cur >= challenge.target;
+  const chPct = Math.min(challenge.cur / Math.max(challenge.target, 1), 1);
 
   const dateStr = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
 
@@ -343,35 +373,83 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
         </div>
       </div>
 
-      {/* TWOJE TRENINGI */}
-      <SectionHead title="Twoje treningi" onSee={() => goTo("trening")} delay=".3s" />
-      <div className="hscroll" style={{ marginBottom: 8 }}>
-        {["A", "B", "C"].map((k, i) => (
-          <div
-            key={k}
-            className="fu"
-            onClick={() => goTraining(k)}
-            style={{ animationDelay: `${0.32 + i * 0.05}s`, position: "relative", width: 150, height: 190, borderRadius: 18, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
-          >
-            <img src={PHOTOS[k]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0) 32%, rgba(23,23,23,0.96) 100%)" }} />
-            {st[k].done && (
-              <span style={{ position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: "50%", background: T.ok, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Check size={15} color="#000" strokeWidth={3} />
+      {/* PROGRES — trzy poziome paski: tydzień, cel miesiąca, wyzwanie */}
+      <SectionHead title="Progres" onSee={() => goTo("stats")} delay=".16s" />
+      <div className="fu" style={{ animationDelay: ".18s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 14, marginBottom: 20 }}>
+        {[
+          { Icon: Check, label: "Treningi w tym tygodniu", val: `${doneCount}`, den: "/3", pct: doneCount / 3, done: doneCount === 3 },
+          { Icon: Target, label: `Cel na ${monthName}`, val: `${monthDone}`, den: `/${monthlyGoal}`, pct: monthPct, done: monthDone >= monthlyGoal },
+          { Icon: Trophy, label: challenge.label, val: challenge.fmt(challenge.cur), den: `/${challenge.fmt(challenge.target)}`, pct: chPct, done: chDone },
+        ].map((row, i, arr) => (
+          <div key={i} style={{ marginBottom: i < arr.length - 1 ? 14 : 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <row.Icon size={13} color={row.done ? T.ok : T.accent} strokeWidth={2.4} />
+              <span style={{ flex: 1, minWidth: 0, fontSize: 11.5, fontWeight: 700, color: "#fff", fontFamily: H, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.label}</span>
+              <span style={{ fontFamily: D, fontWeight: 800, fontSize: 13, color: row.done ? T.ok : T.accent }}>
+                {row.val}
+                <span style={{ color: T.sub, fontSize: 10 }}>{row.den}</span>
               </span>
-            )}
-            <div style={{ position: "absolute", inset: 0, padding: 12, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-              <span style={{ alignSelf: "flex-start", background: st[k].done ? T.ok : T.accent, color: "#000", fontSize: 9.5, fontWeight: 800, letterSpacing: ".02em", padding: "4px 10px", borderRadius: 99, marginBottom: 8 }}>
-                {st[k].done ? "ZROBIONY" : EXERCISES_DATA[k].day}
-              </span>
-              <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.1 }}>{EXERCISES_DATA[k].label}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>
-                {EXERCISES_DATA[k].exercises.length} ćwiczeń · ~{estimateWorkoutMin(exercises[k] ? exercises[k].exercises : EXERCISES_DATA[k].exercises)} min
-              </div>
+            </div>
+            <div style={{ height: 6, borderRadius: 99, background: T.track, marginTop: 6, overflow: "hidden" }}>
+              <div style={{ width: `${row.pct * 100}%`, height: "100%", borderRadius: 99, background: row.done ? T.ok : T.accent, transition: "width .6s cubic-bezier(.22,1,.36,1)" }} />
             </div>
           </div>
         ))}
       </div>
+
+      {/* NA SZYBKO — przykładowe mini-treningi poza planem A/B/C */}
+      <SectionHead title="Na szybko" delay=".22s" />
+      <div className="hscroll" style={{ marginBottom: 8 }}>
+        {QUICK_WORKOUTS.map((q, i) => (
+          <div
+            key={q.id}
+            className="fu"
+            onClick={() => setQuickSheet(q)}
+            style={{ animationDelay: `${0.24 + i * 0.05}s`, position: "relative", width: 150, height: 190, borderRadius: 18, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
+          >
+            <img src={q.photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0) 32%, rgba(23,23,23,0.96) 100%)" }} />
+            <div style={{ position: "absolute", inset: 0, padding: 12, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+              <span style={{ alignSelf: "flex-start", background: T.accent, color: "#000", fontSize: 9.5, fontWeight: 800, letterSpacing: ".02em", padding: "4px 10px", borderRadius: 99, marginBottom: 8 }}>
+                {q.chip}
+              </span>
+              <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.15 }}>{q.title}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>{q.meta}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ARKUSZ MINI-TRENINGU — lista ćwiczeń wybranej karty "Na szybko" */}
+      {quickSheet &&
+        createPortal(
+          <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
+            <div onClick={() => setQuickSheet(null)} style={{ position: "absolute", inset: 0, background: "rgba(23,23,23,0.7)", backdropFilter: "blur(3px)" }} />
+            <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxWidth: 430, margin: "0 auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))", maxHeight: "78vh", overflowY: "auto" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <span style={{ fontFamily: H, fontWeight: 700, fontSize: "1.15rem", color: "#fff" }}>{quickSheet.title}</span>
+                <button onClick={() => setQuickSheet(null)} aria-label="Zamknij" style={{ width: 34, height: 34, borderRadius: 11, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <X size={16} strokeWidth={2.4} />
+                </button>
+              </div>
+              <div style={{ fontSize: 11, color: T.sub, marginBottom: 6 }}>{quickSheet.chip} · {quickSheet.meta}</div>
+              <div style={{ fontSize: 12, color: T.light, lineHeight: 1.55, marginBottom: 12 }}>{quickSheet.desc}</div>
+              {quickSheet.items.map((it, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 2px", borderBottom: i < quickSheet.items.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
+                  <span style={{ width: 26, height: 26, borderRadius: "50%", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontWeight: 800, fontSize: 11, color: T.accent, flexShrink: 0 }}>
+                    {i + 1}
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H }}>{it.n}</span>
+                  <span style={{ fontFamily: D, fontWeight: 800, fontSize: 12.5, color: T.accent, flexShrink: 0 }}>{it.d}</span>
+                </div>
+              ))}
+              <p style={{ fontSize: 10, color: T.faint, textAlign: "center", margin: "14px 0 0" }}>
+                Propozycja poza planem A/B/C — zrób we własnym tempie, bez zapisu do dziennika.
+              </p>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* PANEL POWIADOMIEŃ */}
       {showNotif &&

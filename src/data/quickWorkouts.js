@@ -1,0 +1,83 @@
+// Przykładowe mini-treningi na ekranie głównym (sekcja "Na szybko") —
+// statyczna inspiracja obok planu A/B/C. Tap na kartę otwiera arkusz
+// z listą ćwiczeń; to propozycje bez zapisu do dziennika.
+import { PHOTOS, WARMUP_PHOTOS } from "./photos.js";
+
+export const QUICK_WORKOUTS = [
+  {
+    id: "mobilnosc",
+    title: "Poranna mobilność",
+    chip: "10 min",
+    meta: "6 ćwiczeń · bez sprzętu",
+    photo: PHOTOS.stretch,
+    desc: "Rozruszaj stawy zaraz po wstaniu — płynnie, bez forsowania zakresów.",
+    items: [
+      { n: "Krążenia ramion", d: "2×15" },
+      { n: "Koci grzbiet", d: "2×10" },
+      { n: "Hip hinge z kijem", d: "2×10" },
+      { n: "Wykrok z rotacją tułowia", d: "2×8 / str." },
+      { n: "World's greatest stretch", d: "2×6 / str." },
+      { n: "Rozciąganie klatki przy framudze", d: "2×30 s" },
+    ],
+  },
+  {
+    id: "core",
+    title: "Core Express",
+    chip: "12 min",
+    meta: "5 ćwiczeń · brzuch i stabilizacja",
+    photo: WARMUP_PHOTOS.B,
+    desc: "Krótki obwód na mięśnie głębokie — przerwy 30–45 s między seriami.",
+    items: [
+      { n: "Plank", d: "3×40 s" },
+      { n: "Dead bug", d: "3×10 / str." },
+      { n: "Russian twist", d: "3×20" },
+      { n: "Hollow body hold", d: "3×20 s" },
+      { n: "Mountain climbers", d: "3×30 s" },
+    ],
+  },
+  {
+    id: "cardio",
+    title: "Cardio LISS",
+    chip: "50 min",
+    meta: "bieżnia · strefa 2",
+    photo: PHOTOS.cardio,
+    desc: "Spokojny marsz pod górę — tętno w strefie 2, oddech pozwala rozmawiać.",
+    items: [
+      { n: "Bieżnia — nachylenie", d: "12%" },
+      { n: "Tempo marszu", d: "3,5–4 km/h" },
+      { n: "Czas", d: "50 min" },
+      { n: "Rozluźnienie po zejściu", d: "3 min" },
+    ],
+  },
+  {
+    id: "fullbody",
+    title: "Full Body Pump",
+    chip: "25 min",
+    meta: "6 ćwiczeń · hantle",
+    photo: PHOTOS.A,
+    desc: "Całe ciało jedną parą hantli — gdy brakuje czasu na pełny trening z planu.",
+    items: [
+      { n: "Przysiad goblet", d: "3×12" },
+      { n: "Pompki", d: "3×10–15" },
+      { n: "Wiosłowanie hantlą", d: "3×12 / str." },
+      { n: "Wykroki", d: "3×10 / str." },
+      { n: "RDL z hantlami", d: "3×12" },
+      { n: "Plank", d: "2×40 s" },
+    ],
+  },
+  {
+    id: "regen",
+    title: "Regeneracja i rolowanie",
+    chip: "15 min",
+    meta: "roller · rozciąganie",
+    photo: WARMUP_PHOTOS.A,
+    desc: "Dzień wolny od ciężarów — rozroluj spięte partie i uspokój oddech.",
+    items: [
+      { n: "Rolowanie ud i pośladków", d: "2×60 s" },
+      { n: "Rolowanie pleców", d: "2×60 s" },
+      { n: "Rolowanie łydek", d: "2×45 s" },
+      { n: "Rozciąganie statyczne", d: "5×30 s" },
+      { n: "Oddech przeponowy", d: "2 min" },
+    ],
+  },
+];
