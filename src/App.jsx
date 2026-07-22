@@ -55,7 +55,6 @@ export default function App() {
     return r;
   });
   const [storageReady, setStorageReady] = useState(false);
-  const [saveAnim, setSaveAnim] = useState(false);
   const [snapshots, setSnapshots] = useState([]);
   const [showOnboard, setShowOnboard] = useState(false);
   const [showTour, setShowTour] = useState(false); // przewodnik po pierwszym onboardingu
@@ -234,8 +233,6 @@ export default function App() {
       } catch (e) {}
       return updated;
     });
-    setSaveAnim(true);
-    setTimeout(() => setSaveAnim(false), 2200);
   };
 
   const handleSave = async () => {
@@ -436,7 +433,7 @@ export default function App() {
 
       {storageReady && (
         <div key={displayTab} className={tabPhase === "out" ? "tabout" : "fu"}>
-          {displayTab === "dom" && <DashboardTab key={logRefresh} snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} />}
+          {displayTab === "dom" && <DashboardTab key={logRefresh} snapshots={snapshots} exercises={exercises} goTraining={goTraining} goTo={setTab} userName={userName} onQuickAdd={() => setShowQuickAdd(true)} />}
 
           {displayTab === "trening" && (
             <WorkoutDetail
@@ -514,7 +511,7 @@ export default function App() {
         </div>
       )}
 
-      {storageReady && !showOnboard && displayTab !== "sesja" && <BottomNav tab={tab} setTab={setTab} onSave={() => setShowQuickAdd(true)} saveAnim={saveAnim} />}
+      {storageReady && !showOnboard && displayTab !== "sesja" && <BottomNav tab={tab} setTab={setTab} />}
 
       <QuickAddSheet
         open={showQuickAdd}

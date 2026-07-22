@@ -5,13 +5,15 @@ import { T, FONT_NUM } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
-import { computeTotalGain, earnedBadges } from "../lib/utils.js";
-import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory } from "../lib/workoutLog.js";
+import { computeTotalGain, earnedBadges, isoWeekStart } from "../lib/utils.js";
+import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory, weekEntries } from "../lib/workoutLog.js";
 import { shareProgressImage } from "../lib/shareCard.js";
 
 const U = "'Urbanist',sans-serif";
 const fmtVol = (v) => (v >= 10000 ? `${Math.round(v / 1000)}k` : v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(v));
 const pl = (n) => String(n).replace(".", ",");
+// skróty dni tygodnia dla łańcucha passy (pon.–niedz., jak isoWeekStart)
+const DOW_SHORT = ["PN", "WT", "ŚR", "CZ", "PT", "SB", "ND"];
 
 // ikony odznak (bez emoji — spójnie z resztą designu)
 const BADGE_ICON = {
@@ -110,6 +112,45 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
   const doneCount = ["A", "B", "C"].filter((k) => st[k].done).length;
   const goalPct = Math.round((doneCount / 3) * 100);
   const vols = weekVolumes(log, EXERCISES_DATA, 6);
+
+  // przeniesione z ekranu Dom: cel miesiąca, wyzwanie tygodnia i łańcuch dni
+  const monthlyGoal = (() => {
+    const v = parseInt(localStorage.getItem("monthly_goal") || "12", 10);
+    return !isNaN(v) && v > 0 ? v : 12;
+  })();
+  const today = new Date();
+  const monthDone = log.filter((e) => {
+    const d = new Date(e.ts);
+    return ["A", "B", "C"].includes(e.type) && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  }).length;
+  const monthPct = Math.min(monthDone / monthlyGoal, 1);
+  const monthName = today.toLocaleDateString("pl-PL", { month: "long" });
+
+  // wyzwanie tygodnia — rotacja 3 typów po numerze tygodnia, postęp z dziennika
+  const WEEK_MS = 7 * 24 * 3600 * 1000;
+  const weekStartTs = isoWeekStart(now);
+  const wkEntries = weekEntries(log);
+  const lastWeekVol = vols[vols.length - 2]?.vol || 0;
+  const curWeekVol = vols[vols.length - 1]?.vol || 0;
+  const chType = Math.floor(weekStartTs / WEEK_MS) % 3;
+  const challenge =
+    chType === 1
+      ? { label: "Zalicz 60 serii w tym tygodniu", cur: wkEntries.reduce((s, e) => s + (e.sets || 0), 0), target: 60, fmt: (v) => String(v) }
+      : chType === 2 && lastWeekVol > 0
+        ? { label: "Pobij objętość zeszłego tygodnia", cur: curWeekVol, target: lastWeekVol, fmt: fmtVol, beat: true }
+        : { label: "Zrób komplet: A + B + C", cur: doneCount, target: 3, fmt: (v) => String(v) };
+  const chDone = challenge.beat ? challenge.cur > challenge.target : challenge.cur >= challenge.target;
+  const chPct = Math.min(challenge.cur / Math.max(challenge.target, 1), 1);
+
+  // łańcuch passy — dni bieżącego tygodnia (pon.–niedz.), dziś z obwódką
+  const dayCounts = (() => {
+    const c = [0, 0, 0, 0, 0, 0, 0];
+    wkEntries.forEach((e) => {
+      c[(new Date(e.ts).getDay() + 6) % 7]++;
+    });
+    return c;
+  })();
+  const todayIdx = (today.getDay() + 6) % 7;
   const maxVol = Math.max(...vols.map((v) => v.vol), 1);
   const catTotals = volumeByCategory(log, EXERCISES_DATA);
   const catData = Object.keys(CAT_LABEL).map((cat) => ({ cat: CAT_LABEL[cat], vol: Math.round(catTotals[cat] || 0) }));
@@ -179,6 +220,78 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
           <GoalRing pct={goalPct} />
           <div style={{ fontSize: 11, color: T.sub, fontWeight: 600, marginTop: 6 }}>cel tygodnia</div>
           <div style={{ fontSize: 9.5, color: T.faint, marginTop: 2 }}>{doneCount}/3 treningi A·B·C</div>
+        </div>
+      </div>
+
+      {/* CEL MIESIĄCA + ŁAŃCUCH DNI — przeniesione z ekranu Dom */}
+      <div className="fu" style={{ animationDelay: ".02s", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
+        <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <Target size={13} color={T.accent} strokeWidth={2.3} />
+            <span style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: U, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Cel na {monthName}</span>
+            <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 13, color: monthDone >= monthlyGoal ? T.ok : T.accent }}>
+              {monthDone}
+              <span style={{ color: T.sub, fontSize: 10 }}>/{monthlyGoal}</span>
+            </span>
+          </div>
+          <div style={{ height: 6, borderRadius: 99, background: T.track, marginTop: 8, overflow: "hidden" }}>
+            <div style={{ width: `${monthPct * 100}%`, height: "100%", borderRadius: 99, background: monthDone >= monthlyGoal ? T.ok : T.accent, transition: "width .6s cubic-bezier(.22,1,.36,1)" }} />
+          </div>
+          <div style={{ fontSize: 9, color: T.faint, marginTop: 6, lineHeight: 1.45 }}>
+            {monthDone >= monthlyGoal
+              ? "Cel osiągnięty — tak trzymaj!"
+              : `Jeszcze ${monthlyGoal - monthDone} ${monthlyGoal - monthDone === 1 ? "trening" : monthlyGoal - monthDone < 5 ? "treningi" : "treningów"} do celu — zmienisz cel w Profilu`}
+          </div>
+        </div>
+        <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <Flame size={13} color={T.accent} strokeWidth={2.3} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: U }}>Łańcuch passy</span>
+          </div>
+          <div style={{ fontSize: 9, color: T.sub, marginTop: 2 }}>{streak} tyg. z rzędu</div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+            {dayCounts.map((c, i) => (
+              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                <span
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: c > 0 ? T.accent : T.track,
+                    border: `1.5px solid ${i === todayIdx ? T.accent : "transparent"}`,
+                    color: c > 0 ? "#000" : T.faint,
+                    fontFamily: FONT_NUM,
+                    fontWeight: 800,
+                    fontSize: 9,
+                  }}
+                >
+                  {c > 0 ? c : "·"}
+                </span>
+                <span style={{ fontSize: 6.5, fontWeight: 700, color: i === todayIdx ? T.accent : T.faint, fontFamily: FONT_NUM }}>{DOW_SHORT[i]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* WYZWANIE TYGODNIA — przeniesione z ekranu Dom */}
+      <div className="fu" style={{ animationDelay: ".03s", display: "flex", alignItems: "center", gap: 11, background: T.card, border: `1px solid ${chDone ? "rgba(52,211,153,0.35)" : T.borderSoft}`, borderRadius: 20, padding: "12px 14px", marginBottom: 12 }}>
+        <Trophy size={17} color={chDone ? T.ok : T.accent} strokeWidth={2.2} style={{ flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U }}>Wyzwanie tygodnia</div>
+          <div style={{ fontSize: 10.5, color: T.sub, marginTop: 2 }}>{challenge.label}</div>
+        </div>
+        <div style={{ width: 128, flexShrink: 0 }}>
+          <div style={{ textAlign: "right", fontFamily: FONT_NUM, fontWeight: 800, fontSize: 14, color: chDone ? T.ok : T.accent }}>
+            {challenge.fmt(challenge.cur)}
+            <span style={{ color: T.sub, fontSize: 11 }}>/{challenge.fmt(challenge.target)}</span>
+          </div>
+          <div style={{ height: 6, borderRadius: 99, background: T.track, marginTop: 5, overflow: "hidden" }}>
+            <div style={{ width: `${chPct * 100}%`, height: "100%", borderRadius: 99, background: chDone ? T.ok : T.accent, transition: "width .6s cubic-bezier(.22,1,.36,1)" }} />
+          </div>
         </div>
       </div>
 

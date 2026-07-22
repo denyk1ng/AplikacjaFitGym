@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Home, Dumbbell, BarChart3, CalendarDays, Plus, Check } from "lucide-react";
+import { Home, Dumbbell, BarChart3, CalendarDays, User } from "lucide-react";
 import { T } from "../theme.js";
 
 const BAR_BG = T.inset;
@@ -11,7 +11,7 @@ const NOTCH_DEPTH = 34; // głębokość wcięcia
 
 // Kształt paska: zaokrąglony prostokąt z płynnym wgłębieniem pod centralny
 // przycisk — niecka rysowana krzywymi Béziera zostawia widoczny odstęp
-// wokół "+" (przycisk siedzi w wycięciu, nie na pasku).
+// wokół przycisku (siedzi w wycięciu, nie na pasku).
 function barPath(w) {
   const cx = w / 2;
   return [
@@ -31,9 +31,9 @@ function barPath(w) {
   ].join(" ");
 }
 
-// Pasek nawigacji wg projektu: etykiety pod ikonami, aktywna pozycja limonką,
-// centralny "+" uniesiony w niecce z limonkową poświatą.
-export function BottomNav({ tab, setTab, onSave, saveAnim }) {
+// Pasek nawigacji: etykiety pod ikonami, aktywna pozycja limonką; centralny
+// przycisk w niecce prowadzi do Statystyk (limonkowe kółko z ikoną wykresu).
+export function BottomNav({ tab, setTab }) {
   const ref = useRef(null);
   const [w, setW] = useState(0);
   useEffect(() => {
@@ -48,8 +48,10 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
     { id: "trening", Icon: Dumbbell, label: "Trening" },
     { id: "CENTER" },
     { id: "kalendarz", Icon: CalendarDays, label: "Kalendarz" },
-    { id: "stats", Icon: BarChart3, label: "Statystyki" },
+    { id: "profil", Icon: User, label: "Profil" },
   ];
+
+  const statsOn = tab === "stats";
 
   return (
     <div style={{ position: "fixed", bottom: "calc(6px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 402 }}>
@@ -93,31 +95,31 @@ export function BottomNav({ tab, setTab, onSave, saveAnim }) {
           })}
         </div>
 
-        {/* centralny przycisk w niecce */}
+        {/* centralny przycisk w niecce — Statystyki */}
         <button
-          onClick={onSave}
-          title="Szybkie akcje"
+          onClick={() => setTab("stats")}
+          title="Statystyki"
           style={{
             position: "absolute",
             left: "50%",
             top: -(BTN / 2),
-            transform: `translateX(-50%) scale(${saveAnim ? 1.08 : 1})`,
+            transform: `translateX(-50%) scale(${statsOn ? 1.07 : 1})`,
             width: BTN,
             height: BTN,
             borderRadius: "50%",
-            background: saveAnim ? T.ok : T.accent,
+            background: T.accent,
             border: "none",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: saveAnim
-              ? "0 6px 24px rgba(52,211,153,0.55)"
+            boxShadow: statsOn
+              ? "0 6px 26px rgba(188,255,49,0.6), 0 0 56px rgba(188,255,49,0.3)"
               : "0 6px 24px rgba(188,255,49,0.45), 0 0 48px rgba(188,255,49,0.22)",
-            transition: "transform .3s cubic-bezier(.22,1,.36,1), background .3s, box-shadow .3s",
+            transition: "transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s",
           }}
         >
-          {saveAnim ? <Check size={26} color="#000" strokeWidth={2.6} /> : <Plus size={26} color="#000" strokeWidth={2.2} />}
+          <BarChart3 size={24} color="#000" strokeWidth={2.3} />
         </button>
       </div>
     </div>
