@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Play, Pause, Dumbbell, Gauge, Tag, TrendingUp } from "lucide-react";
+import { ArrowLeft, Play, Pause, Dumbbell, Gauge, Tag, TrendingUp, Youtube } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
@@ -204,6 +204,14 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
                   {ex.note}
                 </div>
               )}
+              {/* film instruktażowy — wyszukiwanie techniki na YouTube (otwiera przeglądarkę) */}
+              <button
+                onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(`${ex.name.split("—")[0].trim()} technika jak robić`)}`, "_blank", "noopener")}
+                style={{ width: "100%", marginTop: 12, background: "transparent", color: T.light, border: `1.5px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 13, padding: "12px 18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              >
+                <Youtube size={16} color={T.accent} strokeWidth={2.2} />
+                Film instruktażowy (YouTube)
+              </button>
             </>
           )}
 

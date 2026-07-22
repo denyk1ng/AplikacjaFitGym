@@ -24,6 +24,7 @@ import { LiveSession, loadLiveState, clearLiveState } from "./components/LiveSes
 import { QuickAddSheet } from "./components/QuickAddSheet.jsx";
 import { ConfirmSheet } from "./components/ConfirmSheet.jsx";
 import { QuoteIntro } from "./components/QuoteIntro.jsx";
+import { ExerciseLibrary } from "./components/ExerciseLibrary.jsx";
 import { WelcomeTour } from "./components/WelcomeTour.jsx";
 
 export default function App() {
@@ -71,6 +72,7 @@ export default function App() {
     }
   });
   const [exerciseId, setExerciseId] = useState(null);
+  const [exerciseFrom, setExerciseFrom] = useState("trening"); // skąd otwarto ekran ćwiczenia (powrót)
   const [userName, setUserName] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [logRefresh, setLogRefresh] = useState(0); // odświeża dom/kalendarz po szybkiej akcji
@@ -379,7 +381,7 @@ export default function App() {
     } catch (e) {}
   };
 
-  const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz" };
+  const titles = { dom: "Dom", trening: "Trening", sesja: `Sesja — Trening ${selectedDay}`, stats: "Statystyki", rozgrzewka: "Rozgrzewka", profil: "Profil", kalendarz: "Kalendarz", biblioteka: "Ćwiczenia" };
 
   return (
     <div
@@ -445,6 +447,7 @@ export default function App() {
               onStart={() => startSession(selectedDay)}
               onExercise={(id) => {
                 setExerciseId(id);
+                setExerciseFrom("trening");
                 setTab("cwiczenie");
               }}
               onChangeWeight={changeWeightAndSnapshot}
@@ -475,7 +478,17 @@ export default function App() {
                 return null;
               })()}
               onChangeWeight={(v) => changeWeightAndSnapshot(exerciseId, v)}
-              onBack={() => setTab("trening")}
+              onBack={() => setTab(exerciseFrom)}
+            />
+          )}
+
+          {displayTab === "biblioteka" && (
+            <ExerciseLibrary
+              onOpen={(id) => {
+                setExerciseId(id);
+                setExerciseFrom("biblioteka");
+                setTab("cwiczenie");
+              }}
             />
           )}
 

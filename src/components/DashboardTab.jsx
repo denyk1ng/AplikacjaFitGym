@@ -398,7 +398,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
       </div>
 
       {/* NA SZYBKO — przykładowe mini-treningi poza planem A/B/C */}
-      <SectionHead title="Na szybko" delay=".22s" />
+      <SectionHead title="Na szybko" onSee={() => goTo("biblioteka")} delay=".22s" />
       <div className="hscroll" style={{ marginBottom: 8 }}>
         {QUICK_WORKOUTS.map((q, i) => (
           <div
