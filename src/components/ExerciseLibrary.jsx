@@ -207,7 +207,7 @@ export function ExerciseLibrary({ onBack, onOpen, planDay, dayKey, onStartToday,
           <button
             onClick={onStartToday}
             className="fu"
-            style={{ animationDelay: ".06s", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: T.accent, color: "#000", border: "none", borderRadius: 14, fontFamily: H, fontWeight: 800, fontSize: 13.5, padding: "15px 18px", cursor: "pointer", marginBottom: 20, boxShadow: "0 10px 28px rgba(188,255,49,0.25)" }}
+            style={{ animationDelay: ".06s", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: T.accent, color: "#000", border: "none", borderRadius: 14, fontFamily: H, fontWeight: 800, fontSize: 13.5, padding: "15px 18px", cursor: "pointer", marginBottom: 20 }}
           >
             <Plus size={16} strokeWidth={2.6} />
             Rozpocznij dzisiejszy trening
@@ -263,7 +263,7 @@ export function ExerciseLibrary({ onBack, onOpen, planDay, dayKey, onStartToday,
               <div key={w.id} className="fu" onClick={() => setQuickSheet(w)} style={{ animationDelay: `${0.16 + i * 0.04}s`, width: 132, flexShrink: 0, cursor: "pointer" }}>
                 <div style={{ position: "relative", height: 96, borderRadius: 16, overflow: "hidden", border: `1px solid ${T.border}` }}>
                   <img src={w.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  <span style={{ position: "absolute", right: 8, bottom: 8, width: 26, height: 26, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 14px rgba(188,255,49,0.4)" }}>
+                  <span style={{ position: "absolute", right: 8, bottom: 8, width: 26, height: 26, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 8px rgba(0,0,0,0.35)" }}>
                     <Play size={12} color="#000" fill="#000" strokeWidth={0} />
                   </span>
                 </div>

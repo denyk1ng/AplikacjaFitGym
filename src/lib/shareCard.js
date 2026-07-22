@@ -21,25 +21,25 @@ function drawCard({ label, desc, time, sets, volume, record }) {
   const ctx = canvas.getContext("2d");
 
   // tło — ciemne z limonkową poświatą, jak reszta appki
-  ctx.fillStyle = "#171717";
+  ctx.fillStyle = "#0f1012";
   ctx.fillRect(0, 0, W, H);
   const glow = ctx.createRadialGradient(W / 2, 60, 40, W / 2, 60, 900);
-  glow.addColorStop(0, "rgba(188,255,49,0.16)");
-  glow.addColorStop(1, "rgba(188,255,49,0)");
+  glow.addColorStop(0, "rgba(178,238,55,0.16)");
+  glow.addColorStop(1, "rgba(178,238,55,0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
   // wordmark FORMA
   ctx.font = "800 34px -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillStyle = "#94978f";
+  ctx.fillStyle = "#7c7c74";
   ctx.textBaseline = "top";
   ctx.fillText("FOR", 80, 90);
   const forWidth = ctx.measureText("FOR").width;
-  ctx.fillStyle = "#bcff31";
+  ctx.fillStyle = "#b2ee37";
   ctx.fillText("MA", 80 + forWidth, 90);
 
   // trofeum
-  ctx.fillStyle = "#bcff31";
+  ctx.fillStyle = "#b2ee37";
   ctx.beginPath();
   ctx.arc(W / 2, 260, 64, 0, Math.PI * 2);
   ctx.fill();
@@ -56,7 +56,7 @@ function drawCard({ label, desc, time, sets, volume, record }) {
   ctx.fillText(`${label} ukończony!`, W / 2, 372);
 
   ctx.font = "500 30px -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillStyle = "#94978f";
+  ctx.fillStyle = "#7c7c74";
   ctx.fillText(desc, W / 2, 448);
   ctx.textAlign = "left";
 
@@ -87,7 +87,7 @@ function drawCard({ label, desc, time, sets, volume, record }) {
     ctx.fillStyle = "#ffffff";
     ctx.fillText(s.v, x + tileW / 2, tileY + 46);
     ctx.font = "700 24px -apple-system, Segoe UI, Roboto, sans-serif";
-    ctx.fillStyle = "#94978f";
+    ctx.fillStyle = "#7c7c74";
     ctx.fillText(s.l, x + tileW / 2, tileY + 116);
     ctx.textAlign = "left";
   });
@@ -97,15 +97,15 @@ function drawCard({ label, desc, time, sets, volume, record }) {
   if (record) {
     const boxW = totalW;
     const boxH = 100;
-    ctx.fillStyle = "rgba(188,255,49,0.09)";
+    ctx.fillStyle = "rgba(178,238,55,0.09)";
     roundRect(ctx, startX, y, boxW, boxH, 20);
     ctx.fill();
-    ctx.strokeStyle = "rgba(188,255,49,0.3)";
+    ctx.strokeStyle = "rgba(178,238,55,0.3)";
     ctx.lineWidth = 2;
     roundRect(ctx, startX, y, boxW, boxH, 20);
     ctx.stroke();
     ctx.font = "700 32px -apple-system, Segoe UI, Roboto, sans-serif";
-    ctx.fillStyle = "#bcff31";
+    ctx.fillStyle = "#b2ee37";
     ctx.textAlign = "center";
     ctx.fillText(`\u{1F3C5} Nowy rekord — ${record}`, W / 2, y + 34);
     ctx.textAlign = "left";
@@ -163,21 +163,21 @@ function drawProgressCard({ name, unit, history }) {
   canvas.height = H;
   const ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "#171717";
+  ctx.fillStyle = "#0f1012";
   ctx.fillRect(0, 0, W, H);
   const glow = ctx.createRadialGradient(W / 2, 60, 40, W / 2, 60, 900);
-  glow.addColorStop(0, "rgba(188,255,49,0.16)");
-  glow.addColorStop(1, "rgba(188,255,49,0)");
+  glow.addColorStop(0, "rgba(178,238,55,0.16)");
+  glow.addColorStop(1, "rgba(178,238,55,0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
   // wordmark FORMA
   ctx.font = "800 34px -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillStyle = "#94978f";
+  ctx.fillStyle = "#7c7c74";
   ctx.textBaseline = "top";
   ctx.fillText("FOR", 80, 90);
   const forWidth = ctx.measureText("FOR").width;
-  ctx.fillStyle = "#bcff31";
+  ctx.fillStyle = "#b2ee37";
   ctx.fillText("MA", 80 + forWidth, 90);
 
   // tytuł + nazwa ćwiczenia
@@ -186,7 +186,7 @@ function drawProgressCard({ name, unit, history }) {
   ctx.fillStyle = "#ffffff";
   ctx.fillText("Mój progres", W / 2, 210);
   ctx.font = "600 32px -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillStyle = "#94978f";
+  ctx.fillStyle = "#7c7c74";
   ctx.fillText(name, W / 2, 286);
   ctx.textAlign = "left";
 
@@ -218,15 +218,15 @@ function drawProgressCard({ name, unit, history }) {
   ctx.lineTo(px(0), chartY + chartH);
   ctx.closePath();
   const fillGrad = ctx.createLinearGradient(0, chartY, 0, chartY + chartH);
-  fillGrad.addColorStop(0, "rgba(188,255,49,0.28)");
-  fillGrad.addColorStop(1, "rgba(188,255,49,0)");
+  fillGrad.addColorStop(0, "rgba(178,238,55,0.28)");
+  fillGrad.addColorStop(1, "rgba(178,238,55,0)");
   ctx.fillStyle = fillGrad;
   ctx.fill();
 
   // linia
   ctx.beginPath();
   history.forEach((h, i) => (i === 0 ? ctx.moveTo(px(i), py(h.weight)) : ctx.lineTo(px(i), py(h.weight))));
-  ctx.strokeStyle = "#bcff31";
+  ctx.strokeStyle = "#b2ee37";
   ctx.lineWidth = 6;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
@@ -236,11 +236,11 @@ function drawProgressCard({ name, unit, history }) {
   history.forEach((h, i) => {
     ctx.beginPath();
     ctx.arc(px(i), py(h.weight), i === history.length - 1 ? 12 : 7, 0, Math.PI * 2);
-    ctx.fillStyle = "#bcff31";
+    ctx.fillStyle = "#b2ee37";
     ctx.fill();
   });
   ctx.font = "700 26px -apple-system, Segoe UI, Roboto, sans-serif";
-  ctx.fillStyle = "#94978f";
+  ctx.fillStyle = "#7c7c74";
   ctx.textAlign = "left";
   ctx.fillText(history[0].dateShort, chartX - 10, chartY + chartH + 6);
   ctx.textAlign = "right";
@@ -274,10 +274,10 @@ function drawProgressCard({ name, unit, history }) {
     ctx.stroke();
     ctx.textAlign = "center";
     ctx.font = "800 44px -apple-system, Segoe UI, Roboto, sans-serif";
-    ctx.fillStyle = i === 2 ? "#bcff31" : "#ffffff";
+    ctx.fillStyle = i === 2 ? "#b2ee37" : "#ffffff";
     ctx.fillText(s.v, x + tileW / 2, tileY + 44);
     ctx.font = "700 24px -apple-system, Segoe UI, Roboto, sans-serif";
-    ctx.fillStyle = "#94978f";
+    ctx.fillStyle = "#7c7c74";
     ctx.fillText(s.l, x + tileW / 2, tileY + 110);
     ctx.textAlign = "left";
   });

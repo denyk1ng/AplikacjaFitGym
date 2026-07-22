@@ -12,7 +12,7 @@ const P = {
   clipDown: "-5,70 105,52 105,105 -5,105",
 };
 
-export function LogoMark({ size = 32, top = "#bcff31", bottom = "#ffffff", style }) {
+export function LogoMark({ size = 32, top = "#b2ee37", bottom = "#ffffff", style }) {
   const id = useId().replace(/:/g, "");
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" style={style} aria-label="FORMA">
@@ -57,7 +57,7 @@ export function LogoLockup({ markSize = 22, fontSize = 15, gap = 8, style }) {
     <span style={{ display: "inline-flex", alignItems: "center", gap, ...style }}>
       <LogoMark size={markSize} />
       <span style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize, letterSpacing: ".06em", color: "#fff", lineHeight: 1 }}>
-        FOR<span style={{ color: "#bcff31" }}>MA</span>
+        FOR<span style={{ color: "#b2ee37" }}>MA</span>
       </span>
     </span>
   );

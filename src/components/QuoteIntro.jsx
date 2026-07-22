@@ -93,7 +93,7 @@ export function QuoteIntro({ onDone }) {
             gap: 7,
             padding: "12px 20px",
             borderRadius: 99,
-            background: saved ? "rgba(188,255,49,0.12)" : "transparent",
+            background: saved ? "rgba(178,238,55,0.12)" : "transparent",
             border: `1.5px solid ${saved ? T.accent : "rgba(255,255,255,0.22)"}`,
             color: saved ? T.accent : "#fff",
             fontFamily: "'Urbanist',sans-serif",

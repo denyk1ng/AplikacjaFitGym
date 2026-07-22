@@ -16,7 +16,7 @@ const BODY_LINE = "#31322e";
 const MUSCLE_OFF = "#31322e"; // mięsień nietrenowany
 const SEP = "rgba(19,19,17,0.9)"; // separacja między mięśniami
 
-const lime = (op) => `rgba(188,255,49,${op})`;
+const lime = (op) => `rgba(178,238,55,${op})`;
 
 // ── geometria mięśni ───────────────────────────────────────────────────────
 // [cat, ścieżka lewej strony (mirror=true) lub centralna (mirror=false)]

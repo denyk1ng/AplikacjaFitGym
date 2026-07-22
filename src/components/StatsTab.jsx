@@ -232,7 +232,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
           </div>
           <div style={{ flex: 1, display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 5, minHeight: 56 }}>
             {weekBars.map((v, i) => (
-              <div key={i} style={{ width: 8, height: `${Math.max(v * 100, 10)}%`, borderRadius: 99, background: i === weekBars.length - 1 ? T.accent : "rgba(188,255,49,0.30)" }} />
+              <div key={i} style={{ width: 8, height: `${Math.max(v * 100, 10)}%`, borderRadius: 99, background: i === weekBars.length - 1 ? T.accent : "rgba(178,238,55,0.30)" }} />
             ))}
           </div>
           <div style={{ textAlign: "center" }}>

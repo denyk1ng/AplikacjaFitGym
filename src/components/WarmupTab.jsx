@@ -18,22 +18,6 @@ const WARMUP_PHOTO_POS = { A: "center 20%", B: "center 42%", C: "center 15%" };
 // żeby złapać twarz/bark zamiast samej ściany za postacią
 const HERO_PHOTO_POS = { A: "center 20%", B: "center 42%", C: "center 40%" };
 
-// ciepła poświata za sylwetką — tam gdzie zwykle stoi postać na zdjęciu
-function GlowOverlay() {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background: "radial-gradient(55% 65% at 50% 48%, rgba(188,255,49,0.3), rgba(188,255,49,0) 72%)",
-        mixBlendMode: "screen",
-        pointerEvents: "none",
-      }}
-    />
-  );
-}
-
-
 function StatCell({ Icon, label, value, unit, sub, divider }) {
   return (
     <div style={{ flex: 1, padding: "12px 6px 12px 14px", borderLeft: divider ? `1px solid ${T.borderSoft}` : "none" }}>
@@ -79,7 +63,6 @@ function DayCard({ dayKey, onClick, delay }) {
     >
       <div style={{ position: "relative", height: 128 }}>
         <img src={WARMUP_PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: WARMUP_PHOTO_POS[dayKey] }} />
-        <GlowOverlay />
         <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, rgba(23,23,23,0) 35%, ${T.card} 100%)` }} />
         <div style={{ position: "absolute", left: 8, right: 8, bottom: 6 }}>
           <span
@@ -187,11 +170,10 @@ function WarmupSection({ data, idx, done, toggle }) {
 
 // wspólny hero ze zdjęciem — dzielony przez ekran wyboru dnia i przebieg rozgrzewki;
 // na ekranie wyboru pokazuje ogólne zdjęcie, w przebiegu — zdjęcie wybranego dnia
-function Hero({ onBack, photo = PHOTOS.stretch, height = 220, objectPosition = "center", glow = false }) {
+function Hero({ onBack, photo = PHOTOS.stretch, height = 220, objectPosition = "center" }) {
   return (
     <div style={{ position: "relative", height }}>
       <img key={photo} src={photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition }} />
-      {glow && <GlowOverlay />}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.45) 0%, rgba(23,23,23,0.1) 35%, rgba(23,23,23,0.6) 100%)" }} />
       {onBack && (
         <button
@@ -285,7 +267,7 @@ function WarmupFlow({ day, onBack }) {
 
   return (
     <div key={day} style={{ margin: "-20px -18px 0", paddingBottom: 100 }}>
-      <Hero onBack={onBack} photo={WARMUP_PHOTOS[day]} height={165} objectPosition={HERO_PHOTO_POS[day]} glow />
+      <Hero onBack={onBack} photo={WARMUP_PHOTOS[day]} height={165} objectPosition={HERO_PHOTO_POS[day]} />
 
       {/* karta tytułowa "wypływa" i nachodzi na dół zdjęcia */}
       <div

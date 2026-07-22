@@ -150,11 +150,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
   ].map((c) => ({ ...c, act: c.l === litCat }));
 
   // karta hero: dzisiejszy plan → zaległości → cardio/regeneracja/komplet
-  const heroChip = { border: "1.5px solid rgba(255,255,255,0.6)", color: "#000", background: "rgba(255,255,255,0.10)", boxShadow: "0 0 12px rgba(255,255,255,0.25)" };
+  const heroChip = { border: "1.5px solid rgba(255,255,255,0.6)", color: "#000", background: "rgba(255,255,255,0.10)" };
   const hero = suggestion
     ? {
         chip: suggestion.overdue && settings.overdueAlert ? "ZALEGŁY TRENING" : "DZIŚ NA PLANIE",
-        chipStyle: suggestion.overdue && settings.overdueAlert ? { background: "#171717", color: T.accent } : heroChip,
+        chipStyle: suggestion.overdue && settings.overdueAlert ? { background: T.bg, color: T.accent } : heroChip,
         title: EXERCISES_DATA[suggestion.type].label,
         sub: suggestion.overdue
           ? `Nadrób do niedzieli — ${exercises[suggestion.type].exercises.length} ćwiczeń`
@@ -242,11 +242,11 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
           animationDelay: ".12s",
           position: "relative",
           overflow: "hidden",
-          background: "radial-gradient(135% 175% at 8% -5%, #e4ff85 0%, #cdff4d 24%, #bcff31 50%, #a3e522 76%, #86be13 100%)",
+          background: "radial-gradient(135% 175% at 8% -5%, #daee8b 0%, #c3ee53 24%, #b2ee37 50%, #99d428 76%, #7cad19 100%)",
           borderRadius: 24,
           padding: "16px 16px 14px",
           marginBottom: 20,
-          boxShadow: "0 20px 48px rgba(188,255,49,0.16)",
+          boxShadow: "0 20px 48px rgba(178,238,55,0.16)",
         }}
       >
         {/* warstwa dekoracyjna wg konceptu: szerokie promienie u góry z prawej,
@@ -310,33 +310,20 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
               <div style={{ fontFamily: H, fontWeight: 800, fontStyle: "italic", fontSize: "1.6rem", letterSpacing: "-0.02em", color: "#000", lineHeight: 1, paddingRight: 6 }}>{hero.title}</div>
               <div style={{ fontSize: 11.5, color: "rgba(0,0,0,0.62)", marginTop: 5, fontWeight: 600, fontStyle: "italic" }}>{hero.sub}</div>
             </div>
-            <div style={{ flexShrink: 0, borderRadius: "50%", boxShadow: "0 0 0 2px rgba(255,255,255,0.55), 0 0 16px rgba(255,255,255,0.35)" }}>
+            <div style={{ flexShrink: 0, borderRadius: "50%" }}>
               <Ring pct={doneCount / 3} size={60} stroke={6.5} color="#000" track="rgba(0,0,0,0.14)">
                 <span style={{ fontFamily: D, fontWeight: 800, fontSize: 13, color: "#000" }}>{doneCount}/3</span>
               </Ring>
             </div>
           </div>
           <div style={{ position: "relative", marginTop: 14 }}>
-            {/* trailsy światła "przelatujące" za przyciskiem — wystają nad i pod pastylką */}
-            <svg aria-hidden viewBox="0 0 380 84" preserveAspectRatio="none" style={{ position: "absolute", inset: "-15px -8px", width: "calc(100% + 16px)", height: "calc(100% + 30px)", pointerEvents: "none" }}>
-              <g stroke="#ffffff" strokeLinecap="round">
-                <line x1="0" y1="14" x2="380" y2="10" strokeWidth="1.4" opacity="0.45" />
-                <line x1="14" y1="22" x2="366" y2="19" strokeWidth="1" opacity="0.25" />
-                <line x1="0" y1="66" x2="380" y2="70" strokeWidth="1.4" opacity="0.40" />
-                <line x1="20" y1="74" x2="360" y2="77" strokeWidth="1" opacity="0.22" />
-              </g>
-              <g stroke="#ecffb0" strokeLinecap="round">
-                <line x1="0" y1="42" x2="52" y2="42" strokeWidth="2.2" opacity="0.85" />
-                <line x1="328" y1="42" x2="380" y2="42" strokeWidth="2.2" opacity="0.85" />
-              </g>
-            </svg>
             <button
               onClick={hero.go}
               style={{
                 position: "relative",
                 overflow: "hidden",
                 width: "100%",
-                background: "#171717",
+                background: T.bg,
                 color: "#fff",
                 border: "none",
                 borderRadius: 99,
@@ -350,7 +337,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 9,
-                boxShadow: "0 0 0 1.5px rgba(222,255,122,0.9), 0 0 20px rgba(255,255,255,0.4), 0 8px 24px rgba(23,23,23,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
+                boxShadow: "0 6px 16px rgba(23,23,23,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
               }}
             >
               {/* połysk cyklicznie przelatujący po przycisku (keyframes ctaSheen w index.css) */}
@@ -362,7 +349,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
                   bottom: 0,
                   left: 0,
                   width: "40%",
-                  background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.45) 40%, rgba(188,255,49,0.5) 60%, transparent 100%)",
+                  background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.45) 40%, rgba(178,238,55,0.5) 60%, transparent 100%)",
                   transform: "translateX(-150%) skewX(-16deg)",
                   animation: "ctaSheen 3s cubic-bezier(.4,0,.2,1) 1.2s infinite",
                 }}

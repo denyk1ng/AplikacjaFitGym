@@ -113,9 +113,7 @@ export function BottomNav({ tab, setTab }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: statsOn
-              ? "0 6px 26px rgba(188,255,49,0.6), 0 0 56px rgba(188,255,49,0.3)"
-              : "0 6px 24px rgba(188,255,49,0.45), 0 0 48px rgba(188,255,49,0.22)",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.35)",
             transition: "transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s",
           }}
         >

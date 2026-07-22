@@ -21,7 +21,7 @@ export function SplashScreen({ onDone, quick = false }) {
         position: "fixed",
         inset: 0,
         zIndex: 3000,
-        background: "#171717",
+        background: "#0f1012",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -43,7 +43,7 @@ export function SplashScreen({ onDone, quick = false }) {
           color: "#fff",
         }}
       >
-        FOR<span style={{ color: "#bcff31" }}>MA</span>
+        FOR<span style={{ color: "#b2ee37" }}>MA</span>
       </div>
     </div>
   );

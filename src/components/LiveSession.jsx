@@ -52,7 +52,7 @@ function avg(arr) {
 // paleta ograniczona do kolorów systemu; znika samo po opadnięciu
 function Confetti() {
   const parts = useMemo(() => {
-    const colors = [T.accent, "#FFFFFF", "#94978F", T.ok];
+    const colors = [T.accent, "#FCFCFC", "#7C7C74", T.ok];
     return Array.from({ length: 36 }, (_, i) => ({
       left: Math.random() * 100,
       delay: Math.random() * 0.9,
