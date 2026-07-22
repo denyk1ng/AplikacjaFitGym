@@ -63,10 +63,9 @@ function GoalRing({ pct, size = 86, fraction }) {
 
 export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, onChangeSets }) {
   const [range, setRange] = useState(0);
-  const [filterDay, setFilterDay] = useState("ALL");
-  const [selectedId, setSelectedId] = useState("");
+  const [filterDay, setFilterDay] = useState("A");
   const [log, setLog] = useState([]);
-  const [sharingProg, setSharingProg] = useState(false);
+  const [sharingId, setSharingId] = useState(null);
 
   useEffect(() => {
     loadWorkoutLog().then(setLog);
@@ -174,37 +173,25 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
   };
   const list = getList();
 
-  useEffect(() => {
-    if (list.length > 0 && !list.find((e) => e.id === selectedId)) setSelectedId(list[0].id);
-  }, [filterDay]);
-
-  const ex = list.find((e) => e.id === selectedId) || list[0];
-
   // aktualny ciężar/powtórzenia z żywego stanu planu (może się różnić od
   // statycznych danych EXERCISES_DATA, jeśli użytkownik już je edytował)
-  const liveEx = (() => {
-    if (!ex || !exercises) return ex;
+  const liveVersionOf = (exId) => {
+    if (!exercises) return null;
     for (const d of Object.values(exercises)) {
-      const found = d.exercises.find((e) => e.id === ex.id);
+      const found = d.exercises.find((e) => e.id === exId);
       if (found) return found;
     }
-    return ex;
-  })();
+    return null;
+  };
 
-  const history = ex
-    ? filtered
-        .map((snap) => {
-          const w = (snap.weights || {})[ex.id];
-          return w !== undefined ? { date: snap.date, dateShort: snap.dateShort, weight: w, ts: snap.ts } : null;
-        })
-        .filter(Boolean)
-        .sort((a, b) => a.ts - b.ts)
-    : [];
-
-  const chartData = history.map((h) => ({ date: h.dateShort, kg: h.weight }));
-  const first = history[0];
-  const last = history[history.length - 1];
-  const exGain = first && last ? Math.round((last.weight - first.weight) * 100) / 100 : 0;
+  const historyOf = (exId) =>
+    filtered
+      .map((snap) => {
+        const w = (snap.weights || {})[exId];
+        return w !== undefined ? { date: snap.date, dateShort: snap.dateShort, weight: w, ts: snap.ts } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.ts - b.ts);
 
   return (
     <div>
@@ -403,45 +390,6 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
         ))}
       </div>
 
-      {ex && (
-        <div className="fu" style={{ animationDelay: ".1s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "14px", marginBottom: 12 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: T.sub, marginBottom: 8 }}>Ćwiczenie</div>
-          <select
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-            style={{ width: "100%", background: T.inset, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, padding: "10px 12px", fontSize: 13, fontFamily: "inherit", outline: "none" }}
-          >
-            {list.map((e) => (
-              <option key={e.id} value={e.id}>
-                [{e.dayKey}] {e.name}
-              </option>
-            ))}
-          </select>
-
-          {liveEx && (
-            <>
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
-                  <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Ciężar roboczy</div>
-                  <EditNum value={liveEx.weight} unit={liveEx.unit || "kg"} onChange={(v) => onChangeWeight && onChangeWeight(ex.id, v)} />
-                </div>
-                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
-                  <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Serie</div>
-                  <EditNum value={liveEx.sets} min={1} max={20} onChange={(v) => onChangeSets && onChangeSets(ex.id, v)} />
-                </div>
-                <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
-                  <div style={{ fontSize: 9.5, color: T.sub, marginBottom: 4 }}>Powtórzenia</div>
-                  <EditStr value={liveEx.reps} onChange={(v) => onChangeReps && onChangeReps(ex.id, v)} />
-                </div>
-              </div>
-              <p style={{ fontSize: 9.5, color: T.faint, margin: "8px 0 0" }}>
-                Zmiana ciężaru dopisuje nowy punkt do wykresu progresu poniżej. Serie i powtórzenia zmieniają się też w sesji live.
-              </p>
-            </>
-          )}
-        </div>
-      )}
-
       {snapshots.length === 0 ? (
         <EmptyState
           icon={TrendingUp}
@@ -454,96 +402,108 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
             </>
           }
         />
-      ) : history.length === 0 ? (
+      ) : list.length === 0 ? (
         <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 18, marginBottom: 12 }}>
-          <EmptyState nested icon={Dumbbell} desc="Brak zapisów dla tego ćwiczenia w wybranym okresie." />
+          <EmptyState nested icon={Dumbbell} desc="Brak ćwiczeń z ustawionym ciężarem w tym treningu." />
         </div>
       ) : (
-        <>
-          <div className="fu" style={{ animationDelay: ".15s", display: "flex", gap: 8, marginBottom: 12 }}>
-            <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
-              <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Pierwszy</div>
-              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.sub }}>{pl(first.weight)}</div>
-              <div style={{ fontSize: 9, color: T.faint }}>{first.dateShort}</div>
-            </div>
-            <div style={{ flex: 1, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 16, padding: "11px", textAlign: "center" }}>
-              <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Aktualnie</div>
-              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: T.accent }}>{pl(last.weight)}</div>
-              <div style={{ fontSize: 9, color: T.faint }}>{last.dateShort}</div>
-            </div>
-            <div style={{ flex: 1, background: "rgba(52,211,153,0.07)", border: "1px solid rgba(52,211,153,0.25)", borderRadius: 16, padding: "11px", textAlign: "center" }}>
-              <div style={{ fontSize: 10, color: T.sub, marginBottom: 3 }}>Przyrost</div>
-              <div style={{ fontFamily: "'Urbanist',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: exGain >= 0 ? T.ok : T.danger }}>
-                {exGain >= 0 ? "+" : ""}
-                {pl(exGain)}
+        list.map((exItem, i) => {
+          const history = historyOf(exItem.id);
+          const chartData = history.map((h) => ({ date: h.dateShort, kg: h.weight }));
+          const first = history[0];
+          const last = history[history.length - 1];
+          const exGain = first && last ? Math.round((last.weight - first.weight) * 100) / 100 : 0;
+          const liveEx = liveVersionOf(exItem.id);
+          const shortName = exItem.name;
+
+          return (
+            <div key={exItem.id} className="fu" style={{ animationDelay: `${Math.min(i * 0.04, 0.3)}s`, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: exItem.dayColor, flexShrink: 0 }} />
+                <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U, lineHeight: 1.25 }}>{shortName}</span>
+                {history.length > 0 && (
+                  <span style={{ fontSize: 11, fontWeight: 800, color: exGain >= 0 ? T.ok : T.danger, flexShrink: 0 }}>
+                    {exGain >= 0 ? "+" : ""}
+                    {pl(exGain)}
+                  </span>
+                )}
               </div>
-              <div style={{ fontSize: 9, color: T.faint }}>{history.length} zapisów</div>
-            </div>
-          </div>
 
-          {history.length >= 2 && (
-            <div className="fu" style={{ animationDelay: ".2s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px", marginBottom: 12 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, marginBottom: 12 }}>Wykres w czasie</div>
-              <ResponsiveContainer width="100%" height={190}>
-                <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 0, left: -8 }}>
-                  <XAxis dataKey="date" tick={{ fill: T.faint, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: T.faint, fontSize: 11 }} axisLine={false} tickLine={false} domain={["auto", "auto"]} />
-                  <Tooltip
-                    contentStyle={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, fontSize: 12 }}
-                    labelStyle={{ color: T.sub }}
-                    formatter={(v) => [`${v} ${ex.unit}`, "Ciężar"]}
-                  />
-                  <Line type="monotone" dataKey="kg" stroke={ex.dayColor} strokeWidth={2.5} dot={{ fill: ex.dayColor, r: 4 }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
-              {/* pochwal się progresem — obrazek z wykresem przez Web Share */}
-              <button
-                onClick={async () => {
-                  if (sharingProg) return;
-                  setSharingProg(true);
-                  try {
-                    await shareProgressImage({ name: ex.name.split("—")[0].trim(), unit: ex.unit || "kg", history });
-                  } catch (e) {
-                    if (e.name !== "AbortError") console.error(e);
-                  } finally {
-                    setSharingProg(false);
-                  }
-                }}
-                style={{ width: "100%", marginTop: 12, background: "transparent", color: T.light, border: `1.5px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 13, padding: "12px 18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-              >
-                <Share2 size={15} strokeWidth={2.2} />
-                {sharingProg ? "Generuję…" : "Udostępnij progres"}
-              </button>
-            </div>
-          )}
-
-          <div className="fu" style={{ animationDelay: ".25s", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 12 }}>
-            <div style={{ padding: "10px 14px", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: T.sub, borderBottom: `1px solid ${T.borderSoft}` }}>
-              Zapisy — {ex.name.split("—")[0].trim()}
-            </div>
-            {[...history].reverse().map((h, i) => {
-              const prevIdx = history.length - 1 - i - 1;
-              const prev = prevIdx >= 0 ? history[prevIdx] : null;
-              const diff = prev ? Math.round((h.weight - prev.weight) * 100) / 100 : null;
-              return (
-                <div key={i} style={{ padding: "10px 14px", display: "flex", alignItems: "center", gap: 10, borderBottom: i < history.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
-                  <div style={{ flex: 1, fontSize: 12.5, color: T.light }}>{h.date}</div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: T.accent }}>
-                    {pl(h.weight)} {ex.unit}
-                  </div>
-                  {diff !== null && diff !== 0 ? (
-                    <div style={{ fontSize: 11, fontWeight: 800, color: diff > 0 ? T.ok : T.danger, minWidth: 38, textAlign: "right" }}>
-                      {diff > 0 ? "+" : ""}
-                      {pl(diff)}
+              {history.length === 0 ? (
+                <p style={{ fontSize: 11.5, color: T.sub, margin: "4px 0 10px" }}>Brak zapisów w wybranym okresie.</p>
+              ) : (
+                <>
+                  <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                    <div style={{ flex: 1, background: T.card2, borderRadius: 12, padding: "8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 9, color: T.sub, marginBottom: 2 }}>Pierwszy</div>
+                      <div style={{ fontFamily: U, fontWeight: 800, fontSize: 13, color: T.sub }}>{pl(first.weight)}</div>
                     </div>
-                  ) : (
-                    <div style={{ minWidth: 38, textAlign: "right", fontSize: 10, color: T.faint }}>{diff === 0 ? "=" : "start"}</div>
+                    <div style={{ flex: 1, background: T.card2, borderRadius: 12, padding: "8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 9, color: T.sub, marginBottom: 2 }}>Aktualnie</div>
+                      <div style={{ fontFamily: U, fontWeight: 800, fontSize: 13, color: T.accent }}>{pl(last.weight)}</div>
+                    </div>
+                    <div style={{ flex: 1, background: T.card2, borderRadius: 12, padding: "8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 9, color: T.sub, marginBottom: 2 }}>Zapisów</div>
+                      <div style={{ fontFamily: U, fontWeight: 800, fontSize: 13, color: T.light }}>{history.length}</div>
+                    </div>
+                  </div>
+
+                  {history.length >= 2 && (
+                    <div style={{ margin: "0 -6px" }}>
+                      <ResponsiveContainer width="100%" height={110}>
+                        <LineChart data={chartData} margin={{ top: 5, right: 8, bottom: 0, left: -18 }}>
+                          <XAxis dataKey="date" tick={{ fill: T.faint, fontSize: 9 }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fill: T.faint, fontSize: 9 }} axisLine={false} tickLine={false} domain={["auto", "auto"]} width={28} />
+                          <Tooltip
+                            contentStyle={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, fontSize: 11 }}
+                            labelStyle={{ color: T.sub }}
+                            formatter={(v) => [`${v} ${exItem.unit}`, "Ciężar"]}
+                          />
+                          <Line type="monotone" dataKey="kg" stroke={exItem.dayColor} strokeWidth={2.2} dot={{ fill: exItem.dayColor, r: 3 }} activeDot={{ r: 5 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
                   )}
+
+                  <button
+                    onClick={async () => {
+                      if (sharingId) return;
+                      setSharingId(exItem.id);
+                      try {
+                        await shareProgressImage({ name: shortName, unit: exItem.unit || "kg", history });
+                      } catch (e) {
+                        if (e.name !== "AbortError") console.error(e);
+                      } finally {
+                        setSharingId(null);
+                      }
+                    }}
+                    style={{ width: "100%", marginTop: 6, background: "transparent", color: T.light, border: `1.5px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 12, padding: "10px 18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
+                  >
+                    <Share2 size={13} strokeWidth={2.2} />
+                    {sharingId === exItem.id ? "Generuję…" : "Udostępnij progres"}
+                  </button>
+                </>
+              )}
+
+              {liveEx && (
+                <div style={{ display: "flex", gap: 8, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${T.borderSoft}` }}>
+                  <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
+                    <div style={{ fontSize: 9, color: T.sub, marginBottom: 4 }}>Ciężar roboczy</div>
+                    <EditNum value={liveEx.weight} unit={liveEx.unit || "kg"} onChange={(v) => onChangeWeight && onChangeWeight(exItem.id, v)} />
+                  </div>
+                  <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
+                    <div style={{ fontSize: 9, color: T.sub, marginBottom: 4 }}>Serie</div>
+                    <EditNum value={liveEx.sets} min={1} max={20} onChange={(v) => onChangeSets && onChangeSets(exItem.id, v)} />
+                  </div>
+                  <div style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, padding: "9px 10px" }}>
+                    <div style={{ fontSize: 9, color: T.sub, marginBottom: 4 }}>Powtórzenia</div>
+                    <EditStr value={liveEx.reps} onChange={(v) => onChangeReps && onChangeReps(exItem.id, v)} />
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </>
+              )}
+            </div>
+          );
+        })
       )}
 
       {/* SZCZEGÓŁOWE STATYSTYKI — siatka 2x2 */}
