@@ -1,6 +1,7 @@
-// Przykładowe mini-treningi na ekranie głównym (sekcja "Na szybko") —
+// Przykładowe mini-treningi ("Na szybko" na ekranie Dom + biblioteka) —
 // statyczna inspiracja obok planu A/B/C. Tap na kartę otwiera arkusz
 // z listą ćwiczeń; to propozycje bez zapisu do dziennika.
+// type: sila | cardio | mobilnosc (chipy w bibliotece) · home: nadaje się do domu
 import { PHOTOS, WARMUP_PHOTOS } from "./photos.js";
 
 export const QUICK_WORKOUTS = [
@@ -10,6 +11,9 @@ export const QUICK_WORKOUTS = [
     chip: "10 min",
     meta: "6 ćwiczeń · bez sprzętu",
     photo: PHOTOS.stretch,
+    type: "mobilnosc",
+    level: "Początkujący",
+    home: true,
     desc: "Rozruszaj stawy zaraz po wstaniu — płynnie, bez forsowania zakresów.",
     items: [
       { n: "Krążenia ramion", d: "2×15" },
@@ -26,6 +30,9 @@ export const QUICK_WORKOUTS = [
     chip: "12 min",
     meta: "5 ćwiczeń · brzuch i stabilizacja",
     photo: WARMUP_PHOTOS.B,
+    type: "sila",
+    level: "Początkujący",
+    home: true,
     desc: "Krótki obwód na mięśnie głębokie — przerwy 30–45 s między seriami.",
     items: [
       { n: "Plank", d: "3×40 s" },
@@ -41,6 +48,9 @@ export const QUICK_WORKOUTS = [
     chip: "50 min",
     meta: "bieżnia · strefa 2",
     photo: PHOTOS.cardio,
+    type: "cardio",
+    level: "Początkujący",
+    home: false,
     desc: "Spokojny marsz pod górę — tętno w strefie 2, oddech pozwala rozmawiać.",
     items: [
       { n: "Bieżnia — nachylenie", d: "12%" },
@@ -55,6 +65,9 @@ export const QUICK_WORKOUTS = [
     chip: "25 min",
     meta: "6 ćwiczeń · hantle",
     photo: PHOTOS.A,
+    type: "sila",
+    level: "Średni",
+    home: true,
     desc: "Całe ciało jedną parą hantli — gdy brakuje czasu na pełny trening z planu.",
     items: [
       { n: "Przysiad goblet", d: "3×12" },
@@ -71,6 +84,9 @@ export const QUICK_WORKOUTS = [
     chip: "15 min",
     meta: "roller · rozciąganie",
     photo: WARMUP_PHOTOS.A,
+    type: "mobilnosc",
+    level: "Początkujący",
+    home: true,
     desc: "Dzień wolny od ciężarów — rozroluj spięte partie i uspokój oddech.",
     items: [
       { n: "Rolowanie ud i pośladków", d: "2×60 s" },

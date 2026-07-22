@@ -400,7 +400,7 @@ export default function App() {
       {showOnboard && !showSplash && <OnboardingFlow onDone={dismissOnboard} />}
       {showTour && !showOnboard && !showSplash && <WelcomeTour onDone={dismissTour} />}
 
-      {displayTab !== "dom" && displayTab !== "trening" && displayTab !== "cwiczenie" && displayTab !== "sesja" && displayTab !== "rozgrzewka" && (
+      {displayTab !== "dom" && displayTab !== "trening" && displayTab !== "cwiczenie" && displayTab !== "sesja" && displayTab !== "rozgrzewka" && displayTab !== "biblioteka" && (
         <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
           <div>
             <p style={{ display: "flex", alignItems: "center", gap: 5, color: T.sub, fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
@@ -484,6 +484,11 @@ export default function App() {
 
           {displayTab === "biblioteka" && (
             <ExerciseLibrary
+              onBack={() => setTab("dom")}
+              planDay={day}
+              dayKey={selectedDay}
+              onStartToday={() => startSession(selectedDay)}
+              onOpenPlan={() => setTab("trening")}
               onOpen={(id) => {
                 setExerciseId(id);
                 setExerciseFrom("biblioteka");

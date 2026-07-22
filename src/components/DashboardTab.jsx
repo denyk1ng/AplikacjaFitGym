@@ -5,6 +5,7 @@ import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { QUICK_WORKOUTS } from "../data/quickWorkouts.js";
+import { QuickWorkoutSheet } from "./QuickWorkoutSheet.jsx";
 import { estimateWorkoutMin, isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, typicalHour, weekVolumes, weekEntries } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
@@ -420,36 +421,8 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
         ))}
       </div>
 
-      {/* ARKUSZ MINI-TRENINGU — lista ćwiczeń wybranej karty "Na szybko" */}
-      {quickSheet &&
-        createPortal(
-          <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
-            <div onClick={() => setQuickSheet(null)} style={{ position: "absolute", inset: 0, background: "rgba(23,23,23,0.7)", backdropFilter: "blur(3px)" }} />
-            <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxWidth: 430, margin: "0 auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))", maxHeight: "78vh", overflowY: "auto" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontFamily: H, fontWeight: 700, fontSize: "1.15rem", color: "#fff" }}>{quickSheet.title}</span>
-                <button onClick={() => setQuickSheet(null)} aria-label="Zamknij" style={{ width: 34, height: 34, borderRadius: 11, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <X size={16} strokeWidth={2.4} />
-                </button>
-              </div>
-              <div style={{ fontSize: 11, color: T.sub, marginBottom: 6 }}>{quickSheet.chip} · {quickSheet.meta}</div>
-              <div style={{ fontSize: 12, color: T.light, lineHeight: 1.55, marginBottom: 12 }}>{quickSheet.desc}</div>
-              {quickSheet.items.map((it, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 2px", borderBottom: i < quickSheet.items.length - 1 ? `1px solid ${T.borderSoft}` : "none" }}>
-                  <span style={{ width: 26, height: 26, borderRadius: "50%", background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontWeight: 800, fontSize: 11, color: T.accent, flexShrink: 0 }}>
-                    {i + 1}
-                  </span>
-                  <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: H }}>{it.n}</span>
-                  <span style={{ fontFamily: D, fontWeight: 800, fontSize: 12.5, color: T.accent, flexShrink: 0 }}>{it.d}</span>
-                </div>
-              ))}
-              <p style={{ fontSize: 10, color: T.faint, textAlign: "center", margin: "14px 0 0" }}>
-                Propozycja poza planem A/B/C — zrób we własnym tempie, bez zapisu do dziennika.
-              </p>
-            </div>
-          </div>,
-          document.body
-        )}
+      {/* arkusz mini-treningu — wspólny komponent (QuickWorkoutSheet) */}
+      <QuickWorkoutSheet workout={quickSheet} onClose={() => setQuickSheet(null)} />
 
       {/* PANEL POWIADOMIEŃ */}
       {showNotif &&

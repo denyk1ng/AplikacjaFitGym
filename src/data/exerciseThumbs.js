@@ -5,6 +5,9 @@ import { PHOTOS } from "./photos.js";
 const mods = import.meta.glob("../assets/thumb/*.jpg", { eager: true, import: "default" });
 const S = Object.fromEntries(Object.entries(mods).map(([p, u]) => [p.match(/([^/]+)\.jpg$/)[1], u]));
 
+// surowe miniatury po nazwie pliku — używa ich katalog ćwiczeń spoza planu
+export const THUMB = S;
+
 export const EX_THUMB = {
   // Trening A
   a1: S["bench"], // wyciskanie — ławka skośna
