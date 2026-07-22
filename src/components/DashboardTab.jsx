@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Target, Quote, Trophy, Flame } from "lucide-react";
+import { Bell, BellRing, Moon, HeartPulse, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Target, Quote, Trophy, Flame, Zap } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -229,7 +229,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   ].map((c) => ({ ...c, act: c.l === litCat }));
 
   // karta hero: dzisiejszy plan → zaległości → cardio/regeneracja/komplet
-  const heroChip = { border: "1.5px solid rgba(0,0,0,0.3)", color: "#000", background: "transparent" };
+  const heroChip = { border: "1.5px solid rgba(255,255,255,0.6)", color: "#000", background: "rgba(255,255,255,0.10)", boxShadow: "0 0 12px rgba(255,255,255,0.25)" };
   const hero = suggestion
     ? {
         chip: suggestion.overdue && settings.overdueAlert ? "ZALEGŁY TRENING" : "DZIŚ NA PLANIE",
@@ -313,27 +313,87 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
         ))}
       </div>
 
-      {/* LIMONKOWA KARTA HERO — duża typografia, chip obrysowy, mocny czarny CTA */}
-      <div className="fu" style={{ animationDelay: ".12s", background: T.accent, borderRadius: 28, padding: "20px 18px 18px", marginBottom: 24, boxShadow: "0 20px 48px rgba(188,255,49,0.16)" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "inline-block", fontSize: 9.5, fontWeight: 800, letterSpacing: ".12em", padding: "5px 11px", borderRadius: 99, marginBottom: 14, ...hero.chipStyle }}>
-              {hero.chip}
-            </span>
-            <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1.85rem", letterSpacing: "-0.02em", color: "#000", lineHeight: 1 }}>{hero.title}</div>
-            <div style={{ fontSize: 12.5, color: "rgba(0,0,0,0.6)", marginTop: 6, fontWeight: 600 }}>{hero.sub}</div>
-          </div>
-          <Ring pct={doneCount / 3} size={68} stroke={7} color="#000" track="rgba(0,0,0,0.14)">
-            <span style={{ fontFamily: D, fontWeight: 800, fontSize: 14, color: "#000" }}>{doneCount}/3</span>
-          </Ring>
+      {/* LIMONKOWA KARTA HERO — energetyczny gradient, smugi światła i raster,
+          sportowa kursywa, neonowy CTA (dekoracje statyczne, czysty CSS/SVG) */}
+      <div
+        className="fu"
+        style={{
+          animationDelay: ".12s",
+          position: "relative",
+          overflow: "hidden",
+          background: "radial-gradient(130% 170% at 10% 0%, #d9ff6b 0%, #bcff31 46%, #a9ea27 78%, #93d31c 100%)",
+          borderRadius: 28,
+          padding: "20px 18px 18px",
+          marginBottom: 24,
+          boxShadow: "0 20px 48px rgba(188,255,49,0.16)",
+        }}
+      >
+        {/* warstwa dekoracyjna: ukośne promienie + faliste smugi + kropki półtonowe */}
+        <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, transparent 38%, rgba(255,255,255,0.18) 45%, transparent 52%, transparent 58%, rgba(255,255,255,0.10) 65%, transparent 71%)" }} />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "radial-gradient(rgba(0,0,0,0.13) 1.2px, transparent 1.2px)",
+              backgroundSize: "11px 11px",
+              WebkitMaskImage: "radial-gradient(64% 58% at 6% 82%, #000 0%, transparent 72%)",
+              maskImage: "radial-gradient(64% 58% at 6% 82%, #000 0%, transparent 72%)",
+            }}
+          />
+          <svg viewBox="0 0 394 196" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+            <g fill="none" strokeLinecap="round">
+              <path d="M-10,120 C80,88 180,152 250,122 C320,92 360,112 404,98" stroke="rgba(255,255,255,0.38)" strokeWidth="1.6" />
+              <path d="M-10,134 C90,102 190,166 260,136 C330,106 370,126 404,112" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+              <path d="M-10,150 C100,120 200,182 270,152 C340,122 380,142 404,128" stroke="rgba(23,23,23,0.10)" strokeWidth="1.2" />
+              <path d="M-10,166 C110,138 210,196 280,168 C350,140 386,156 404,146" stroke="rgba(255,255,255,0.14)" strokeWidth="1.1" />
+            </g>
+          </svg>
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(70% 60% at 100% 105%, rgba(23,23,23,0.16), transparent 62%)" }} />
         </div>
-        <button
-          onClick={hero.go}
-          style={{ marginTop: 16, width: "100%", background: "#171717", color: "#fff", border: "none", borderRadius: 99, fontFamily: H, fontWeight: 800, fontSize: 14.5, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)" }}
-        >
-          <Play size={16} color={T.accent} fill={T.accent} strokeWidth={0} />
-          {hero.cta}
-        </button>
+
+        <div style={{ position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 9.5, fontWeight: 800, letterSpacing: ".12em", padding: "5px 11px", borderRadius: 99, marginBottom: 14, ...hero.chipStyle }}>
+                <Zap size={11} color={hero.chipStyle.color} fill={hero.chipStyle.color} strokeWidth={0} />
+                {hero.chip}
+              </span>
+              <div style={{ fontFamily: H, fontWeight: 800, fontStyle: "italic", fontSize: "1.85rem", letterSpacing: "-0.02em", color: "#000", lineHeight: 1, paddingRight: 6 }}>{hero.title}</div>
+              <div style={{ fontSize: 12.5, color: "rgba(0,0,0,0.62)", marginTop: 6, fontWeight: 600, fontStyle: "italic" }}>{hero.sub}</div>
+            </div>
+            <div style={{ flexShrink: 0, borderRadius: "50%", boxShadow: "0 0 0 2.5px rgba(255,255,255,0.55), 0 0 20px rgba(255,255,255,0.35)" }}>
+              <Ring pct={doneCount / 3} size={68} stroke={7} color="#000" track="rgba(0,0,0,0.14)">
+                <span style={{ fontFamily: D, fontWeight: 800, fontSize: 14, color: "#000" }}>{doneCount}/3</span>
+              </Ring>
+            </div>
+          </div>
+          <button
+            onClick={hero.go}
+            style={{
+              marginTop: 18,
+              width: "100%",
+              background: "#171717",
+              color: "#fff",
+              border: "none",
+              borderRadius: 99,
+              fontFamily: H,
+              fontWeight: 800,
+              fontStyle: "italic",
+              fontSize: 14.5,
+              padding: "16px 20px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 9,
+              boxShadow: "0 0 0 1.5px rgba(222,255,122,0.9), 0 0 20px rgba(255,255,255,0.4), 0 8px 24px rgba(23,23,23,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
+            }}
+          >
+            <Play size={16} color={T.accent} fill={T.accent} strokeWidth={0} />
+            {hero.cta}
+          </button>
+        </div>
       </div>
 
       {/* PODSUMOWANIE MINIONEGO TYGODNIA — raz na tydzień, do zamknięcia */}
