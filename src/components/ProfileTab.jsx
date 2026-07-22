@@ -183,7 +183,6 @@ export function ProfileTab() {
       localStorage.removeItem("workout_log");
       localStorage.removeItem("progress_snapshots");
       localStorage.removeItem("live_session");
-      localStorage.removeItem("week_summary_seen");
       if ("clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
     } catch (e) {}
     location.reload();

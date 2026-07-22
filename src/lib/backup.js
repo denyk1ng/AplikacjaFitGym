@@ -24,10 +24,8 @@ const APP_KEYS = [
   "monthly_goal",
   "live_session",
   "last_cat",
-  "week_summary_seen",
   "reminder_last",
   "walkthrough_done",
-  "deload_seen",
 ];
 
 function openDb() {

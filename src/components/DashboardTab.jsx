@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, BellRing, Moon, Play, Dumbbell, Check, Medal, X, ChevronRight, BarChart3, Target, Quote, Trophy, Flame, Zap, TrendingUp } from "lucide-react";
+import { Bell, BellRing, Play, Dumbbell, Check, Medal, X, ChevronRight, Target, Quote, Trophy, Flame, Zap, TrendingUp } from "lucide-react";
 import { T } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -40,7 +40,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
   // dziennik treningów — podpowiedź dnia + postęp tygodnia
   const [log, setLog] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
-  const [summaryDismissed, setSummaryDismissed] = useState(false);
   useEffect(() => {
     loadWorkoutLog().then(setLog);
   }, []);
@@ -92,29 +91,9 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
       go: () => goTraining(suggestion.type),
     });
 
-  // cotygodniowe podsumowanie — pokazuje się raz na tydzień, gdy poprzedni
-  // tydzień miał jakąkolwiek aktywność; bez backendu więc to powiadomienie
-  // w appce, nie push po zamknięciu appki
-  const hist3 = weekHistory(log, 3);
+  // objętości tygodniowe — potrzebne do wyzwania "pobij objętość"
   const vols3 = weekVolumes(log, EXERCISES_DATA, 3);
-  const lastWeek = hist3[hist3.length - 2];
-  const weekBefore = hist3[hist3.length - 3];
   const lastWeekVol = vols3[vols3.length - 2]?.vol || 0;
-  const weekBeforeVol = vols3[vols3.length - 3]?.vol || 0;
-  const summarySeenWeek = localStorage.getItem("week_summary_seen");
-  if (lastWeek && (lastWeek.done > 0 || lastWeekVol > 0) && summarySeenWeek !== String(weekStart)) {
-    const doneDelta = lastWeek.done - (weekBefore?.done || 0);
-    const volDelta = weekBeforeVol > 0 ? Math.round(((lastWeekVol - weekBeforeVol) / weekBeforeVol) * 100) : null;
-    notifs.push({
-      Icon: BarChart3,
-      t: "Podsumowanie tygodnia",
-      d: `${lastWeek.done}/3 treningi (${doneDelta > 0 ? "+" : ""}${doneDelta} vs poprzedni)${volDelta !== null ? ` · objętość ${volDelta > 0 ? "+" : ""}${volDelta}%` : ""}`,
-      go: () => {
-        localStorage.setItem("week_summary_seen", String(weekStart));
-        goTo("kalendarz");
-      },
-    });
-  }
   if (snapshots.length >= 2) {
     const lastS = snapshots[snapshots.length - 1];
     const prevMax = {};
@@ -175,25 +154,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
     return c;
   })();
   const todayIdx = (new Date().getDay() + 6) % 7;
-
-  // sugestia deloadu: 5+ tygodni treningu bez przerwy — organizm początkującego
-  // potrzebuje lżejszego tygodnia (te same ćwiczenia, ok. 60% ciężarów);
-  // przypomnienie raz na tydzień, do zamknięcia
-  const [deloadDismissed, setDeloadDismissed] = useState(false);
-  const deloadSeen = (() => {
-    try {
-      return localStorage.getItem("deload_seen");
-    } catch (e) {
-      return null;
-    }
-  })();
-  const showDeload = streak >= 5 && !deloadDismissed && deloadSeen !== String(weekStart);
-  const dismissDeload = () => {
-    try {
-      localStorage.setItem("deload_seen", String(weekStart));
-    } catch (e) {}
-    setDeloadDismissed(true);
-  };
 
   // pigułki kategorii na górze — szybkie wejścia w Rozgrzewkę / A / B / C / Cardio.
   // Podświetlona jest OSTATNIO KLIKNIĘTA pigułka (klucz last_cat, przeżywa
@@ -443,56 +403,6 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName 
           </div>
         </div>
       </div>
-
-      {/* KARTY KONTEKSTOWE — podsumowanie tygodnia i deload obok siebie (2 kolumny) */}
-      {(() => {
-        const showSummary = !summaryDismissed && lastWeek && (lastWeek.done > 0 || lastWeekVol > 0) && summarySeenWeek !== String(weekStart);
-        if (!showSummary && !showDeload) return null;
-        const volTxt =
-          weekBeforeVol > 0 && lastWeekVol > 0
-            ? ` · objętość ${lastWeekVol >= weekBeforeVol ? "+" : ""}${Math.round(((lastWeekVol - weekBeforeVol) / weekBeforeVol) * 100)}%`
-            : "";
-        return (
-          <div style={{ display: "grid", gridTemplateColumns: showSummary && showDeload ? "1fr 1fr" : "1fr", gap: 8, marginBottom: 20 }}>
-            {showSummary && (
-              <div className="fu" style={{ animationDelay: ".14s", display: "flex", flexDirection: "column", background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: 12 }}>
-                <span style={{ width: 34, height: 34, borderRadius: 11, background: T.accentSoftBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
-                  <BarChart3 size={15} color={T.accent} strokeWidth={2.2} />
-                </span>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H }}>Twój poprzedni tydzień</div>
-                <div style={{ fontSize: 10, color: T.sub, marginTop: 2, lineHeight: 1.5 }}>
-                  {lastWeek.done}/3 treningi{volTxt}
-                </div>
-                <button
-                  onClick={() => {
-                    localStorage.setItem("week_summary_seen", String(weekStart));
-                    setSummaryDismissed(true);
-                    goTo("kalendarz");
-                  }}
-                  aria-label="Zobacz szczegóły tygodnia"
-                  style={{ alignSelf: "flex-start", marginTop: "auto", width: 28, height: 28, borderRadius: 10, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                >
-                  <ChevronRight size={14} strokeWidth={2.4} />
-                </button>
-              </div>
-            )}
-            {showDeload && (
-              <div className="fu" style={{ animationDelay: ".15s", position: "relative", display: "flex", flexDirection: "column", background: T.card, border: `1px solid rgba(251,191,36,0.35)`, borderRadius: 18, padding: 12 }}>
-                <span style={{ width: 34, height: 34, borderRadius: 11, background: "rgba(251,191,36,0.13)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
-                  <Moon size={15} color={T.yellow} strokeWidth={2.2} />
-                </span>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", fontFamily: H, lineHeight: 1.3, paddingRight: 22 }}>{streak} tygodni bez przerwy — czas na deload</div>
-                <div style={{ fontSize: 10, color: T.sub, marginTop: 2, lineHeight: 1.5 }}>
-                  Zrób w tym tygodniu te same treningi na ok. 60% ciężarów. Lżejszy tydzień to regeneracja stawów i nowa siła.
-                </div>
-                <button onClick={dismissDeload} aria-label="Zamknij sugestię deloadu" style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: 8, background: T.inset, border: "none", color: T.sub, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <X size={12} strokeWidth={2.4} />
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })()}
 
       {/* AKTYWNOŚĆ — trzy kolumny wg projektu: pierścień+seria | słupki progresu | cel+łańcuch dni */}
       <SectionHead title="Aktywność" onSee={() => goTo("stats")} delay=".16s" />
