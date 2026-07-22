@@ -6,6 +6,7 @@ import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { QUICK_WORKOUTS } from "../data/quickWorkouts.js";
 import { QuickWorkoutSheet } from "./QuickWorkoutSheet.jsx";
+import dashboardBg from "../assets/dashboard-bg.jpg";
 import { estimateWorkoutMin, isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, suggestToday, PLAN_DOW, DOW_NAMES, typicalHour, weekVolumes, weekEntries } from "../lib/workoutLog.js";
 import { loadSettings } from "../lib/settings.js";
@@ -171,67 +172,81 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
 
   return (
     <div>
-      {/* HEADER — kompaktowy: avatar z cienką limonkową obwódką, data pod powitaniem */}
-      <div className="fu" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-        <button onClick={() => goTo("profil")} title="Profil" style={{ width: 44, height: 44, borderRadius: "50%", padding: 2, border: `1.5px solid ${T.accent}`, overflow: "hidden", cursor: "pointer", flexShrink: 0, background: T.bg }}>
-          <img src={PHOTOS.hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-        </button>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1.15rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            Cześć{userName ? `, ${userName}` : ""} 👋
+      {/* TŁO NAGŁÓWKA — mroczna scena (świątynia/mgła/księżyc), gasnąca w T.bg
+          tuż przed kartą hero; margin ujemny wychodzi poza padding App.jsx
+          (ten sam trik co pełnoekranowe hero w WorkoutDetail/ExerciseDetail) */}
+      <div style={{ margin: "-20px -18px 20px -18px", position: "relative", height: 336, overflow: "hidden" }}>
+        <img src={dashboardBg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(15,16,18,0.32) 0%, rgba(15,16,18,0.22) 32%, rgba(15,16,18,0.6) 75%, #0f1012 100%)" }} />
+        <div
+          style={{
+            position: "relative",
+            padding: "calc(20px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 0 calc(18px + env(safe-area-inset-left))",
+          }}
+        >
+          {/* HEADER — kompaktowy: avatar z cienką limonkową obwódką, data pod powitaniem */}
+          <div className="fu" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+            <button onClick={() => goTo("profil")} title="Profil" style={{ width: 44, height: 44, borderRadius: "50%", padding: 2, border: `1.5px solid ${T.accent}`, overflow: "hidden", cursor: "pointer", flexShrink: 0, background: T.bg }}>
+              <img src={PHOTOS.hero} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+            </button>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: H, fontWeight: 800, fontSize: "1.15rem", letterSpacing: "-0.01em", color: "#fff", lineHeight: 1.12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                Cześć{userName ? `, ${userName}` : ""} 👋
+              </div>
+              <div style={{ fontSize: 11, color: T.soft, marginTop: 2 }}>{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</div>
+            </div>
+            <button onClick={onQuickAdd} title="Szybkie akcje" style={{ width: 40, height: 40, borderRadius: 14, background: T.card, border: `1px solid ${T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Plus size={18} color={T.accent} strokeWidth={2.4} />
+            </button>
+            <button onClick={() => setShowNotif(true)} title="Powiadomienia" style={{ position: "relative", width: 40, height: 40, borderRadius: 14, background: T.card, border: `1px solid ${T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Bell size={17} color="#fff" strokeWidth={2} />
+              {hasAlert && (
+                <span style={{ position: "absolute", top: 7, right: 8, width: 7, height: 7, borderRadius: "50%", background: T.accent, border: `1.5px solid ${T.card}` }} />
+              )}
+            </button>
           </div>
-          <div style={{ fontSize: 11, color: T.sub, marginTop: 2 }}>{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</div>
-        </div>
-        <button onClick={onQuickAdd} title="Szybkie akcje" style={{ width: 40, height: 40, borderRadius: 14, background: T.card, border: `1px solid ${T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Plus size={18} color={T.accent} strokeWidth={2.4} />
-        </button>
-        <button onClick={() => setShowNotif(true)} title="Powiadomienia" style={{ position: "relative", width: 40, height: 40, borderRadius: 14, background: T.card, border: `1px solid ${T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Bell size={17} color="#fff" strokeWidth={2} />
-          {hasAlert && (
-            <span style={{ position: "absolute", top: 7, right: 8, width: 7, height: 7, borderRadius: "50%", background: T.accent, border: `1.5px solid ${T.card}` }} />
-          )}
-        </button>
-      </div>
 
-      {/* KATEGORIE — pigułki ze zdjęciem, aktywna z limonkowym obrysem i tekstem */}
-      <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
-      <div className="fu hscroll" style={{ animationDelay: ".08s", marginBottom: 20 }}>
-        {cats.map(({ photo, l, act, go }) => (
-          <button
-            key={l}
-            onClick={() => pickCat(l, go)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 7,
-              flexShrink: 0,
-              padding: "5px 13px 5px 5px",
-              borderRadius: 99,
-              border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
-              background: T.card,
-              cursor: "pointer",
-              fontFamily: "inherit",
-              transition: "all .2s",
-            }}
-          >
-            <span
-              style={{
-                width: 27,
-                height: 27,
-                borderRadius: "50%",
-                flexShrink: 0,
-                overflow: "hidden",
-                border: `1.5px solid ${act ? T.accent : "transparent"}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </span>
-            <span style={{ fontSize: 11.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
-          </button>
-        ))}
+          {/* KATEGORIE — pigułki ze zdjęciem, aktywna z limonkowym obrysem i tekstem */}
+          <SectionHead title="Kategorie" onSee={() => goTo("trening")} delay=".06s" />
+          <div className="fu hscroll" style={{ animationDelay: ".08s" }}>
+            {cats.map(({ photo, l, act, go }) => (
+              <button
+                key={l}
+                onClick={() => pickCat(l, go)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  flexShrink: 0,
+                  padding: "5px 13px 5px 5px",
+                  borderRadius: 99,
+                  border: `1.5px solid ${act ? T.accent : T.borderSoft}`,
+                  background: T.card,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  transition: "all .2s",
+                }}
+              >
+                <span
+                  style={{
+                    width: 27,
+                    height: 27,
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    overflow: "hidden",
+                    border: `1.5px solid ${act ? T.accent : "transparent"}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </span>
+                <span style={{ fontSize: 11.5, fontWeight: 700, color: act ? T.accent : "#fff", whiteSpace: "nowrap" }}>{l}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* LIMONKOWA KARTA HERO — energetyczny gradient, smugi światła i raster,
