@@ -187,7 +187,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
           marginBottom: 20,
           marginLeft: "calc(-18px - env(safe-area-inset-left))",
           position: "relative",
-          height: "calc(230px + env(safe-area-inset-top))",
+          height: "calc(290px + env(safe-area-inset-top))",
           overflow: "hidden",
         }}
       >
