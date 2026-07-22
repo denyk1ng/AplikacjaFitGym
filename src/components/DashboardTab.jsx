@@ -174,8 +174,23 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
     <div>
       {/* TŁO NAGŁÓWKA — mroczna scena (świątynia/mgła/księżyc), gasnąca w T.bg
           tuż przed kartą hero; margin ujemny wychodzi poza padding App.jsx
-          (ten sam trik co pełnoekranowe hero w WorkoutDetail/ExerciseDetail) */}
-      <div style={{ margin: "-20px -18px 20px -18px", position: "relative", height: 336, overflow: "hidden" }}>
+          (ten sam trik co pełnoekranowe hero w WorkoutDetail/ExerciseDetail).
+          Margin-top MUSI odjąć pełne "20px + safe-area", nie samo 20px —
+          inaczej safe-area liczy się podwójnie (raz jako reszta z niepełnego
+          skasowania, raz w paddingu poniżej) i na notchu/Dynamic Island
+          wszystko zjeżdża w dół o dodatkowe ~50-60px. Wysokość też rośnie
+          o safe-area, żeby strefa gaśnięcia pod pigułkami była stała. */}
+      <div
+        style={{
+          marginTop: "calc(-20px - env(safe-area-inset-top))",
+          marginRight: "calc(-18px - env(safe-area-inset-right))",
+          marginBottom: 20,
+          marginLeft: "calc(-18px - env(safe-area-inset-left))",
+          position: "relative",
+          height: "calc(336px + env(safe-area-inset-top))",
+          overflow: "hidden",
+        }}
+      >
         <img src={dashboardBg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(15,16,18,0.32) 0%, rgba(15,16,18,0.22) 32%, rgba(15,16,18,0.6) 75%, #0f1012 100%)" }} />
         <div
