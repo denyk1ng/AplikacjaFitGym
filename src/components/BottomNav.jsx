@@ -54,7 +54,7 @@ export function BottomNav({ tab, setTab }) {
   const statsOn = tab === "stats";
 
   return (
-    <div style={{ position: "fixed", bottom: "calc(6px + env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 402 }}>
+    <div style={{ position: "fixed", bottom: 4, left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 402 }}>
       <div ref={ref} style={{ position: "relative", height: H }}>
         {w > 0 && (
           <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} style={{ position: "absolute", inset: 0, filter: "drop-shadow(0 16px 30px rgba(0,0,0,0.6))" }}>
