@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { T } from "./theme.js";
-import { EXERCISES_DATA } from "./data/plan.js";
+import { EXERCISES_DATA, PLAN_VERSION } from "./data/plan.js";
 import { PHOTOS } from "./data/photos.js";
 import { storage } from "./lib/storage.js";
 import { isoWeekStart } from "./lib/utils.js";
@@ -136,8 +136,25 @@ export default function App() {
     });
   }, [displayTab]);
 
+  // podmiana planu na nowy cykl unieważnia dane związane ze STARYM zestawem
+  // ćwiczeń: nadpisania ciężarów/serii (przykryłyby nowe ciężary z planu) oraz
+  // wiszącą sesję live (trzyma listę ćwiczeń, której już nie ma). Historia —
+  // progress_snapshots, workout_log, waga ciała, profil — zostaje nietknięta;
+  // ćwiczenia, które przeszły do nowego cyklu, mają te same id, więc ich wykres
+  // progresu jest ciągły.
+  const migratePlanVersion = () => {
+    try {
+      if (localStorage.getItem("plan_version") === PLAN_VERSION) return;
+      localStorage.removeItem("plan_custom");
+      localStorage.removeItem("live_session");
+      localStorage.removeItem("warmup_progress");
+      localStorage.setItem("plan_version", PLAN_VERSION);
+    } catch (e) {}
+  };
+
   useEffect(() => {
     async function load() {
+      migratePlanVersion();
       let saved = null;
       try {
         const result = await storage.get("plan_custom");

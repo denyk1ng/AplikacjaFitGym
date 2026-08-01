@@ -8,31 +8,28 @@ const S = Object.fromEntries(Object.entries(mods).map(([p, u]) => [p.match(/([^/
 // surowe miniatury po nazwie pliku — używa ich katalog ćwiczeń spoza planu
 export const THUMB = S;
 
+// klucz = id ćwiczenia z planu; id nie odpowiada dniowi (patrz komentarz przy
+// EXERCISES_DATA w plan.js) — grupy niżej odzwierciedlają układ planu
 export const EX_THUMB = {
-  // Trening A
-  a1: S["bench"], // wyciskanie — ławka skośna
+  // Trening A — poniedziałek
   a2: PHOTOS.hero, // wyciskanie — ławka płaska (ciężka praca przy stojaku)
-  a3: S["barbell-floor"], // seal row — sztanga nisko
-  a4: S["pullup"], // ściąganie drążka szerokim (szeroki chwyt nad głową)
-  a5: PHOTOS.C, // wyciskanie hantli nad głowę (overhead press)
-  a6: S["curl"], // uginanie hantli
-  a7: S["rope"], // pushdown (lina)
-  // Trening B
-  b1: S["machines"], // rozpiętki na maszynie
-  b2: S["dumbbells"], // wyciskanie hantli — ławka płaska
-  b3: PHOTOS.hero, // wiosłowanie siedząc
-  b4: S["rope"], // face pull (lina)
-  b5: S["squat"], // przysiad ze sztangą
-  b6: S["rack-woman"], // wykrok bułgarski
-  b7: PHOTOS.B, // uginanie nóg leżąc (nogi/sztanga)
-  b8: S["band"], // kółko z gumą (akcesoria z gumą)
-  b9: S["ropes-cardio"], // mountain climbers (dynamika)
-  // Trening C
-  c1: S["machines"], // rozpiętki na maszynie
   c2: S["deadlift"], // martwy ciąg
-  c3: S["pullup"], // ściąganie drążka wąskim
+  b1: S["machines"], // rozpiętki na maszynie
+  b6: S["rack-woman"], // wykrok bułgarski
+  a6: S["curl"], // uginanie hantli stojąc
+  a7: S["rope"], // pushdown (lina)
+  // Trening B — środa
+  b10: S["pullup"], // podciąganie podchwytem
   c4: PHOTOS.C, // wyciskanie żołnierskie (overhead)
+  b3: PHOTOS.hero, // wiosłowanie siedząc
   c5: S["dumbbells"], // unoszenie hantli bokiem
-  c6: S["curl"], // uginanie EZ na modlitewniku
-  c7: S["rope"], // pushdown (lina)
+  b4: S["rope"], // face pull (lina)
+  b8: S["band"], // kółko do ćwiczeń brzucha (akcesoria)
+  // Trening C — piątek
+  c8: S["bench"], // wyciskanie — ławka płaska (wariant objętościowy)
+  b5: S["squat"], // przysiad ze sztangą
+  c9: S["dumbbells"], // wyciskanie hantli — ławka skośna
+  a3: S["barbell-floor"], // seal row — sztanga nisko
+  b7: PHOTOS.B, // uginanie nóg leżąc (nogi/sztanga)
+  c10: S["curl"], // uginanie hantli stojąc (drugi raz w tygodniu)
 };

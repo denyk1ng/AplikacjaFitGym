@@ -54,7 +54,7 @@ also includes `perExercise: [{id, weight, unit, setsDone, sets}]`, the per-exerc
 completed-sets record — currently unconsumed since the feature that read it was removed, see
 Known dead code), `body_weight_log`, `profile`, `fav_exercises`, `forma_onboarded`, `settings`
 (see `src/lib/settings.js`, includes an unused `aiApiKey` field left over from the same removed
-feature).
+feature), `plan_version` (see plan-swap migration below).
 
 **Week-based completion logic lives in `src/lib/workoutLog.js`.** Trainings A/B/C don't need to
 happen on their nominal weekday (`PLAN_DOW = {A:1, B:3, C:5}`) — they need to happen once each
@@ -84,6 +84,25 @@ are separate maps keyed by exercise id or category: `src/data/photos.js` (day he
 `src/data/exerciseImages.js` (two-frame start/end technique images per exercise, also via
 `import.meta.glob`, consumed by `ExerciseDetail.jsx`'s crossfade). When adding an exercise, wiring
 a thumbnail/image is a separate step from adding the plan entry.
+
+**Exercise ids are history keys, not day labels.** `plan_custom`, `progress_snapshots.weights`,
+`workout_log[].perExercise[].id` and the lifetime records in `StatsTab` are all indexed by
+exercise id, so an exercise keeps its id even when it moves to another day — hence `a2`/`c2`/`b1`
+sitting in Trening A. When swapping in a new training cycle: same movement ⇒ same id (keeps the
+progress chart continuous), genuinely new movement ⇒ an id never used before (recycling a retired
+id would drag a different exercise's history onto the chart), same movement twice in one week ⇒
+two ids (`plan_custom` holds one record per id). `src/assets/ex/{id}.jpg` + `{id}-2.jpg` follow
+the id; `exerciseImages.js` has an `ALIAS` map so a repeated movement shares the original's photos
+instead of duplicating files. Technique photos come from
+[free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain), 850×567.
+
+**Swapping the plan requires bumping `PLAN_VERSION`** (`src/data/plan.js`). `migratePlanVersion()`
+in `App.jsx` compares it with `localStorage["plan_version"]` on boot and, on a mismatch, drops
+`plan_custom` (stale weight overrides would otherwise mask the new plan's weights), `live_session`
+(holds the *old* exercise list — restoring it into a shorter plan can index out of bounds) and
+`warmup_progress`. History (`progress_snapshots`, `workout_log`, body weight, profile) is
+deliberately left intact. The activation blocks in `WARMUP_DATA` are day-specific and quote real
+kilograms from the working weights — review them alongside any plan change.
 
 **Theming is a single flat token object**, not Tailwind/CSS-in-JS: `src/theme.js` exports `T`
 (colors) and `FONT_NUM` (the `Doto` display-number font, used for anything numeric/statistical —

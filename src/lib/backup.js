@@ -13,6 +13,7 @@ const RECORD_KEY = "mirror";
 // klucze appki, które podlegają kopii (bez śmieci typu cache innych skryptów)
 const APP_KEYS = [
   "plan_custom",
+  "plan_version",
   "progress_snapshots",
   "workout_log",
   "body_weight_log",
