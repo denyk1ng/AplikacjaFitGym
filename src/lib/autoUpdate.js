@@ -21,9 +21,17 @@ async function serverBundle() {
   return m ? m[1] : null;
 }
 
+// UWAGA: liczy się tylko sesja NIEPRZETERMINOWANA — ta sama granica 6 h co
+// w LiveSession.loadLiveState. Samo istnienie klucza nie wystarczy: porzucona
+// sesja sprzed tygodni zostaje w localStorage i blokowała aktualizacje
+// w nieskończoność (appka trzymała starą wersję mimo nowych deployów).
+const LIVE_MAX_AGE = 6 * 3600 * 1000;
 const sessionInProgress = () => {
   try {
-    return !!localStorage.getItem("live_session");
+    const raw = localStorage.getItem("live_session");
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    return Date.now() - (s.savedAt || 0) <= LIVE_MAX_AGE;
   } catch (e) {
     return false;
   }

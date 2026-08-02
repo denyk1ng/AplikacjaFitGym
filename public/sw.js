@@ -1,7 +1,7 @@
 // Service worker FORMA — appka działa offline po pierwszym wejściu.
 // Nawigacje: najpierw sieć (świeża wersja), przy braku netu — cache.
 // Zasoby (js/css/obrazy/fonty): najpierw cache, dociągane raz z sieci.
-const CACHE = "forma-v2";
+const CACHE = "forma-v3";
 const MAX_ENTRIES = 90; // stare hashowane bundle z poprzednich deployów nie mogą rosnąć bez końca
 
 async function trimCache() {
@@ -39,8 +39,13 @@ self.addEventListener("fetch", (e) => {
   if (url.origin !== location.origin && !isFont) return;
 
   if (req.mode === "navigate") {
+    // `cache: "no-store"` omija cache HTTP przeglądarki. GitHub Pages wysyła
+    // dla index.html `cache-control: max-age=600`, więc bez tego "najpierw
+    // sieć" i tak potrafiło zwrócić starą stronę (a z nią stary bundel)
+    // jeszcze przez 10 minut po deployu. Fetch po URL, nie po samym `req` —
+    // konstruowanie Requestu z trybem "navigate" i initem bywa odrzucane.
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: "no-store", credentials: "same-origin" })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(req, copy));
