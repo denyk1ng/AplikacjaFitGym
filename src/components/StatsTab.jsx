@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
 import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star, Share2, Check } from "lucide-react";
-import { T, FONT_NUM } from "../theme.js";
+import { T, FONT_NUM, TR } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
@@ -365,7 +365,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
           <button
             key={f.v}
             onClick={() => setRange(f.v)}
-            style={{ flex: 1, padding: "9px 4px", borderRadius: 99, fontSize: 11.5, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", background: range === f.v ? T.accent : T.card, color: range === f.v ? "#000" : T.sub, border: `1px solid ${range === f.v ? T.accent : T.border}`, transition: "all .2s" }}
+            style={{ flex: 1, padding: "9px 4px", borderRadius: 99, fontSize: 11.5, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", background: range === f.v ? T.accent : T.card, color: range === f.v ? "#000" : T.sub, border: `1px solid ${range === f.v ? T.accent : T.border}`, transition: TR.colors }}
           >
             {f.l}
           </button>
@@ -383,7 +383,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
           <button
             key={f.k}
             onClick={() => setFilterDay(f.k)}
-            style={{ flex: f.k === "ALL" ? 2 : 1, padding: "8px 4px", borderRadius: 99, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", background: filterDay === f.k ? f.c : T.card, color: filterDay === f.k ? "#000" : T.sub, border: `1px solid ${filterDay === f.k ? "transparent" : T.border}`, transition: "all .2s" }}
+            style={{ flex: f.k === "ALL" ? 2 : 1, padding: "8px 4px", borderRadius: 99, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", background: filterDay === f.k ? f.c : T.card, color: filterDay === f.k ? "#000" : T.sub, border: `1px solid ${filterDay === f.k ? "transparent" : T.border}`, transition: TR.colors }}
           >
             {f.l}
           </button>
@@ -576,7 +576,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
               <div
                 key={b.id}
                 title={b.need}
-                style={{ background: on ? T.accentSoftBg : T.card2, border: `1.5px solid ${on ? T.accentSoftBorder : T.borderSoft}`, borderRadius: 16, padding: "13px 6px 11px", textAlign: "center", opacity: on ? 1 : 0.45, transition: "all .3s" }}
+                style={{ background: on ? T.accentSoftBg : T.card2, border: `1.5px solid ${on ? T.accentSoftBorder : T.borderSoft}`, borderRadius: 16, padding: "13px 6px 11px", textAlign: "center", opacity: on ? 1 : 0.45, transition: TR.fade }}
               >
                 <Icon size={20} color={on ? T.accent : T.soft} strokeWidth={2.1} style={{ display: "block", margin: "0 auto" }} />
                 <div style={{ fontSize: 9.5, fontWeight: 700, marginTop: 7, color: on ? T.accent : T.sub, lineHeight: 1.3 }}>{b.label}</div>

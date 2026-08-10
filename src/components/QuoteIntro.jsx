@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Quote, Bookmark, Check } from "lucide-react";
-import { T } from "../theme.js";
+import { T, TR } from "../theme.js";
 import { dailyQuote } from "../lib/quotes.js";
 
 const TYPE_MS = 3400; // czas "pisania" całego cytatu
@@ -100,7 +100,7 @@ export function QuoteIntro({ onDone }) {
             fontWeight: 700,
             fontSize: 12.5,
             cursor: saved ? "default" : "pointer",
-            transition: "all .25s",
+            transition: TR.colors,
           }}
         >
           {saved ? <Check size={14} strokeWidth={2.6} /> : <Bookmark size={14} strokeWidth={2.2} />}

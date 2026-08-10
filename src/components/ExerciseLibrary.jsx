@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft, Bookmark, Search, X, ChevronRight, Play, Plus, Dumbbell, HeartPulse, LayoutGrid, PersonStanding, Heart, Youtube } from "lucide-react";
-import { T } from "../theme.js";
+import { T, TR } from "../theme.js";
 import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { CATALOG } from "../data/exerciseCatalog.js";
@@ -97,14 +97,14 @@ export function ExerciseLibrary({ onBack, onOpen, planDay, dayKey, onStartToday,
         <button
           onClick={() => setOnlyFavs(!onlyFavs)}
           title="Zapisane"
-          style={{ width: 40, height: 40, borderRadius: 14, background: onlyFavs ? T.accent : T.card, border: `1px solid ${onlyFavs ? T.accent : T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}
+          style={{ width: 40, height: 40, borderRadius: 14, background: onlyFavs ? T.accent : T.card, border: `1px solid ${onlyFavs ? T.accent : T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: TR.colors }}
         >
           <Bookmark size={17} color={onlyFavs ? "#000" : "#fff"} fill={onlyFavs ? "#000" : "none"} strokeWidth={2.2} />
         </button>
         <button
           onClick={() => setSearchOpen(true)}
           title="Szukaj ćwiczenia"
-          style={{ width: 40, height: 40, borderRadius: 14, background: searchOpen ? T.accent : T.card, border: `1px solid ${searchOpen ? T.accent : T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}
+          style={{ width: 40, height: 40, borderRadius: 14, background: searchOpen ? T.accent : T.card, border: `1px solid ${searchOpen ? T.accent : T.borderSoft}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: TR.colors }}
         >
           <Search size={17} color={searchOpen ? "#000" : "#fff"} strokeWidth={2.2} />
         </button>
@@ -138,7 +138,7 @@ export function ExerciseLibrary({ onBack, onOpen, planDay, dayKey, onStartToday,
                 <button
                   key={key}
                   onClick={() => setCat(key)}
-                  style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 99, border: `1.5px solid ${act ? T.accent : T.borderSoft}`, background: act ? T.accent : T.card, color: act ? "#000" : T.light, fontFamily: H, fontWeight: 700, fontSize: 12, cursor: "pointer", transition: "all .2s", whiteSpace: "nowrap" }}
+                  style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 99, border: `1.5px solid ${act ? T.accent : T.borderSoft}`, background: act ? T.accent : T.card, color: act ? "#000" : T.light, fontFamily: H, fontWeight: 700, fontSize: 12, cursor: "pointer", transition: TR.colors, whiteSpace: "nowrap" }}
                 >
                   {label}
                 </button>
@@ -194,7 +194,7 @@ export function ExerciseLibrary({ onBack, onOpen, planDay, dayKey, onStartToday,
                 <button
                   key={key}
                   onClick={() => setTypeChip(key)}
-                  style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, padding: "9px 15px", borderRadius: 12, border: `1.5px solid ${act ? T.accent : T.borderSoft}`, background: act ? T.accent : T.card, color: act ? "#000" : T.light, fontFamily: H, fontWeight: 700, fontSize: 12, cursor: "pointer", transition: "all .2s", whiteSpace: "nowrap" }}
+                  style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, padding: "9px 15px", borderRadius: 12, border: `1.5px solid ${act ? T.accent : T.borderSoft}`, background: act ? T.accent : T.card, color: act ? "#000" : T.light, fontFamily: H, fontWeight: 700, fontSize: 12, cursor: "pointer", transition: TR.colors, whiteSpace: "nowrap" }}
                 >
                   <Icon size={13} strokeWidth={2.4} />
                   {label}

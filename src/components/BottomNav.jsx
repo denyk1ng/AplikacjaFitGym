@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Home, Dumbbell, BarChart3, CalendarDays, User } from "lucide-react";
-import { T } from "../theme.js";
+import { T, TR } from "../theme.js";
 
 const BAR_BG = T.inset;
 const H = 66; // wysokość paska
@@ -85,7 +85,7 @@ export function BottomNav({ tab, setTab }) {
                   justifyContent: "center",
                   gap: 4,
                   padding: 0,
-                  transition: "all .2s",
+                  transition: TR.colors,
                 }}
               >
                 <Icon size={21} color={on ? T.accent : T.soft} strokeWidth={on ? 2.2 : 1.9} />

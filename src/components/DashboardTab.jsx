@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Bell, BellRing, Play, Plus, Dumbbell, Check, Medal, X, ChevronRight, Zap, Target, Trophy } from "lucide-react";
-import { T } from "../theme.js";
+import { T, TR } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { QUICK_WORKOUTS } from "../data/quickWorkouts.js";
@@ -247,7 +247,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
                     background: T.card,
                     cursor: "pointer",
                     fontFamily: "inherit",
-                    transition: "all .2s",
+                    transition: TR.colors,
                   }}
                 >
                   <span

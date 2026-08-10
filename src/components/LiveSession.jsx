@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Minus, Repeat, Gauge, Share2, Pause, Play, History, Info, ArrowUp, ArrowDown, Flame, SlidersHorizontal } from "lucide-react";
-import { T, FONT_NUM } from "../theme.js";
+import { T, FONT_NUM, TR } from "../theme.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EX_IMG } from "../data/exerciseImages.js";
 import { EXERCISES_DATA, EXTRA_ALTS, CAT_LABEL } from "../data/plan.js";
@@ -705,7 +705,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                transition: "all .2s",
+                transition: TR.colors,
               }}
             >
               {done ? <Check size={15} strokeWidth={3} /> : i + 1}

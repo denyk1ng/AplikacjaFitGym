@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Flame, Heart, Play, Dumbbell, Layers, Clock, Pencil, Check, RotateCcw } from "lucide-react";
-import { T, FONT_NUM } from "../theme.js";
+import { T, FONT_NUM, TR } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
@@ -157,7 +157,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
             <button
               key={k}
               onClick={() => onSelectDay(k)}
-              style={{ flex: 1, padding: "8px 4px", borderRadius: 12, background: dayKey === k ? T.accent : T.card, border: "none", color: dayKey === k ? "#000" : T.sub, fontFamily: U, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all .2s" }}
+              style={{ flex: 1, padding: "8px 4px", borderRadius: 12, background: dayKey === k ? T.accent : T.card, border: "none", color: dayKey === k ? "#000" : T.sub, fontFamily: U, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: TR.colors }}
             >
               {k} · {EXERCISES_DATA[k].day.slice(0, 3)}
             </button>
@@ -301,7 +301,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
                     toggleFav(ex.id);
                   }}
                   title="Ulubione" aria-label="Ulubione"
-                  style={{ width: 40, height: 40, borderRadius: "50%", background: favs.includes(ex.id) ? T.accent : T.inset, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}
+                  style={{ width: 40, height: 40, borderRadius: "50%", background: favs.includes(ex.id) ? T.accent : T.inset, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: TR.colors }}
                 >
                   <Heart size={17} color={favs.includes(ex.id) ? "#000" : T.soft} fill={favs.includes(ex.id) ? "#000" : "none"} strokeWidth={2.1} />
                 </button>

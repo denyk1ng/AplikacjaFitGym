@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Play, Plus, TrendingUp, CalendarClock } from "lucide-react";
-import { T } from "../theme.js";
+import { T, TR } from "../theme.js";
 
 const U = "'Urbanist',sans-serif";
 
@@ -43,7 +43,7 @@ export function WelcomeTour({ onDone }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
           <div style={{ display: "flex", gap: 6 }}>
             {STEPS.map((_, i) => (
-              <span key={i} style={{ width: i === step ? 22 : 7, height: 7, borderRadius: 99, background: i <= step ? T.accent : T.track, transition: "all .3s" }} />
+              <span key={i} style={{ width: i === step ? 22 : 7, height: 7, borderRadius: 99, background: i <= step ? T.accent : T.track, transition: TR.dot }} />
             ))}
           </div>
           <button onClick={onDone} style={{ background: "transparent", border: "none", color: T.sub, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: U }}>

@@ -3,6 +3,29 @@
 // Typografia (design system): Urbanist (UI) + Doto (liczby ekspozycyjne)
 export const FONT_NUM = "'Doto',sans-serif";
 
+// Krzywa ruchu całej aplikacji (easeOutQuint) — ta sama, którą mają animacje
+// wejścia w index.css (.fu / .slideup / .card-in-*). Szybki start, miękkie
+// dojście do końca: element wygląda, jakby miał masę i wytracał pęd.
+export const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+// Gotowe przejścia dla stanów interaktywnych. Animujemy WYMIENIONE
+// właściwości, nigdy `all` — `all` łapie też szerokość, padding i transformy
+// wstawione przy okazji, więc element potrafi zacząć pełzać przy zmianie,
+// która z animacją nie miała nic wspólnego (a przeglądarka liczy layout
+// zamiast samej kompozycji).
+export const TR = {
+  // podświetlenie/zaznaczenie: chipy, zakładki, przyciski ikonowe
+  colors: `background-color .24s ${EASE}, border-color .24s ${EASE}, color .24s ${EASE}`,
+  // to samo, ale dla drobnych elementów, gdzie .24s czuć jak ospałość
+  colorsFast: `background-color .16s ${EASE}, border-color .16s ${EASE}, color .16s ${EASE}`,
+  // kropki postępu, które rozciągają się w kreskę na aktywnym kroku
+  dot: `width .32s ${EASE}, background-color .32s ${EASE}`,
+  // reakcja na dotyk — kolor razem z mikro-skalą
+  press: `transform .18s ${EASE}, background-color .24s ${EASE}, border-color .24s ${EASE}, color .24s ${EASE}`,
+  // element gaszony przezroczystością — odznaki jeszcze niezdobyte
+  fade: `opacity .3s ${EASE}, background-color .3s ${EASE}, border-color .3s ${EASE}`,
+};
+
 export const T = {
   // tła
   bg: "#0f1012",

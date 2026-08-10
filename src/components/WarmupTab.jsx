@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
-import { T, FONT_NUM } from "../theme.js";
+import { T, FONT_NUM, TR } from "../theme.js";
 import { WARMUP_DATA } from "../data/plan.js";
 import { PHOTOS, WARMUP_PHOTOS } from "../data/photos.js";
 
@@ -107,7 +107,7 @@ function WarmupSection({ data, idx, done, toggle }) {
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            transition: "all .3s",
+            transition: TR.colors,
           }}
         >
           {allDone ? <Check size={19} color={T.ok} strokeWidth={2.8} /> : <Icon size={19} color={data.color} strokeWidth={2.2} />}
@@ -145,7 +145,7 @@ function WarmupSection({ data, idx, done, toggle }) {
                       fontWeight: 800,
                       fontSize: 12,
                       color: on ? "#06210f" : data.color,
-                      transition: "all .2s",
+                      transition: TR.colorsFast,
                     }}
                   >
                     {on ? <Check size={13} color="#06210f" strokeWidth={3} /> : i + 1}

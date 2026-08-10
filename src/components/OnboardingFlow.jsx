@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Dumbbell, Flame, HeartPulse, Trophy, Play } from "lucide-react";
-import { T, FONT_NUM } from "../theme.js";
+import { T, FONT_NUM, TR } from "../theme.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
 import { AnimatedLogo } from "./Logo.jsx";
@@ -79,7 +79,7 @@ function Intro({ onDone }) {
         </div>
         <div style={{ display: "flex", gap: 6, margin: "22px 0 24px" }}>
           {SLIDES.map((_, d) => (
-            <span key={d} style={{ width: d === i ? 24 : 8, height: 5, borderRadius: 99, background: d === i ? "#fff" : "rgba(255,255,255,0.28)", transition: "all .3s" }} />
+            <span key={d} style={{ width: d === i ? 24 : 8, height: 5, borderRadius: 99, background: d === i ? "#fff" : "rgba(255,255,255,0.28)", transition: TR.dot }} />
           ))}
         </div>
         <PrimaryBtn onClick={() => (i < SLIDES.length - 1 ? setI(i + 1) : onDone())}>
@@ -121,7 +121,7 @@ function Wizard({ onDone }) {
     cursor: "pointer",
     fontFamily: U,
     marginBottom: 10,
-    transition: "all .15s",
+    transition: TR.colorsFast,
   });
 
   const inputStyle = {
@@ -195,7 +195,7 @@ function Wizard({ onDone }) {
               <button
                 key={id}
                 onClick={() => setData({ ...data, gender: id })}
-                style={{ flex: 1, aspectRatio: "1", background: data.gender === id ? "rgba(178,238,55,0.12)" : T.card, border: `1.5px solid ${data.gender === id ? T.accent : T.borderSoft}`, borderRadius: 20, cursor: "pointer", fontFamily: U, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all .15s" }}
+                style={{ flex: 1, aspectRatio: "1", background: data.gender === id ? "rgba(178,238,55,0.12)" : T.card, border: `1.5px solid ${data.gender === id ? T.accent : T.borderSoft}`, borderRadius: 20, cursor: "pointer", fontFamily: U, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: TR.colorsFast }}
               >
                 <span style={{ fontSize: 44, lineHeight: 1, color: data.gender === id ? T.accent : T.soft, fontWeight: 700 }}>{glyph}</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{label}</span>
@@ -211,7 +211,7 @@ function Wizard({ onDone }) {
                 <button
                   key={n}
                   onClick={() => setData({ ...data, days: n })}
-                  style={{ flex: 1, aspectRatio: "1", borderRadius: "50%", background: data.days === n ? T.accent : T.card, border: `1.5px solid ${data.days === n ? T.accent : T.borderSoft}`, color: data.days === n ? "#000" : T.soft, fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15, cursor: "pointer", transition: "all .15s" }}
+                  style={{ flex: 1, aspectRatio: "1", borderRadius: "50%", background: data.days === n ? T.accent : T.card, border: `1.5px solid ${data.days === n ? T.accent : T.borderSoft}`, color: data.days === n ? "#000" : T.soft, fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15, cursor: "pointer", transition: TR.colorsFast }}
                 >
                   {n}
                 </button>
