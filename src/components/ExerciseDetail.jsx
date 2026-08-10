@@ -81,6 +81,7 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
       <div style={{ position: "relative", height: 290, background: T.card2, overflow: "hidden" }}>
         {img && <img src={img} alt={ex.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.55) 0%, transparent 25%, transparent 70%, rgba(23,23,23,0.7) 100%)" }} />
+        <div className="filmic" />
         <button
           onClick={onBack}
           style={{ position: "absolute", top: 18, left: 18, width: 40, height: 40, borderRadius: 13, background: "rgba(23,23,23,0.65)", backdropFilter: "blur(8px)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}

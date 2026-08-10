@@ -754,6 +754,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
       >
         {cardThumb && <img src={cardThumb} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.12) 0%, rgba(23,23,23,0.35) 52%, rgba(23,23,23,0.94) 100%)" }} />
+        <div className="filmic" />
         {/* edycja ciężaru/serii/powtórzeń — dostępna na każdym etapie ćwiczenia,
             także po zaliczonych seriach (trener zmienia obciążenie w trakcie) */}
         <button

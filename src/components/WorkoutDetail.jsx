@@ -122,6 +122,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
       <div style={{ position: "relative", height: 300 }}>
         <img src={PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.45) 0%, rgba(23,23,23,0.05) 35%, rgba(23,23,23,0.55) 100%)" }} />
+        <div className="filmic" />
         <button
           onClick={onBack}
           style={{ position: "absolute", top: 18, left: 18, width: 40, height: 40, borderRadius: 13, background: "rgba(23,23,23,0.65)", backdropFilter: "blur(8px)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}

@@ -175,6 +175,7 @@ function Hero({ onBack, photo = PHOTOS.stretch, height = 220, objectPosition = "
     <div style={{ position: "relative", height }}>
       <img key={photo} src={photo} alt="" className="fu" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.45) 0%, rgba(23,23,23,0.1) 35%, rgba(23,23,23,0.6) 100%)" }} />
+      <div className="filmic" />
       {onBack && (
         <button
           onClick={onBack}
