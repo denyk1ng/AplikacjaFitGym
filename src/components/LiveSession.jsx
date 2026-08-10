@@ -610,8 +610,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   // oryginalnego ćwiczenia z tego slotu (ta sama partia mięśniowa)
   const cardThumb = EX_THUMB[ex.id] || EX_THUMB[baseExs[idx] && baseExs[idx].id];
   const infoSteps = ex.tech ? ex.tech.split(". ").map((s) => s.trim().replace(/\.$/, "")).filter(Boolean) : [];
-  const infoImgA = EX_IMG[ex.id];
-  const infoImgB = EX_IMG[`${ex.id}-2`];
+  const infoImg = EX_IMG[ex.id];
 
   return (
     <div style={{ margin: "-20px -18px -140px", minHeight: "100vh", padding: "18px 18px 30px", display: "flex", flexDirection: "column" }}>
@@ -1000,13 +999,10 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
               </button>
             </div>
             <p style={{ fontSize: 11, color: T.sub, marginBottom: 12 }}>{CAT_LABEL[ex.cat] || ex.cat} · {ex.sets} serie × {ex.reps} powt.</p>
-            {/* pokaz ruchu start ↔ koniec, jak w szczegółach ćwiczenia */}
-            {infoImgA && (
+            {/* zdjęcie ćwiczenia, jak w szczegółach — statyczne, bez animacji */}
+            {infoImg && (
               <div style={{ position: "relative", height: 190, borderRadius: 18, overflow: "hidden", background: T.card, border: `1px solid ${T.borderSoft}`, marginBottom: 14 }}>
-                <img src={infoImgA} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
-                {infoImgB && (
-                  <img src={infoImgB} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", animation: "abfade 1.5s ease-in-out infinite alternate" }} />
-                )}
+                <img src={infoImg} alt={ex.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             )}
             {infoSteps.length > 0 ? (

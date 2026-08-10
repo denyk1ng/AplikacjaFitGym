@@ -150,18 +150,6 @@ button {
   }
 }
 
-/* pokaz ruchu ćwiczenia: przenikanie klatek start/koniec */
-@keyframes abfade {
-  0%,
-  35% {
-    opacity: 0;
-  }
-  65%,
-  100% {
-    opacity: 1;
-  }
-}
-
 /* dostępność: widoczny fokus dla nawigacji klawiaturą */
 :focus-visible {
   outline: 2px solid #b2ee37;

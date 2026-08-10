@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Play, Pause, Dumbbell, Gauge, Tag, TrendingUp, Youtube } from "lucide-react";
+import { ArrowLeft, Dumbbell, Gauge, Tag, TrendingUp, Youtube } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
@@ -35,7 +35,6 @@ function equipmentOf(name) {
 
 export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentName, onChangeWeight, onBack }) {
   const [tab, setTab] = useState("howto");
-  const [playing, setPlaying] = useState(true);
 
   // nazwa z żywego planu (użytkownik mógł ją zmienić w panelu edycji dnia)
   const ex = useMemo(() => {
@@ -44,8 +43,7 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
   }, [exerciseId, currentName]);
   if (!ex) return null;
 
-  const imgA = EX_IMG[ex.id];
-  const imgB = EX_IMG[`${ex.id}-2`];
+  const img = EX_IMG[ex.id];
 
   // historia ciężarów tego ćwiczenia z zapisów
   const history = snapshots
@@ -78,16 +76,10 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
 
   return (
     <div style={{ margin: "-20px -18px 0", paddingBottom: 120 }}>
-      {/* POKAZ RUCHU (start -> koniec) */}
+      {/* ZDJĘCIE ĆWICZENIA — statyczne; wcześniej dwie klatki przenikały się
+          animacją "pokaz ruchu", teraz jest po prostu zdjęcie danego ruchu */}
       <div style={{ position: "relative", height: 290, background: T.card2, overflow: "hidden" }}>
-        {imgA && <img src={imgA} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />}
-        {imgB && (
-          <img
-            src={imgB}
-            alt=""
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", animation: playing ? "abfade 1.5s ease-in-out infinite alternate" : "none", opacity: playing ? undefined : 0 }}
-          />
-        )}
+        {img && <img src={img} alt={ex.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.55) 0%, transparent 25%, transparent 70%, rgba(23,23,23,0.7) 100%)" }} />
         <button
           onClick={onBack}
@@ -95,17 +87,8 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
         >
           <ArrowLeft size={18} strokeWidth={2.2} />
         </button>
-        {imgB && (
-          <button
-            onClick={() => setPlaying(!playing)}
-            title={playing ? "Zatrzymaj pokaz" : "Odtwórz pokaz"}
-            style={{ position: "absolute", right: 16, bottom: 14, width: 44, height: 44, borderRadius: "50%", background: T.accent, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.35)" }}
-          >
-            {playing ? <Pause size={18} color="#000" strokeWidth={2.4} /> : <Play size={18} color="#000" fill="#000" strokeWidth={0} />}
-          </button>
-        )}
         <span style={{ position: "absolute", left: 16, bottom: 20, fontSize: 10, fontWeight: 700, letterSpacing: ".1em", color: "rgba(255,255,255,0.65)", textTransform: "uppercase" }}>
-          Pokaz ruchu · start ↔ koniec
+          {CAT_LABEL[ex.cat] || ex.cat}
         </span>
       </div>
 
