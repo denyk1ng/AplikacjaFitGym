@@ -25,7 +25,9 @@ const displayStyle = {
 
 // min/max chronią przed bezsensownymi wartościami (ujemny ciężar psuł
 // objętość, 1RM i wykresy) — wartość spoza zakresu jest odrzucana bez zapisu
-export function EditNum({ value, unit, onChange, min = 0, max = 999 }) {
+// fontSize/font/width: ten sam komponent obsługuje drobną edycję w linijce
+// tekstu i duże pola w arkuszu edycji ćwiczenia (sesja live)
+export function EditNum({ value, unit, onChange, min = 0, max = 999, fontSize = 15, font, width = 62 }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(String(value));
   const ref = useRef(null);
@@ -56,11 +58,11 @@ export function EditNum({ value, unit, onChange, min = 0, max = 999 }) {
             setVal(String(value));
           }
         }}
-        style={{ ...inputStyle, width: 62 }}
+        style={{ ...inputStyle, width, fontSize, fontFamily: font || "inherit" }}
       />
     );
   return (
-    <span onClick={() => setEditing(true)} title="Kliknij aby edytować" style={displayStyle}>
+    <span onClick={() => setEditing(true)} title="Kliknij aby edytować" style={{ ...displayStyle, fontSize, fontFamily: font || "inherit" }}>
       {String(value).replace(".", ",")}
       {unit ? ` ${unit}` : ""}
     </span>

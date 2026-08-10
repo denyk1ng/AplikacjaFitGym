@@ -522,6 +522,7 @@ export default function App() {
               onExit={() => setTab("trening")}
               updateWeight={changeWeightAndSnapshot}
               updateReps={changeReps}
+              updateSets={changeSets}
               onSaveAll={async (stats) => {
                 await handleSave();
                 await markWorkoutDone(selectedDay, stats);

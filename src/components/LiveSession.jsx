@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Repeat, Gauge, Share2, Pause, Play, History, Info, ArrowUp, ArrowDown, Flame } from "lucide-react";
+import { X, Check, ChevronRight, Trophy, Medal, LogOut, Plus, Minus, Repeat, Gauge, Share2, Pause, Play, History, Info, ArrowUp, ArrowDown, Flame, SlidersHorizontal } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EX_IMG } from "../data/exerciseImages.js";
@@ -41,6 +41,16 @@ const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}
 const repsInt = (r) => parseInt(r) || 0;
 const fmtKg = (v) => (v >= 1000 ? `${(Math.round(v / 100) / 10).toString().replace(".", ",")}k` : String(Math.round(v)));
 const RPE_OPTS = [6, 7, 8, 9, 10];
+const MAX_SETS = 12;
+const MAX_WEIGHT = 500;
+
+// ćwiczenia z masą własną mają w planie pustą jednostkę — gdy trener dołoży
+// obciążenie (pas, kamizelka), pokazujemy kilogramy zamiast gołej liczby
+const unitOf = (e) => e.unit || "kg";
+// krok przycisków −/+ : hantle (kg/h) i doczepiane obciążenie idą co 1 kg,
+// sztanga i maszyny co 2,5 kg (najmniejszy typowy talerz na stronę) —
+// ta sama zasada co w roundLoad() z lib/warmupSets.js
+const stepOf = (e) => (!e.unit || e.unit.startsWith("kg/") ? 1 : 2.5);
 
 function avg(arr) {
   const nums = arr.filter((v) => v !== null && v !== undefined);
@@ -113,7 +123,50 @@ function TickGauge({ pct, color }) {
   );
 }
 
-export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, updateReps, snapshots }) {
+// okrągły przycisk −/+ (stepper). Duży wariant w arkuszu edycji — na siłowni
+// celuje się w niego spoconym palcem, więc 44 px zamiast tekstowego linku
+function StepBtn({ onClick, disabled, label, size = 44, icon: Icon }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        flexShrink: 0,
+        background: disabled ? T.inset : size >= 40 ? T.card2 : "rgba(23,23,23,0.62)",
+        backdropFilter: size >= 40 ? "none" : "blur(4px)",
+        border: `1.5px solid ${disabled ? T.borderSoft : T.border}`,
+        color: disabled ? T.faint : "#fff",
+        cursor: disabled ? "default" : "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 0,
+      }}
+    >
+      <Icon size={size >= 40 ? 19 : 13} strokeWidth={2.6} />
+    </button>
+  );
+}
+
+// wiersz arkusza edycji: etykieta + podpowiedź nad rzędem [−] wartość [+]
+function SheetRow({ label, hint, children }) {
+  return (
+    <div style={{ background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 18, padding: "12px 14px", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U }}>{label}</span>
+        {hint && <span style={{ fontSize: 10.5, color: T.sub }}>{hint}</span>}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, minHeight: 46 }}>{children}</div>
+    </div>
+  );
+}
+
+export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, updateReps, updateSets, snapshots }) {
   const baseExs = data.exercises;
   const [restored] = useState(() => loadLiveState(dayKey));
   const [exsState, setExsState] = useState(() =>
@@ -128,6 +181,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     restored && Array.isArray(restored.rpeData) && restored.rpeData.length === exs.length ? restored.rpeData : exs.map(() => [])
   );
   const [pendingRpe, setPendingRpe] = useState(false);
+  const [showEdit, setShowEdit] = useState(false); // arkusz "Edytuj ćwiczenie" — ciężar/serie/powtórzenia w trakcie sesji
   const [showSwap, setShowSwap] = useState(false);
   const [showInfo, setShowInfo] = useState(false); // technika ćwiczenia bez wychodzenia z sesji
   const [slideDir, setSlideDir] = useState("r"); // kierunek wjazdu karty ćwiczenia (animacja)
@@ -224,13 +278,57 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     setPendingRpe(true);
   };
 
-  // edycja ciężaru/powtórzeń w trakcie sesji: aktualizuje lokalny stan sesji
-  // (UI + objętość od razu) ORAZ plan/progres przez rodzica — wcześniej szła
-  // tylko do planu, więc na ekranie sesji nic się nie zmieniało
-  const editWeight = (v) => {
-    setExsState((s) => s.map((e, i) => (i === idx ? { ...e, weight: v } : e)));
-    updateWeight && updateWeight(ex.id, v);
+  // edycja ciężaru/serii/powtórzeń w trakcie sesji: aktualizuje lokalny stan
+  // sesji (UI + objętość od razu) ORAZ plan/progres przez rodzica — wcześniej
+  // szła tylko do planu, więc na ekranie sesji nic się nie zmieniało
+  //
+  // ciężar leci do planu z opóźnieniem: rodzic dopisuje punkt progresu przy
+  // KAŻDEJ zmianie, więc dokładanie talerzy przyciskiem +2,5 kg zostawiłoby na
+  // wykresie schodek z kilku punktów w odstępie sekundy zamiast jednej zmiany
+  const updateWeightRef = useRef(updateWeight);
+  updateWeightRef.current = updateWeight;
+  const pendingWeight = useRef(null);
+  const weightTimer = useRef(null);
+  const flushWeight = () => {
+    if (weightTimer.current) {
+      clearTimeout(weightTimer.current);
+      weightTimer.current = null;
+    }
+    const p = pendingWeight.current;
+    pendingWeight.current = null;
+    if (p && updateWeightRef.current) updateWeightRef.current(p.id, p.v);
   };
+  const flushWeightRef = useRef(flushWeight);
+  flushWeightRef.current = flushWeight;
+  // wyjście z sesji (zapis, porzucenie, zabicie karty przez system) nie może
+  // zgubić ostatniej zmiany ciężaru czekającej w kolejce
+  useEffect(() => () => flushWeightRef.current(), []);
+
+  const editWeight = (v) => {
+    const w = Math.min(MAX_WEIGHT, Math.max(0, Math.round(v * 10) / 10));
+    setExsState((s) => s.map((e, i) => (i === idx ? { ...e, weight: w } : e)));
+    pendingWeight.current = { id: ex.id, v: w };
+    if (weightTimer.current) clearTimeout(weightTimer.current);
+    weightTimer.current = setTimeout(() => flushWeightRef.current(), 900);
+  };
+  const bumpWeight = (d) => {
+    buzzTap();
+    editWeight((ex.weight || 0) + d);
+  };
+
+  // liczba serii: trener dorzuca lub ucina serię w trakcie ćwiczenia.
+  // W dół nie schodzimy poniżej serii już zaliczonych — inaczej zrobiona
+  // robota zniknęłaby z objętości i z zapisu treningu
+  const editSets = (v) => {
+    const n = Math.max(Math.max(1, setsDone[idx]), Math.min(MAX_SETS, Math.round(v)));
+    setExsState((s) => s.map((e, i) => (i === idx ? { ...e, sets: n } : e)));
+    updateSets && updateSets(ex.id, n);
+  };
+  const bumpSets = (d) => {
+    buzzTap();
+    editSets((ex.sets || 1) + d);
+  };
+
   const editReps = (v) => {
     setExsState((s) => s.map((e, i) => (i === idx ? { ...e, reps: v } : e)));
     updateReps && updateReps(ex.id, v);
@@ -258,6 +356,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   const nextExercise = () => {
     if (pendingRpe) return;
     stopRest();
+    flushWeight(); // zmiana ciężaru musi trafić do planu POD id ćwiczenia, które się właśnie kończy
     for (let step = 1; step <= exs.length; step++) {
       const j = (idx + step) % exs.length;
       if (setsDone[j] < exs[j].sets) {
@@ -273,6 +372,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   const prevExercise = () => {
     if (pendingRpe) return;
     stopRest();
+    flushWeight();
     for (let step = 1; step <= exs.length; step++) {
       const j = (idx - step + exs.length) % exs.length;
       if (setsDone[j] < exs[j].sets) {
@@ -286,8 +386,16 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   const jumpTo = (i) => {
     if (pendingRpe) return;
     stopRest();
+    flushWeight();
     setSlideDir(i >= idx ? "r" : "l");
     setIdx(i);
+  };
+
+  // przejście do podsumowania — z domknięciem oczekującej zmiany ciężaru,
+  // żeby "Zapisz trening" zapisał plan już z nowym obciążeniem
+  const goSummary = () => {
+    flushWeight();
+    setStage("summary");
   };
 
   // swipe w lewo/prawo na karcie ćwiczenia = następne/poprzednie niedokończone
@@ -330,6 +438,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   }, [ex.id, ex.cat]);
 
   const swapExercise = (alt) => {
+    flushWeight(); // ciężar sprzed zamiany należy jeszcze do starego ćwiczenia
     const next = [...exsState];
     next[idx] = { ...alt, sets: ex.sets, rest: ex.rest }; // te same serie/przerwa co zaplanowane, inny ruch
     setExsState(next);
@@ -371,7 +480,13 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     return (
       <div style={{ margin: "-20px -18px -140px", minHeight: "100vh", padding: "22px 18px 40px", display: "flex", flexDirection: "column" }}>
         {records.length > 0 && <Confetti />}
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          {/* powrót do sesji: podsumowanie bywa otwarte za wcześnie (dorzucona
+              seria, doradzone przez trenera dodatkowe ćwiczenie) */}
+          <button onClick={() => setStage("live")} style={{ display: "flex", alignItems: "center", gap: 4, background: "transparent", border: "none", color: T.accent, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: U, padding: 0 }}>
+            <ChevronRight size={15} strokeWidth={2.6} style={{ transform: "rotate(180deg)" }} />
+            Wróć do sesji
+          </button>
           <button onClick={exit} style={{ background: "transparent", border: "none", color: T.sub, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: U }}>
             Pomiń zapis
           </button>
@@ -408,7 +523,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
           <div key={r.id} className="fu" style={{ animationDelay: ".32s", display: "flex", alignItems: "center", gap: 10, background: T.accentSoftBg, border: `1px solid ${T.accentSoftBorder}`, borderRadius: 16, padding: "12px 14px", marginTop: 12 }}>
             <Medal size={17} color={T.accent} strokeWidth={2.2} />
             <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: U }}>Nowy rekord — {r.name.split("—")[0].trim()}</span>
-            <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15, color: T.accent }}>{String(r.weight).replace(".", ",")} {r.unit}</span>
+            <span style={{ fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15, color: T.accent }}>{String(r.weight).replace(".", ",")} {unitOf(r)}</span>
           </div>
         ))}
 
@@ -423,7 +538,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
               <div key={e.id} style={{ display: "flex", alignItems: "center", padding: "10px 2px", borderBottom: `1px solid ${T.borderSoft}` }}>
                 <span style={{ flex: 1, fontSize: 13, color: "#fff", fontFamily: U, fontWeight: 600 }}>{e.name.split("—")[0].trim()}</span>
                 <span style={{ fontSize: 12, color: T.sub }}>
-                  {setsDone[i]} serie{e.weight > 0 ? ` · ${String(e.weight).replace(".", ",")} ${e.unit}` : ""}
+                  {setsDone[i]} serie{e.weight > 0 ? ` · ${String(e.weight).replace(".", ",")} ${unitOf(e)}` : ""}
                   {avgR !== null ? ` · RPE ${String(avgR).replace(".", ",")}` : ""}
                 </span>
               </div>
@@ -463,7 +578,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
             if (totalSetsDone === 0) return;
             clearLiveState();
             const perExercise = exs
-              .map((e, i) => ({ id: e.id, weight: e.weight || 0, unit: e.unit, setsDone: setsDone[i], sets: e.sets, avgRpe: avg(rpeData[i] || []) }))
+              .map((e, i) => ({ id: e.id, weight: e.weight || 0, unit: unitOf(e), setsDone: setsDone[i], sets: e.sets, avgRpe: avg(rpeData[i] || []) }))
               .filter((e) => e.setsDone > 0);
             onSaveAll({ time: elapsed, sets: totalSetsDone, volume, perExercise });
           }}
@@ -484,6 +599,8 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
 
   // ── SESJA NA ŻYWO ─────────────────────────────────────────────────────────
   const allSetsDone = setsDone[idx] >= ex.sets;
+  const wStep = stepOf(ex);
+  const minSets = Math.max(1, setsDone[idx]); // nie da się skasować serii już zrobionych
   const restPct = ex.rest > 0 ? 1 - rest / ex.rest : 1;
   // serie rozgrzewkowe — tylko zanim poleci pierwsza seria robocza
   const warmups = setsDone[idx] === 0 ? warmupSetsFor(ex.weight, ex.unit) : [];
@@ -509,7 +626,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
             {data.label} · ćwiczenie {idx + 1} / {exs.length}
           </div>
         </div>
-        <button onClick={() => setStage("summary")} style={{ background: "transparent", border: "none", color: T.accent, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: U, flexShrink: 0 }}>
+        <button onClick={goSummary} style={{ background: "transparent", border: "none", color: T.accent, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: U, flexShrink: 0 }}>
           Zakończ
         </button>
       </div>
@@ -613,12 +730,22 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
       >
         {cardThumb && <img src={cardThumb} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.12) 0%, rgba(23,23,23,0.35) 52%, rgba(23,23,23,0.94) 100%)" }} />
+        {/* edycja ciężaru/serii/powtórzeń — dostępna na każdym etapie ćwiczenia,
+            także po zaliczonych seriach (trener zmienia obciążenie w trakcie) */}
+        <button
+          onClick={() => setShowEdit(true)}
+          title="Edytuj ciężar i serie"
+          aria-label="Edytuj ciężar i serie"
+          style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, borderRadius: "50%", background: T.accent, border: `1px solid ${T.accent}`, color: "#000", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <SlidersHorizontal size={15} strokeWidth={2.4} />
+        </button>
         {/* technika/notatki bez wychodzenia z sesji */}
         <button
           onClick={() => setShowInfo(true)}
           title="Technika ćwiczenia"
           aria-label="Technika ćwiczenia"
-          style={{ position: "absolute", top: 12, right: 12, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          style={{ position: "absolute", top: 12, right: 54, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           <Info size={15} strokeWidth={2.2} />
         </button>
@@ -626,7 +753,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
           <button
             onClick={() => setShowSwap(true)}
             title="Zamień ćwiczenie"
-            style={{ position: "absolute", top: 12, right: 54, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ position: "absolute", top: 12, right: 96, width: 36, height: 36, borderRadius: "50%", background: "rgba(23,23,23,0.6)", backdropFilter: "blur(6px)", border: `1px solid ${T.borderSoft}`, color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             <Repeat size={15} strokeWidth={2.2} />
           </button>
@@ -641,12 +768,16 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
               </div>
             )}
             <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", fontFamily: U, display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
-              Seria {Math.min(setsDone[idx] + 1, ex.sets)} / {ex.sets} · <EditStr value={String(ex.reps)} onChange={editReps} /> powt.
+              Seria {Math.min(setsDone[idx] + 1, ex.sets)} / <EditNum value={ex.sets} min={minSets} max={MAX_SETS} onChange={editSets} /> ·{" "}
+              <EditStr value={String(ex.reps)} onChange={editReps} /> powt.
             </div>
-            <div style={{ fontSize: 12, color: T.light, marginTop: 4, display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ fontSize: 12, color: T.light, marginTop: 4, display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
               {ex.weight > 0 ? (
                 <>
-                  ciężar: <EditNum value={ex.weight} unit={ex.unit} min={0.5} max={500} onChange={editWeight} />
+                  ciężar: <EditNum value={ex.weight} unit={unitOf(ex)} min={0} max={MAX_WEIGHT} onChange={editWeight} />
+                  {/* dokładanie/zdejmowanie talerzy jednym stuknięciem — bez wpisywania liczby */}
+                  <StepBtn size={26} icon={Minus} label={`Zmniejsz o ${String(wStep).replace(".", ",")} ${unitOf(ex)}`} onClick={() => bumpWeight(-wStep)} disabled={ex.weight <= 0} />
+                  <StepBtn size={26} icon={Plus} label={`Zwiększ o ${String(wStep).replace(".", ",")} ${unitOf(ex)}`} onClick={() => bumpWeight(wStep)} disabled={ex.weight >= MAX_WEIGHT} />
                   {/* strzałka vs poprzednia sesja — więcej/mniej/tyle samo */}
                   {weightDelta !== null &&
                     (weightDelta > 0 ? (
@@ -662,7 +793,17 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
                     ))}
                 </>
               ) : (
-                "ciężar własny"
+                <>
+                  ciężar własny
+                  {/* ćwiczenie z planu bez obciążenia też można dociążyć w trakcie
+                      (pas, kamizelka, hantel) — bez tego nie było jak dodać ciężaru */}
+                  <button
+                    onClick={() => bumpWeight(wStep)}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(23,23,23,0.62)", backdropFilter: "blur(4px)", border: `1px solid ${T.accentSoftBorder}`, borderRadius: 99, color: T.accent, fontFamily: U, fontWeight: 700, fontSize: 11, padding: "4px 10px", cursor: "pointer" }}
+                  >
+                    <Plus size={11} strokeWidth={2.8} /> dodaj ciężar
+                  </button>
+                </>
               )}
             </div>
             {/* wynik z poprzedniej sesji — od razu wiadomo, czy atakować więcej */}
@@ -707,21 +848,29 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
         </div>
       ) : (
         <>
-          <button
-            onClick={doneSet}
-            disabled={allSetsDone}
-            style={{ width: "100%", background: allSetsDone ? T.inset : T.card, color: allSetsDone ? T.faint : "#fff", border: `1px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 20px", cursor: allSetsDone ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 18 }}
-          >
-            {allSetsDone ? (
-              <>
+          {/* komplet serii nie kończy tematu — trener potrafi dorzucić jeszcze
+              jedną; "Dodaj serię" podnosi plan o 1 i odblokowuje zaliczanie */}
+          {allSetsDone ? (
+            <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+              <div style={{ flex: 1, background: T.inset, color: T.soft, border: `1px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 12px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <Check size={16} color={T.ok} strokeWidth={2.8} /> Serie komplet
-              </>
-            ) : (
-              <>
-                <Plus size={16} strokeWidth={2.6} /> Zalicz serię ({setsDone[idx] + 1}/{ex.sets})
-              </>
-            )}
-          </button>
+              </div>
+              <button
+                onClick={() => bumpSets(1)}
+                disabled={ex.sets >= MAX_SETS}
+                style={{ flexShrink: 0, background: "transparent", color: ex.sets >= MAX_SETS ? T.faint : T.accent, border: `1.5px solid ${ex.sets >= MAX_SETS ? T.border : T.accentSoftBorder}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 18px", cursor: ex.sets >= MAX_SETS ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                <Plus size={16} strokeWidth={2.6} /> Seria
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={doneSet}
+              style={{ width: "100%", background: T.card, color: "#fff", border: `1px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 18 }}
+            >
+              <Plus size={16} strokeWidth={2.6} /> Zalicz serię ({setsDone[idx] + 1}/{ex.sets})
+            </button>
+          )}
           <button
             onClick={nextExercise}
             style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, boxShadow: T.accentGlow }}
@@ -747,6 +896,52 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
             </button>
             <button onClick={() => setConfirmExit(false)} style={{ width: "100%", marginTop: 10, background: T.inset, color: T.light, border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "14px 20px", cursor: "pointer" }}>
               Wróć do treningu
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* arkusz edycji ćwiczenia — ciężar, serie i powtórzenia w trakcie sesji;
+          dostępny również po zaliczonych seriach (zmiany od trenera na miejscu) */}
+      {showEdit && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1600 }}>
+          <div onClick={() => setShowEdit(false)} style={{ position: "absolute", inset: 0, background: "rgba(23,23,23,0.7)", backdropFilter: "blur(3px)" }} />
+          <div className="slideup" style={{ position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "86vh", overflowY: "auto", background: T.card2, borderRadius: "26px 26px 0 0", padding: "20px 20px calc(30px + env(safe-area-inset-bottom))" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <span style={{ fontFamily: U, fontWeight: 700, fontSize: "1.1rem", color: "#fff" }}>Edytuj ćwiczenie</span>
+              <button onClick={() => setShowEdit(false)} aria-label="Zamknij" style={{ width: 32, height: 32, borderRadius: 10, background: T.inset, border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <X size={15} strokeWidth={2.4} />
+              </button>
+            </div>
+            <p style={{ fontSize: 11.5, color: T.sub, marginBottom: 14 }}>
+              {ex.name.split("—")[0].trim()} — zmiany działają od razu w sesji i zapisują się w Twoim planie.
+            </p>
+
+            <SheetRow label="Ciężar" hint={`krok ${String(wStep).replace(".", ",")} ${unitOf(ex)}`}>
+              <StepBtn icon={Minus} label="Zmniejsz ciężar" onClick={() => bumpWeight(-wStep)} disabled={ex.weight <= 0} />
+              {ex.weight > 0 ? (
+                <EditNum value={ex.weight} unit={unitOf(ex)} min={0} max={MAX_WEIGHT} onChange={editWeight} fontSize={26} font={FONT_NUM} width={130} />
+              ) : (
+                <span style={{ fontSize: 13, color: T.soft, fontFamily: U, fontWeight: 600, minWidth: 130, textAlign: "center" }}>ciężar własny</span>
+              )}
+              <StepBtn icon={Plus} label="Zwiększ ciężar" onClick={() => bumpWeight(wStep)} disabled={ex.weight >= MAX_WEIGHT} />
+            </SheetRow>
+
+            <SheetRow label="Serie" hint={setsDone[idx] > 0 ? `zaliczone: ${setsDone[idx]}` : null}>
+              <StepBtn icon={Minus} label="Mniej serii" onClick={() => bumpSets(-1)} disabled={ex.sets <= minSets} />
+              <EditNum value={ex.sets} min={minSets} max={MAX_SETS} onChange={editSets} fontSize={26} font={FONT_NUM} width={90} />
+              <StepBtn icon={Plus} label="Więcej serii" onClick={() => bumpSets(1)} disabled={ex.sets >= MAX_SETS} />
+            </SheetRow>
+
+            <SheetRow label="Powtórzenia" hint="np. 8 albo 8-10">
+              <EditStr value={String(ex.reps)} onChange={editReps} width={130} />
+            </SheetRow>
+
+            <button
+              onClick={() => setShowEdit(false)}
+              style={{ width: "100%", marginTop: 6, background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "15px 20px", cursor: "pointer" }}
+            >
+              Gotowe
             </button>
           </div>
         </div>
