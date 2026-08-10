@@ -241,3 +241,33 @@ button {
     opacity: 0;
   }
 }
+
+/* reakcja na dotyk: element wciska się pod palcem i wraca po puszczeniu.
+   Zrobione na :active, nie na stanie Reacta — nie kosztuje re-renderu i
+   nie gubi się przy szybkim stukaniu w trakcie sesji. Skala celowo drobna:
+   ma być czuć potwierdzenie, nie zobaczyć animację. */
+.tap {
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tap:active {
+  transform: scale(0.95);
+}
+/* duże przyciski na całą szerokość — przy 0.95 wyglądałyby jak zapadnięte,
+   ale 0.985 to na 360 px zaledwie 5 px i gest ginie; 0.97 czuć i widać */
+.tap-wide:active {
+  transform: scale(0.97);
+}
+
+/* uszanuj systemowe "ogranicz ruch": zostaje sam skok stanu, bez animacji.
+   Dotyczy też animacji wejścia i konfetti — dla kogoś z wrażliwością
+   przedsionkową ruchome tło jest realnym problemem, nie preferencją. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

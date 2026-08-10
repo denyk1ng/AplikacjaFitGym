@@ -70,6 +70,7 @@ export function BottomNav({ tab, setTab }) {
             return (
               <button
                 key={it.id}
+                className="tap"
                 onClick={() => setTab(it.id)}
                 title={it.label}
                 style={{

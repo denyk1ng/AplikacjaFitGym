@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, Info, RotateCcw, Dumbbell, Footprints, BicepsFlexed, HeartPulse, Moon, ChevronDown, History } from "lucide-react";
-import { T, FONT_NUM } from "../theme.js";
+import { T, FONT_NUM, stagger } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { isoWeekStart } from "../lib/utils.js";
 import { loadWorkoutLog, saveWorkoutLog, weekStatus, weekEntries, weekHistory, PLAN_DOW, DOW_NAMES, dayIndex } from "../lib/workoutLog.js";
@@ -163,7 +163,7 @@ export function CalendarTab({ goTraining, onLogChanged }) {
             key={k}
             className="fu"
             style={{
-              animationDelay: `${0.14 + i * 0.05}s`,
+              animationDelay: stagger(i, 0.14),
               background: s.done ? "rgba(52,211,153,0.06)" : T.card,
               border: `1px solid ${s.done ? "rgba(52,211,153,0.25)" : s.overdue ? "rgba(251,191,36,0.35)" : T.borderSoft}`,
               borderRadius: 20,

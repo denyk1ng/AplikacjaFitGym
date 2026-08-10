@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Bell, BellRing, Play, Plus, Dumbbell, Check, Medal, X, ChevronRight, Zap, Target, Trophy } from "lucide-react";
-import { T, TR } from "../theme.js";
+import { T, TR, stagger } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { QUICK_WORKOUTS } from "../data/quickWorkouts.js";
@@ -432,7 +432,7 @@ export function DashboardTab({ snapshots, exercises, goTraining, goTo, userName,
             key={q.id}
             className="fu"
             onClick={() => setQuickSheet(q)}
-            style={{ animationDelay: `${0.24 + i * 0.05}s`, position: "relative", width: 150, height: 190, borderRadius: 18, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
+            style={{ animationDelay: stagger(i, 0.24), position: "relative", width: 150, height: 190, borderRadius: 18, overflow: "hidden", flexShrink: 0, cursor: "pointer", border: `1px solid ${T.border}` }}
           >
             <img src={q.photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0) 32%, rgba(23,23,23,0.96) 100%)" }} />

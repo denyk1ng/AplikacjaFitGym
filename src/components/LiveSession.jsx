@@ -132,6 +132,7 @@ function StepBtn({ onClick, disabled, label, size = 44, icon: Icon }) {
       disabled={disabled}
       aria-label={label}
       title={label}
+      className="tap"
       style={{
         width: size,
         height: size,
@@ -688,6 +689,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
               key={e.id}
               onClick={() => jumpTo(i)}
               disabled={pendingRpe}
+              className="tap"
               title={e.name.split("—")[0].trim()}
               style={{
                 width: 38,
@@ -835,6 +837,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
               <button
                 key={v}
                 onClick={() => submitRpe(v)}
+                className="tap"
                 style={{ flex: 1, background: T.inset, border: `1px solid ${T.border}`, borderRadius: 12, color: "#fff", fontFamily: FONT_NUM, fontWeight: 800, fontSize: 15, padding: "10px 0", cursor: "pointer" }}
               >
                 {v}
@@ -857,6 +860,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
               <button
                 onClick={() => bumpSets(1)}
                 disabled={ex.sets >= MAX_SETS}
+                className="tap"
                 style={{ flexShrink: 0, background: "transparent", color: ex.sets >= MAX_SETS ? T.faint : T.accent, border: `1.5px solid ${ex.sets >= MAX_SETS ? T.border : T.accentSoftBorder}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 18px", cursor: ex.sets >= MAX_SETS ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
                 <Plus size={16} strokeWidth={2.6} /> Seria
@@ -865,6 +869,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
           ) : (
             <button
               onClick={doneSet}
+              className="tap tap-wide"
               style={{ width: "100%", background: T.card, color: "#fff", border: `1px solid ${T.border}`, borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14, padding: "15px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 18 }}
             >
               <Plus size={16} strokeWidth={2.6} /> Zalicz serię ({setsDone[idx] + 1}/{ex.sets})
@@ -872,6 +877,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
           )}
           <button
             onClick={nextExercise}
+            className="tap tap-wide"
             style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 14.5, padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, boxShadow: T.accentGlow }}
           >
             {exs.every((e, i) => setsDone[i] >= e.sets) ? "Zobacz podsumowanie" : "Następne ćwiczenie"}

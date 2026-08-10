@@ -26,6 +26,16 @@ export const TR = {
   fade: `opacity .3s ${EASE}, background-color .3s ${EASE}, border-color .3s ${EASE}`,
 };
 
+// Rytm kaskadowego wejścia list: i-ty wiersz startuje odrobinę po poprzednim,
+// dzięki czemu lista "sypie się" na ekran zamiast pojawiać się płytą.
+//   i    — indeks elementu w liście
+//   base — opóźnienie startu całej listy (czas na wejście nagłówka nad nią)
+// Krok jest przycięty sufitem: przy 20 pozycjach rytm bez ograniczenia kazałby
+// czekać prawie sekundę na ostatni wiersz, co z animacji robi opieszałość.
+const STEP = 0.045;
+const STAGGER_MAX = 0.36;
+export const stagger = (i, base = 0) => `${(base + Math.min(i * STEP, STAGGER_MAX)).toFixed(3)}s`;
+
 export const T = {
   // tła
   bg: "#0f1012",

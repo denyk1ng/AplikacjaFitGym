@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft, Bookmark, Search, X, ChevronRight, Play, Plus, Dumbbell, HeartPulse, LayoutGrid, PersonStanding, Heart, Youtube } from "lucide-react";
-import { T, TR } from "../theme.js";
+import { T, TR, stagger } from "../theme.js";
 import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { CATALOG } from "../data/exerciseCatalog.js";
@@ -227,7 +227,7 @@ export function ExerciseLibrary({ onBack, onOpen, planDay, dayKey, onStartToday,
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
               {forYou.map((w, i) => (
-                <div key={w.id} className="fu" onClick={() => setQuickSheet(w)} style={{ animationDelay: `${0.1 + i * 0.04}s`, cursor: "pointer" }}>
+                <div key={w.id} className="fu" onClick={() => setQuickSheet(w)} style={{ animationDelay: stagger(i, 0.1), cursor: "pointer" }}>
                   <div style={{ position: "relative", height: 108, borderRadius: 16, overflow: "hidden", border: `1px solid ${T.border}` }}>
                     <img src={w.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     <button
@@ -260,7 +260,7 @@ export function ExerciseLibrary({ onBack, onOpen, planDay, dayKey, onStartToday,
           </div>
           <div className="hscroll" style={{ marginBottom: 20 }}>
             {forHome.map((w, i) => (
-              <div key={w.id} className="fu" onClick={() => setQuickSheet(w)} style={{ animationDelay: `${0.16 + i * 0.04}s`, width: 132, flexShrink: 0, cursor: "pointer" }}>
+              <div key={w.id} className="fu" onClick={() => setQuickSheet(w)} style={{ animationDelay: stagger(i, 0.16), width: 132, flexShrink: 0, cursor: "pointer" }}>
                 <div style={{ position: "relative", height: 96, borderRadius: 16, overflow: "hidden", border: `1px solid ${T.border}` }}>
                   <img src={w.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   <span style={{ position: "absolute", right: 8, bottom: 8, width: 26, height: 26, borderRadius: "50%", background: T.accent, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 8px rgba(0,0,0,0.35)" }}>

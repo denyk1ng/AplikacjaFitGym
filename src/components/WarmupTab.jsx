@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
-import { T, FONT_NUM, TR } from "../theme.js";
+import { T, FONT_NUM, TR, stagger } from "../theme.js";
 import { WARMUP_DATA } from "../data/plan.js";
 import { PHOTOS, WARMUP_PHOTOS } from "../data/photos.js";
 
@@ -94,7 +94,7 @@ function WarmupSection({ data, idx, done, toggle }) {
   const doneCount = data.items.filter((_, i) => done[`${idx}-${i}`]).length;
   const allDone = doneCount === data.items.length;
   return (
-    <div className="sil" style={{ animationDelay: `${idx * 0.1}s`, background: T.card, border: `1px solid ${allDone ? "rgba(52,211,153,0.3)" : T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 10, transition: "border-color .3s" }}>
+    <div className="sil" style={{ animationDelay: stagger(idx), background: T.card, border: `1px solid ${allDone ? "rgba(52,211,153,0.3)" : T.borderSoft}`, borderRadius: 20, overflow: "hidden", marginBottom: 10, transition: "border-color .3s" }}>
       <div onClick={() => setOpen(!open)} style={{ padding: "13px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, borderBottom: open ? `1px solid ${T.borderSoft}` : "none" }}>
         <span
           style={{
@@ -128,7 +128,7 @@ function WarmupSection({ data, idx, done, toggle }) {
             const on = !!done[key];
             const last = i === data.items.length - 1;
             return (
-              <div key={i} className="sil" onClick={() => toggle(key)} style={{ animationDelay: `${0.12 + i * 0.09}s`, display: "flex", gap: 12, cursor: "pointer" }}>
+              <div key={i} className="sil" onClick={() => toggle(key)} style={{ animationDelay: stagger(i, 0.12), display: "flex", gap: 12, cursor: "pointer" }}>
                 <div style={{ width: 26, display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
                   <span
                     style={{

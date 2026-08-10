@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
 import { TrendingUp, Award, Flame, Target, Dumbbell, Medal, Crown, BarChart3, Radar as RadarIcon, Rocket, Layers, Trophy, Moon, Star, Share2, Check } from "lucide-react";
-import { T, FONT_NUM, TR } from "../theme.js";
+import { T, FONT_NUM, TR, stagger } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
@@ -417,7 +417,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
           const shortName = exItem.name;
 
           return (
-            <div key={exItem.id} className="fu" style={{ animationDelay: `${Math.min(i * 0.04, 0.3)}s`, background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px", marginBottom: 12 }}>
+            <div key={exItem.id} className="fu" style={{ animationDelay: stagger(i), background: T.card, border: `1px solid ${T.borderSoft}`, borderRadius: 20, padding: "14px", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: exItem.dayColor, flexShrink: 0 }} />
                 <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 700, color: "#fff", fontFamily: U, lineHeight: 1.25 }}>{shortName}</span>

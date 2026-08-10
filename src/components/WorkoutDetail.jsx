@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Flame, Heart, Play, Dumbbell, Layers, Clock, Pencil, Check, RotateCcw } from "lucide-react";
-import { T, FONT_NUM, TR } from "../theme.js";
+import { T, FONT_NUM, TR, stagger } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
 import { storage } from "../lib/storage.js";
@@ -157,6 +157,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
             <button
               key={k}
               onClick={() => onSelectDay(k)}
+              className="tap"
               style={{ flex: 1, padding: "8px 4px", borderRadius: 12, background: dayKey === k ? T.accent : T.card, border: "none", color: dayKey === k ? "#000" : T.sub, fontFamily: U, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: TR.colors }}
             >
               {k} · {EXERCISES_DATA[k].day.slice(0, 3)}
@@ -210,7 +211,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
               className="fu"
               onClick={() => !editMode && onExercise && onExercise(ex.id)}
               style={{
-                animationDelay: `${0.16 + i * 0.04}s`,
+                animationDelay: stagger(i, 0.16),
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
@@ -315,6 +316,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
       <div style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: "calc(86px + env(safe-area-inset-bottom))", zIndex: 800, width: "calc(100% - 36px)", maxWidth: 400 }}>
         <button
           onClick={onStart}
+          className="tap tap-wide"
           style={{ width: "100%", background: T.accent, color: "#000", border: "none", borderRadius: 99, fontFamily: U, fontWeight: 700, fontSize: 15, padding: "16px 24px", cursor: "pointer", boxShadow: "0 6px 16px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
         >
           <Play size={15} color="#000" fill="#000" strokeWidth={0} />
