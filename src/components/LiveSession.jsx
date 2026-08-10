@@ -95,29 +95,34 @@ function Confetti() {
 }
 
 // półkolisty zegar z kresek (wg wzorca rest-timera)
+//
+// Kreska, która jest właśnie "w trakcie", rozjaśnia się stopniowo zamiast
+// zapalać się skokiem. Bez tego przy 180-sekundowej przerwie wskaźnik stał
+// nieruchomo blisko 7 sekund i przeskakiwał — wyglądał na zawieszony.
+// Każda pozycja to dwie linie: przygaszony tor i zapalający się nad nim
+// wskaźnik, więc częściowa jasność nie odsłania dziury w torze.
 function TickGauge({ pct, color }) {
   const N = 26;
   const R1 = 52;
   const R2 = 66;
   const cx = 75;
   const cy = 72;
-  const filled = Math.round(Math.min(Math.max(pct, 0), 1) * N);
+  const exact = Math.min(Math.max(pct, 0), 1) * N;
+  const full = Math.floor(exact);
+  const frac = exact - full; // ile brakuje kresce na styku, 0–1
+  const pos = (i) => {
+    const a = Math.PI + (i / (N - 1)) * Math.PI;
+    return { x1: cx + R1 * Math.cos(a), y1: cy + R1 * Math.sin(a), x2: cx + R2 * Math.cos(a), y2: cy + R2 * Math.sin(a) };
+  };
   return (
     <svg width="150" height="80" viewBox="0 0 150 80">
+      {Array.from({ length: N }, (_, i) => (
+        <line key={`t${i}`} {...pos(i)} stroke={T.track} strokeWidth="4.5" strokeLinecap="round" />
+      ))}
       {Array.from({ length: N }, (_, i) => {
-        const a = Math.PI + (i / (N - 1)) * Math.PI;
-        return (
-          <line
-            key={i}
-            x1={cx + R1 * Math.cos(a)}
-            y1={cy + R1 * Math.sin(a)}
-            x2={cx + R2 * Math.cos(a)}
-            y2={cy + R2 * Math.sin(a)}
-            stroke={i < filled ? color : T.track}
-            strokeWidth="4.5"
-            strokeLinecap="round"
-          />
-        );
+        const o = i < full ? 1 : i === full ? frac : 0;
+        if (o === 0) return null;
+        return <line key={`f${i}`} {...pos(i)} stroke={color} strokeWidth="4.5" strokeLinecap="round" opacity={o} />;
       })}
     </svg>
   );
@@ -190,11 +195,15 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   const [sharing, setSharing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [rest, setRest] = useState(0);
+  // pozostały czas z dokładnością do milisekund — sam licznik pokazuje pełne
+  // sekundy, ale wskaźnik potrzebuje wartości pośrednich, żeby narastać płynnie
+  const [restMs, setRestMs] = useState(0);
   const [restPaused, setRestPaused] = useState(false);
   const [stage, setStage] = useState(restored && restored.stage === "summary" ? "summary" : "live"); // live | summary
   const [confirmExit, setConfirmExit] = useState(false);
   const [prevLog, setPrevLog] = useState([]);
   const restEnd = useRef(null);
+  const restBeeped = useRef(false); // sygnał końca przerwy odpala się dokładnie raz
   const startTs = useRef(restored && restored.startTs ? restored.startTs : Date.now());
   const pendingRestRef = useRef(true);
 
@@ -234,24 +243,33 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     return () => clearInterval(t);
   }, []);
 
-  // odliczanie przerwy (wstrzymywalne — pauza zamraża pozostały czas)
+  // odliczanie przerwy (wstrzymywalne — pauza zamraża pozostały czas).
+  // Tyka co 100 ms, żeby wskaźnik dostawał wartości pośrednie; sam napis
+  // z sekundami i tak zmienia się tylko przy przejściu przez pełną sekundę.
   useEffect(() => {
     if (rest <= 0 || restPaused) return;
     const t = setInterval(() => {
-      const rem = Math.max(0, Math.ceil((restEnd.current - Date.now()) / 1000));
+      const msLeft = Math.max(0, restEnd.current - Date.now());
+      setRestMs(msLeft);
+      const rem = Math.ceil(msLeft / 1000);
       setRest(rem);
-      if (rem === 0) {
+      // sygnał końca tylko raz: przy 100 ms interval kilka tyknięć potrafi
+      // trafić w zero, zanim efekt zdąży się rozmontować
+      if (rem === 0 && !restBeeped.current) {
+        restBeeped.current = true;
         playBeep();
         buzzRestEnd();
       }
-    }, 250);
+    }, 100);
     return () => clearInterval(t);
   }, [rest > 0, restPaused]);
 
   const toggleRestPause = () => {
     if (rest <= 0) return;
     if (restPaused) {
-      restEnd.current = Date.now() + rest * 1000; // wznowienie: doliczaj od zamrożonej wartości
+      // wznowienie liczy od zamrożonych milisekund, nie od zaokrąglonej
+      // sekundy — inaczej każda pauza dokładałaby do przerwy ułamek sekundy
+      restEnd.current = Date.now() + restMs;
       setRestPaused(false);
     } else {
       setRestPaused(true);
@@ -260,6 +278,7 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
 
   const stopRest = () => {
     setRest(0);
+    setRestMs(0);
     setRestPaused(false);
   };
 
@@ -344,7 +363,9 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
     setPendingRpe(false);
     if (pendingRestRef.current) {
       restEnd.current = Date.now() + ex.rest * 1000;
+      restBeeped.current = false;
       setRestPaused(false);
+      setRestMs(ex.rest * 1000);
       setRest(ex.rest);
     }
   };
@@ -602,7 +623,9 @@ export function LiveSession({ dayKey, data, onExit, onSaveAll, updateWeight, upd
   const allSetsDone = setsDone[idx] >= ex.sets;
   const wStep = stepOf(ex);
   const minSets = Math.max(1, setsDone[idx]); // nie da się skasować serii już zrobionych
-  const restPct = ex.rest > 0 ? 1 - rest / ex.rest : 1;
+  // postęp liczony z milisekund, nie z zaokrąglonych sekund — to różnica
+  // między wskaźnikiem, który płynie, a takim, który stoi i przeskakuje
+  const restPct = ex.rest > 0 ? 1 - restMs / (ex.rest * 1000) : 1;
   // serie rozgrzewkowe — tylko zanim poleci pierwsza seria robocza
   const warmups = setsDone[idx] === 0 ? warmupSetsFor(ex.weight, ex.unit) : [];
   // porównanie ciężaru z poprzednią sesją: strzałka góra/dół obok ciężaru
