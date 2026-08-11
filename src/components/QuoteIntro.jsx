@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Quote, Bookmark, Check } from "lucide-react";
 import { T, TR } from "../theme.js";
 import { dailyQuote } from "../lib/quotes.js";
+import { ShaderBackdrop } from "./ShaderBackdrop.jsx";
 
 const TYPE_MS = 3400; // czas "pisania" całego cytatu
 const HOLD_MS = 2600; // ile wisi po dopisaniu, zanim sam przejdzie do sesji
@@ -67,15 +68,17 @@ export function QuoteIntro({ onDone }) {
         transition: "opacity .3s ease",
       }}
     >
-      <Quote size={26} color={T.accent} fill={T.accent} strokeWidth={0} style={{ transform: "rotate(180deg)", marginBottom: 24 }} />
-      <div style={{ maxWidth: 340, fontFamily: "'Urbanist',sans-serif", fontStyle: "italic", fontWeight: 600, fontSize: "1.3rem", lineHeight: 1.55, color: "#fff", textAlign: "center" }}>
+      {/* żywe tło pod treścią — treść leży nad nim dzięki position: relative */}
+      <ShaderBackdrop />
+      <Quote size={26} color={T.accent} fill={T.accent} strokeWidth={0} style={{ position: "relative", transform: "rotate(180deg)", marginBottom: 24 }} />
+      <div style={{ position: "relative", maxWidth: 340, fontFamily: "'Urbanist',sans-serif", fontStyle: "italic", fontWeight: 600, fontSize: "1.3rem", lineHeight: 1.55, color: "#fff", textAlign: "center" }}>
         {quote.t.slice(0, chars)}
         <span
           aria-hidden
           style={{ display: "inline-block", width: 2, height: "1em", background: T.accent, marginLeft: 3, verticalAlign: "-0.15em", opacity: typed ? 0 : 1, animation: "caretBlink 0.9s steps(1) infinite" }}
         />
       </div>
-      <div style={{ marginTop: 18, fontSize: 13, fontWeight: 600, color: T.soft, opacity: typed ? 1 : 0, transform: typed ? "none" : "translateY(6px)", transition: "opacity .5s ease, transform .5s ease" }}>
+      <div style={{ position: "relative", marginTop: 18, fontSize: 13, fontWeight: 600, color: T.soft, opacity: typed ? 1 : 0, transform: typed ? "none" : "translateY(6px)", transition: "opacity .5s ease, transform .5s ease" }}>
         ~ {quote.a || "autor nieznany"}
         {quote.y ? `, ${quote.y}` : ""}
       </div>
