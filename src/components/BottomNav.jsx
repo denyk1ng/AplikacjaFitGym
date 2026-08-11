@@ -37,7 +37,12 @@ function barPath(w) {
 // + zapas na centralny przycisk, który wystaje ponad pasek i bez tego
 // zostawałby widoczny jak wystający guzik.
 const HIDE_SHIFT = "calc(100% + 48px)";
-const SCROLL_EPS = 8; // drgnięcia mniejsze niż to nie liczą się jako gest
+// Progi są celowo NIESYMETRYCZNE: schowanie paska ma wymagać świadomego
+// przewinięcia w dół, a przywrócenie go — najmniejszego drgnięcia w górę.
+// Odwrotnie byłoby wrogo: nawigacja znika łatwo, a wraca dopiero po
+// wyraźnym geście, więc sięgając po nią trzeba by szarpnąć ekranem.
+const EPS_HIDE = 10; // w dół — dopiero wyraźny ruch chowa
+const EPS_SHOW = 2; // w górę — praktycznie każdy ruch przywraca
 const TOP_ZONE = 48; // przy samej górze pasek jest zawsze widoczny
 
 export function BottomNav({ tab, setTab }) {
@@ -65,7 +70,9 @@ export function BottomNav({ tab, setTab }) {
         const y = window.scrollY;
         const d = y - lastY;
         if (y < TOP_ZONE) setHidden(false);
-        else if (Math.abs(d) > SCROLL_EPS) setHidden(d > 0);
+        else if (d > EPS_HIDE) setHidden(true);
+        else if (d < -EPS_SHOW) setHidden(false);
+        // ruch w przedziale między progami zostawia stan bez zmian
         lastY = y;
         czeka = false;
       });
