@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Flame, Heart, Play, Dumbbell, Layers, Clock, Pencil, Check, RotateCcw } from "lucide-react";
+import { Flame, Heart, Play, Dumbbell, Layers, Clock, Pencil, Check, RotateCcw } from "lucide-react";
 import { T, FONT_NUM, TR, stagger } from "../theme.js";
 import { EXERCISES_DATA } from "../data/plan.js";
 import { PHOTOS } from "../data/photos.js";
@@ -8,6 +8,7 @@ import { estimateWorkoutMin } from "../lib/utils.js";
 import { EX_THUMB } from "../data/exerciseThumbs.js";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { loadWorkoutLog } from "../lib/workoutLog.js";
+import { BackButton } from "./BackButton.jsx";
 
 const U = "'Urbanist',sans-serif";
 
@@ -123,12 +124,7 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
         <img src={PHOTOS[dayKey]} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.45) 0%, rgba(23,23,23,0.05) 35%, rgba(23,23,23,0.55) 100%)" }} />
         <div className="filmic" />
-        <button
-          onClick={onBack}
-          style={{ position: "absolute", top: 18, left: 18, width: 40, height: 40, borderRadius: 13, background: "rgba(23,23,23,0.65)", backdropFilter: "blur(8px)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-        >
-          <ArrowLeft size={18} strokeWidth={2.2} />
-        </button>
+        <BackButton onClick={onBack} />
         <button
           onClick={onWarmup}
           title="Rozgrzewka"

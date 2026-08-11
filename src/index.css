@@ -318,3 +318,20 @@ button {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Przycisk wstecz nad zdjęciem hero — przyklejony do okna, nie do zdjęcia.
+   Wcześniej siedział wewnątrz hero (position: absolute), więc przy
+   przewijaniu listy odjeżdżał razem ze zdjęciem: po zjechaniu do dolnych
+   ćwiczeń lądował ponad 500 px nad krawędzią ekranu i żeby wrócić, trzeba
+   było najpierw przewinąć na samą górę.
+
+   `left` liczone przez max(), bo kontener aplikacji ma 430 px i jest
+   wyśrodkowany: na telefonie wypada 18 px od krawędzi, a na szerokim
+   ekranie trzyma się lewej krawędzi kontenera zamiast uciekać na brzeg
+   okna. z-index poniżej arkuszy (1600) — wysuwany arkusz ma go przykryć. */
+.backfab {
+  position: fixed;
+  top: calc(18px + env(safe-area-inset-top));
+  left: max(18px, calc(50% - 215px + 18px));
+  z-index: 20;
+}

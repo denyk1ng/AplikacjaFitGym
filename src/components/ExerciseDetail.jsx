@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Dumbbell, Gauge, Tag, TrendingUp, Youtube } from "lucide-react";
+import { Dumbbell, Gauge, Tag, TrendingUp, Youtube } from "lucide-react";
 import { T, FONT_NUM } from "../theme.js";
 import { EXERCISES_DATA, CAT_LABEL } from "../data/plan.js";
 import { EX_IMG } from "../data/exerciseImages.js";
 import { EditNum } from "./Editable.jsx";
 import { EmptyState } from "./EmptyState.jsx";
 import { MuscleHighlight } from "./MuscleMap.jsx";
+import { BackButton } from "./BackButton.jsx";
 import { estimate1RM } from "../lib/utils.js";
 
 const U = "'Urbanist',sans-serif";
@@ -82,12 +83,7 @@ export function ExerciseDetail({ exerciseId, snapshots, currentWeight, currentNa
         {img && <img src={img} alt={ex.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", viewTransitionName: "ex-hero" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.55) 0%, transparent 25%, transparent 70%, rgba(23,23,23,0.7) 100%)" }} />
         <div className="filmic" />
-        <button
-          onClick={onBack}
-          style={{ position: "absolute", top: 18, left: 18, width: 40, height: 40, borderRadius: 13, background: "rgba(23,23,23,0.65)", backdropFilter: "blur(8px)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-        >
-          <ArrowLeft size={18} strokeWidth={2.2} />
-        </button>
+        <BackButton onClick={onBack} />
         <span style={{ position: "absolute", left: 16, bottom: 20, fontSize: 10, fontWeight: 700, letterSpacing: ".1em", color: "rgba(255,255,255,0.65)", textTransform: "uppercase" }}>
           {CAT_LABEL[ex.cat] || ex.cat}
         </span>

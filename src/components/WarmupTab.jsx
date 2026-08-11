@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ChevronDown, ArrowLeft, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
+import { ChevronDown, Zap, Dumbbell, Footprints, ArrowUpFromLine, Lightbulb, Layers, Clock, Check } from "lucide-react";
 import { T, FONT_NUM, TR, stagger } from "../theme.js";
 import { WARMUP_DATA } from "../data/plan.js";
 import { PHOTOS, WARMUP_PHOTOS } from "../data/photos.js";
+import { BackButton } from "./BackButton.jsx";
 
 const U = "'Urbanist',sans-serif";
 const SECTION_ICON = { zap: Zap, a: Dumbbell, b: Footprints, c: ArrowUpFromLine };
@@ -177,27 +178,7 @@ function Hero({ onBack, photo = PHOTOS.stretch, height = 220, objectPosition = "
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(23,23,23,0.45) 0%, rgba(23,23,23,0.1) 35%, rgba(23,23,23,0.6) 100%)" }} />
       <div className="filmic" />
       {onBack && (
-        <button
-          onClick={onBack}
-          style={{
-            position: "absolute",
-            top: "calc(18px + env(safe-area-inset-top))",
-            left: 18,
-            width: 40,
-            height: 40,
-            borderRadius: 13,
-            background: "rgba(23,23,23,0.65)",
-            backdropFilter: "blur(8px)",
-            border: "none",
-            color: "#fff",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <ArrowLeft size={18} strokeWidth={2.2} />
-        </button>
+        <BackButton onClick={onBack} />
       )}
     </div>
   );
