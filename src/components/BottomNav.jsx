@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Home, Dumbbell, BarChart3, CalendarDays, User } from "lucide-react";
-import { T, TR } from "../theme.js";
+import { T, TR, EASE } from "../theme.js";
 
 const BAR_BG = T.inset;
 const H = 66; // wysokość paska
@@ -33,15 +33,52 @@ function barPath(w) {
 
 // Pasek nawigacji: etykiety pod ikonami, aktywna pozycja limonką; centralny
 // przycisk w niecce prowadzi do Statystyk (limonkowe kółko z ikoną wykresu).
+// O ile pasek zjeżdża, gdy się chowa: własna wysokość + odstęp od dołu
+// + zapas na centralny przycisk, który wystaje ponad pasek i bez tego
+// zostawałby widoczny jak wystający guzik.
+const HIDE_SHIFT = "calc(100% + 48px)";
+const SCROLL_EPS = 8; // drgnięcia mniejsze niż to nie liczą się jako gest
+const TOP_ZONE = 48; // przy samej górze pasek jest zawsze widoczny
+
 export function BottomNav({ tab, setTab }) {
   const ref = useRef(null);
   const [w, setW] = useState(0);
+  const [hidden, setHidden] = useState(false);
   useEffect(() => {
     const measure = () => ref.current && setW(ref.current.offsetWidth);
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, []);
+
+  // Pasek chowa się przy przewijaniu w dół i wraca przy przewijaniu w górę —
+  // czytając treść oddaje ekran, a wraca w momencie, w którym i tak sięgasz
+  // do nawigacji. Odczyt pozycji jest wpięty w klatkę animacji, żeby przy
+  // szybkim przewijaniu nie liczyć tego kilkadziesiąt razy na sekundę.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let czeka = false;
+    const onScroll = () => {
+      if (czeka) return;
+      czeka = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const d = y - lastY;
+        if (y < TOP_ZONE) setHidden(false);
+        else if (Math.abs(d) > SCROLL_EPS) setHidden(d > 0);
+        lastY = y;
+        czeka = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // zmiana ekranu zaczyna się od góry — pasek ma wtedy być na wierzchu,
+  // nawet jeśli poprzedni ekran zostawił go schowanego
+  useEffect(() => {
+    setHidden(false);
+  }, [tab]);
 
   const items = [
     { id: "dom", Icon: Home, label: "Dom" },
@@ -54,7 +91,19 @@ export function BottomNav({ tab, setTab }) {
   const statsOn = tab === "stats";
 
   return (
-    <div style={{ position: "fixed", bottom: 14, left: "50%", transform: "translateX(-50%)", zIndex: 900, width: "calc(100% - 28px)", maxWidth: 402 }}>
+    <div
+      style={{
+        position: "fixed",
+        bottom: 14,
+        left: "50%",
+        // translateX zostaje — to on centruje pasek; translateY dokłada zjazd
+        transform: `translateX(-50%) translateY(${hidden ? HIDE_SHIFT : "0px"})`,
+        transition: `transform .34s ${EASE}`,
+        zIndex: 900,
+        width: "calc(100% - 28px)",
+        maxWidth: 402,
+      }}
+    >
       <div ref={ref} style={{ position: "relative", height: H }}>
         {w > 0 && (
           <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} style={{ position: "absolute", inset: 0, filter: "drop-shadow(0 16px 30px rgba(0,0,0,0.6))" }}>
