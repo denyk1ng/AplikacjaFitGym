@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceL
 import { Plus, Trash2, User, Volume2, Vibrate, CalendarClock, BellRing, RotateCcw, Eraser, Settings, Smartphone, Check, ChevronRight, Ruler, Scale, Target, AlarmClock, Download, Upload, Quote } from "lucide-react";
 import { T } from "../theme.js";
 import { storage } from "../lib/storage.js";
+import { CHART_ANIM, prefersReducedMotion } from "../lib/utils.js";
 import { loadSettings, saveSettings } from "../lib/settings.js";
 import { canInstall, onInstallable, promptInstall, isStandalone, isIOS } from "../lib/install.js";
 import { EditNum } from "./Editable.jsx";
@@ -444,7 +445,7 @@ export function ProfileTab() {
                 formatter={(v) => [`${v} kg`, "Waga"]}
               />
               {profile.goalWeight > 0 && <ReferenceLine y={profile.goalWeight} stroke={T.accent} strokeDasharray="6 4" strokeOpacity={0.6} />}
-              <Line type="monotone" dataKey="kg" stroke={T.accent} strokeWidth={2.5} dot={{ fill: T.accent, r: 4 }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="kg" stroke={T.accent} strokeWidth={2.5} dot={{ fill: T.accent, r: 4 }} activeDot={{ r: 6 }}  {...CHART_ANIM} isAnimationActive={!prefersReducedMotion()} />
             </LineChart>
           </ResponsiveContainer>
         </div>

@@ -5,7 +5,7 @@ import { T, FONT_NUM, TR, stagger } from "../theme.js";
 import { EmptyState } from "./EmptyState.jsx";
 import { EditNum, EditStr } from "./Editable.jsx";
 import { EXERCISES_DATA, BADGES, CAT_LABEL } from "../data/plan.js";
-import { computeTotalGain, earnedBadges, isoWeekStart } from "../lib/utils.js";
+import { computeTotalGain, earnedBadges, isoWeekStart, CHART_ANIM, prefersReducedMotion } from "../lib/utils.js";
 import { loadWorkoutLog, weekStatus, logStreak, weekVolumes, volumeByCategory, weekHistory, weekEntries } from "../lib/workoutLog.js";
 import { shareProgressImage } from "../lib/shareCard.js";
 
@@ -334,7 +334,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
               <RadarChart data={catData} outerRadius="72%">
                 <PolarGrid stroke={T.borderSoft} />
                 <PolarAngleAxis dataKey="cat" tick={{ fill: T.soft, fontSize: 10.5, fontFamily: "'Urbanist',sans-serif" }} />
-                <Radar dataKey="vol" stroke={T.accent} fill={T.accent} fillOpacity={0.28} strokeWidth={2} />
+                <Radar dataKey="vol" stroke={T.accent} fill={T.accent} fillOpacity={0.28} strokeWidth={2} {...CHART_ANIM} isAnimationActive={!prefersReducedMotion()} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -459,7 +459,7 @@ export function StatsTab({ snapshots, exercises, onChangeWeight, onChangeReps, o
                             labelStyle={{ color: T.sub }}
                             formatter={(v) => [`${v} ${exItem.unit}`, "Ciężar"]}
                           />
-                          <Line type="monotone" dataKey="kg" stroke={exItem.dayColor} strokeWidth={2.2} dot={{ fill: exItem.dayColor, r: 3 }} activeDot={{ r: 5 }} />
+                          <Line type="monotone" dataKey="kg" stroke={exItem.dayColor} strokeWidth={2.2} dot={{ fill: exItem.dayColor, r: 3 }} activeDot={{ r: 5 }} {...CHART_ANIM} isAnimationActive={!prefersReducedMotion()} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>

@@ -83,3 +83,21 @@ export function earnedBadges({ snapCount, streak, gain, sessionsCount, totalVolu
     nightOwl,
   };
 }
+
+// Czy system prosi o ograniczenie ruchu. Blok @media z index.css wycisza
+// animacje CSS, ale Recharts animuje w JavaScripcie i o tym ustawieniu nie
+// wie — trzeba mu je podać jawnie przez isAnimationActive.
+export function prefersReducedMotion() {
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Tempo wejścia wykresów. Recharts domyślnie rysuje przez 1500 ms — prawie
+// trzy razy dłużej niż wejście ekranu (0,55 s), więc wykres wlókł się długo
+// po tym, jak reszta widoku już stanęła. `animationEasing` przyjmuje tylko
+// nazwane krzywe, więc firmowej cubic-bezier nie da się tu podać; ease-out
+// jest z nich najbliższy.
+export const CHART_ANIM = { animationDuration: 850, animationEasing: "ease-out" };
