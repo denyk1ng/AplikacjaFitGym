@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Play } from "lucide-react";
 import { T } from "./theme.js";
 import { EXERCISES_DATA, PLAN_VERSION } from "./data/plan.js";
@@ -100,6 +101,40 @@ export default function App() {
       return;
     }
     setQuoteIntro(dayKey); // świeży start: najpierw cytat dnia, potem sesja
+  };
+
+  // Wejście w ćwiczenie z planu dnia i powrót z niego: miniatura z listy
+  // rozwija się w zdjęcie hero i z powrotem (View Transitions API).
+  //
+  // Dwie rzeczy są tu istotne. Po pierwsze wybór ćwiczenia leci osobno i
+  // synchronicznie — miniatura musi dostać `viewTransitionName` ZANIM
+  // przeglądarka zrobi zdjęcie starego widoku, inaczej nie ma czego z czym
+  // sparować. Po drugie zwykłe przejście zakładki jest tu pomijane
+  // (displayTab ustawiamy od razu): jego 160 ms wygaszania nałożyłoby się
+  // na przejście i dałoby podwójną animację.
+  const withTransition = (fn) => {
+    if (typeof document.startViewTransition !== "function") return fn(); // starsze Safari — zwykła zmiana ekranu
+    document.startViewTransition(() => flushSync(fn));
+  };
+
+  const openExercise = (id, from = "trening") => {
+    flushSync(() => {
+      setExerciseId(id);
+      setExerciseFrom(from);
+    });
+    withTransition(() => {
+      setTab("cwiczenie");
+      setDisplayTab("cwiczenie");
+      setTabPhase("in");
+    });
+  };
+
+  const backFromExercise = () => {
+    withTransition(() => {
+      setTab(exerciseFrom);
+      setDisplayTab(exerciseFrom);
+      setTabPhase("in");
+    });
   };
 
   // appka nie ma routera, więc przeglądarka nie scrolluje sama do góry przy
@@ -462,11 +497,8 @@ export default function App() {
               onWarmup={() => setTab("rozgrzewka")}
               onSelectDay={setSelectedDay}
               onStart={() => startSession(selectedDay)}
-              onExercise={(id) => {
-                setExerciseId(id);
-                setExerciseFrom("trening");
-                setTab("cwiczenie");
-              }}
+              activeExerciseId={exerciseId}
+              onExercise={(id) => openExercise(id, "trening")}
               onChangeWeight={changeWeightAndSnapshot}
               onChangeReps={changeReps}
               onChangeSets={changeSets}
@@ -495,7 +527,7 @@ export default function App() {
                 return null;
               })()}
               onChangeWeight={(v) => changeWeightAndSnapshot(exerciseId, v)}
-              onBack={() => setTab(exerciseFrom)}
+              onBack={backFromExercise}
             />
           )}
 

@@ -67,7 +67,7 @@ function StatCell({ Icon, label, value, unit, sub, divider }) {
   );
 }
 
-export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onStart, onExercise, onChangeWeight, onChangeReps, onChangeSets, onChangeName, onChangeRest, onReset }) {
+export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onStart, onExercise, activeExerciseId, onChangeWeight, onChangeReps, onChangeSets, onChangeName, onChangeRest, onReset }) {
   const [favs, setFavs] = useState([]);
   const [editMode, setEditMode] = useState(false); // panel edycji ćwiczeń (ołówek w hero)
 
@@ -225,7 +225,11 @@ export function WorkoutDetail({ dayKey, data, onBack, onWarmup, onSelectDay, onS
                 transition: "border-color .2s",
               }}
             >
-              <img src={EX_THUMB[ex.id] || THUMB[ex.cat] || PHOTOS.hero} alt="" style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", flexShrink: 0, alignSelf: "flex-start" }} />
+              <img
+                src={EX_THUMB[ex.id] || THUMB[ex.cat] || PHOTOS.hero}
+                alt=""
+                style={{ width: 54, height: 54, borderRadius: 14, objectFit: "cover", flexShrink: 0, alignSelf: "flex-start", viewTransitionName: ex.id === activeExerciseId ? "ex-hero" : undefined }}
+              />
               <div style={{ flex: 1, minWidth: 0 }}>
                 {editMode ? (
                   <>
